@@ -3,7 +3,7 @@ import 'firebase/database';
 import 'firebase/auth';
 
 // import config from './secrets.example';
-import config from './secrets';
+import config from './utils/secrets';
 
 firebase.initializeApp(config);
 
