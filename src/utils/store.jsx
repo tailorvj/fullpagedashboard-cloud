@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === `development`) {
     const { createLogger } = require('redux-logger');
     const logger = createLogger(/*{
         predicate, // if specified this function will be called before each action is processed with this middleware.
-        collapsed, // takes a Boolean or optionally a Function that receives `getState` function for accessing current store state and `action` object as parameters. Returns `true` if the log group should be collapsed, `false` otherwise.
+        collapsed, // takes a Boolean or optionally a Function that receives `getState` function for accessing current utils state and `action` object as parameters. Returns `true` if the log group should be collapsed, `false` otherwise.
         duration = false: Boolean, // print the duration of each action?
         timestamp = true: Boolean, // print the timestamp with each action?
 
@@ -48,4 +48,4 @@ export default store;
 
 
 // WEBPACK FOOTER //
-// ./src/utils/store.js
+// ./src/utils/utils.js

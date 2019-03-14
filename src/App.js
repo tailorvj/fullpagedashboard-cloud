@@ -6,11 +6,11 @@ import firebase from './Firebase';
 import Home from './Home';
 import Welcome from './Welcome';
 import Navigation from './Navigation';
-import Login from './Login';
+import Login from './containers/auth/Login';
 import Register from './Register';
-import Playlists from './Playlists';
+import Playlists from './containers/playlists/Playlists';
 import CheckIn from './CheckIn';
-import URLs from './URLs';
+import URLs from './containers/urls/URLs';
 
 class App extends Component {
   constructor() {
