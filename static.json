@@ -1,7 +1,8 @@
 {
   "root": "build/",
   "routes": {
-    "/assets/*": "/assets/",
     "/**": "index.html"
-  }
+  },
+  "clean_urls": false,
+  "error_page": "index.html"
 }
