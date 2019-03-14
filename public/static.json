@@ -3,5 +3,5 @@
   "routes": {
     "/assets/*": "/assets/",
     "/**": "index.html"
-  }g
+  }
 }
