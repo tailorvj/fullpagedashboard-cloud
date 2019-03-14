@@ -34,7 +34,7 @@ class Login extends Component {
             registrationInfo.email, 
             registrationInfo.password
             ).then(()=>{
-                navigate('/meetings');
+                navigate('/playlists');
             }).catch((error) => {
                     if(error.message){
                         this.setState({errorMessage: error.message});

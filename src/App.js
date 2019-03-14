@@ -8,9 +8,9 @@ import Welcome from './Welcome';
 import Navigation from './Navigation';
 import Login from './Login';
 import Register from './Register';
-import Meetings from './Meetings';
+import Playlists from './Playlists';
 import CheckIn from './CheckIn';
-import Attendees from './Attendees';
+import URLs from './URLs';
 
 class App extends Component {
   constructor() {
@@ -32,7 +32,7 @@ class App extends Component {
           displayName: FBUser.displayName,
           userID: FBUser.uid
         });
-        navigate('/meetings');
+        navigate('/playlists');
       });
     });
   };
@@ -43,18 +43,18 @@ class App extends Component {
       user: null,
       displayName: null,
       userID: null,
-      meetings: []
+      playlists: []
     });
     firebase.auth().signOut().then(()=>{
       navigate('/login');
     });
   };
 
-  addMeeting = meetingName => {
+  addPlaylist = playlistName => {
     const ref = firebase
       .database()
-      .ref(`meetings/${this.state.user.uid}`);
-    ref.push({ meetingName: meetingName });
+      .ref(`playlists/${this.state.user.uid}`);
+    ref.push({ playlistName: playlistName });
   };
 
   componentDidMount() {
@@ -66,24 +66,24 @@ class App extends Component {
           userID: FBUser.uid
         });
 
-        const meetingsRef = firebase
+        const playlistsRef = firebase
           .database()
-          .ref('meetings/' + FBUser.uid);
+          .ref('playlists/' + FBUser.uid);
 
-        meetingsRef.on('value', snapshot => {
-          let meetings = snapshot.val();
-          let meetingsList = []; //Helper Array
+        playlistsRef.on('value', snapshot => {
+          let playlists = snapshot.val();
+          let playlistsList = []; //Helper Array
 
-          for (let item in meetings) {
-            meetingsList.push({
-              meetingID: item,
-              meetingName: meetings[item].meetingName
+          for (let item in playlists) {
+            playlistsList.push({
+              playlistID: item,
+              playlistName: playlists[item].playlistName
             });
           }
 
           this.setState({
-            meetings: meetingsList,
-            howManyMeetings: meetingsList.length
+            playlists: playlistsList,
+            howManyPlaylists: playlistsList.length
           });
         });
       } else {
@@ -101,19 +101,19 @@ class App extends Component {
         <Router>
           <Home path="/" user={this.state.user} />
           <Login path="/login" />
-          <Meetings
-            path="/meetings"
-            meetings={this.state.meetings}
-            addMeeting={this.addMeeting}
+          <Playlists
+            path="/playlists"
+            playlists={this.state.playlists}
+            addPlaylist={this.addPlaylist}
             userID={this.state.userID}
           />
-          <Attendees
-            path="/attendees/:userID/:meetingID"
+          <URLs
+            path="/URLs/:userID/:playlistID"
             adminUser={this.state.userID}
             userID={this.state.userID}
           />
           <CheckIn 
-            path="/checkin/:userId/:meetingID" 
+            path="/checkin/:userId/:playlistID" 
             userID={this.state.userID}
             />
           <Register path="/register" registerUser={this.registerUser} />

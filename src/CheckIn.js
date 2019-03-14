@@ -23,27 +23,27 @@ class CheckIn extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    // console.log(`CheckIn handleSubmit. this.props.userID: ${this.props.userID}. this.props.meetingID: ${this.props.meetingID}`);
+    // console.log(`CheckIn handleSubmit. this.props.userID: ${this.props.userID}. this.props.playlistID: ${this.props.playlistID}`);
 
     const ref = firebase
       .database()
       .ref(
-        `meetings/${this.props.userID}/${
-          this.props.meetingID
-        }/attendees`
+        `playlists/${this.props.userID}/${
+          this.props.playlistID
+        }/URLs`
       );
     ref.push({
-      attendeeName: this.state.displayName,
-      attendeeEmail: this.state.email,
+      URLName: this.state.displayName,
+      URLEmail: this.state.email,
       star: false
     });
     navigate(
-      `/attendees/${this.props.userID}/${this.props.meetingID}`
+      `/URLs/${this.props.userID}/${this.props.playlistID}`
     );
   }
 
   render() {
-    // console.log(`CheckIn render. this.props.userID: ${this.props.userID}. this.props.meetingID: ${this.props.meetingID}`);
+    // console.log(`CheckIn render. this.props.userID: ${this.props.userID}. this.props.playlistID: ${this.props.playlistID}`);
     return (
       <form className="mt-3" onSubmit={this.handleSubmit}>
         <div className="container">
