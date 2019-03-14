@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import MeetingsList from './MeetingsList';
+import MeetingsListOld from './MeetingsList.old';
 
-class Meetings extends Component {
+class MeetingsOld extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -23,10 +23,10 @@ class Meetings extends Component {
     e.preventDefault();
     this.props.addMeeting(this.state.meetingName);
     this.setState({meetingName: ''});
-    }    
+    }
 
     render(){
-        // console.log(`Meetings render. this.props.userID: ${this.props.userID} .`);
+        // console.log(`MeetingsOld render. this.props.userID: ${this.props.userID} .`);
         return (
             <div className="container mt-4">
                 <div className="row justify-content-center">
@@ -72,7 +72,7 @@ class Meetings extends Component {
                                 </h4>
                             </div>
                             <div className="div-group div-group-flush">
-                                <MeetingsList meetings={this.props.meetings} userID={this.props.userID} />
+                                <MeetingsListOld meetings={this.props.meetings} userID={this.props.userID} />
                             </div>
                         </div>
                     </div>
@@ -83,4 +83,4 @@ class Meetings extends Component {
     }
 }
 
-export default Meetings;
+export default MeetingsOld;

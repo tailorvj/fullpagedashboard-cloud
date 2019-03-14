@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import firebase from './Firebase';
 import { GoTrashcan, GoStar, GoMail } from 'react-icons/go';
 
-class AttendeesList extends Component {
+class AttendeesListOld extends Component {
     constructor(props){
         super(props);
         this.state = {
@@ -116,4 +116,4 @@ class AttendeesList extends Component {
 
 } //componenet class
 
-export default AttendeesList;
+export default AttendeesListOld;

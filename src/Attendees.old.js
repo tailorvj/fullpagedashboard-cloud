@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import firebase from './Firebase';
-import AttendeesList from './AttendeesList';
+import AttendeesListOld from './AttendeesList.old';
 import { FaUndo, FaRandom } from 'react-icons/fa';
 
-class Attendees extends Component {
+class AttendeesOld extends Component {
     constructor(props) {
       super(props);
       this.state = {
@@ -127,7 +127,7 @@ class Attendees extends Component {
                         </div>
                     </div>
                 </div>
-                <AttendeesList
+                <AttendeesListOld
                 userID={this.props.userID}
                 meetingID={this.props.meetingID}
                 adminUser={this.props.adminUser}
@@ -138,4 +138,4 @@ class Attendees extends Component {
     }
 }
 
-export default Attendees;
+export default AttendeesOld;

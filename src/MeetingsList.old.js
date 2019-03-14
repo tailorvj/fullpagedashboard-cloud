@@ -6,7 +6,7 @@ import { GoTrashcan, GoListUnordered } from 'react-icons/go';
 import { FaUserCheck } from 'react-icons/fa';
 
 
-class MeetingsList extends Component {
+class MeetingsListOld extends Component {
     constructor(props){
         super(props);
         this.state = {
@@ -30,7 +30,7 @@ class MeetingsList extends Component {
     }
 
   render() {
-    // console.log(`MeetingsList render. this.props.userID: ${this.props.userID} .`);
+    // console.log(`MeetingsListOld render. this.props.userID: ${this.props.userID} .`);
     const { meetings } = this.props;
     const myMeetings = meetings.map((item) => {
         return(
@@ -78,4 +78,4 @@ class MeetingsList extends Component {
   }
 }
 
-export default MeetingsList;
+export default MeetingsListOld;
