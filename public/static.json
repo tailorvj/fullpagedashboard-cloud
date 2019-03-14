@@ -1,5 +1,5 @@
 {
-  "root": "build/",
+  "root": "/",
   "routes": {
     "/**": "index.html"
   },
