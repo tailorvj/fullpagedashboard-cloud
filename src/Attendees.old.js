@@ -1,0 +1,141 @@
+import React, {Component} from 'react';
+import firebase from './Firebase';
+import AttendeesListOld from './AttendeesList.old';
+import { FaUndo, FaRandom } from 'react-icons/fa';
+
+class AttendeesOld extends Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        searchQuery: '',
+        allAttendees: [],
+        displayAttendees: [],
+        meetingName: ''
+      };
+  
+      this.handleChange = this.handleChange.bind(this);
+      this.resetQuery = this.resetQuery.bind(this);
+      this.chooseRandom = this.chooseRandom.bind(this);
+    }
+  
+    componentDidMount(){
+        //Let's get the meeting name for the heading
+        const ref2 = firebase.database().ref(`meetings/${this.props.userID}/${this.props.meetingID}`);
+        ref2.on('value', snapshot => {
+            let meetingName = snapshot.val().meetingName;
+            this.setState({
+                meetingName: meetingName
+            });
+        });
+
+        //gets attendees from Firebase and 
+        //sets this.state.displayAttendees
+        const ref = firebase.database().ref(
+            `meetings/${this.props.userID}/${this.props.meetingID}/attendees`
+        );
+
+        ref.on('value', snapshot => {
+            let attendees = snapshot.val();
+            let attendeesList = [];
+            //convert Object to Array
+            for (let item in attendees){
+                attendeesList.push({
+                    attendeeID: item,
+                    attendeeName: attendees[item].attendeeName,
+                    attendeeEmail: attendees[item].attendeeEmail,
+                    star: attendees[item].star
+                });
+            }
+            this.setState({
+                displayAttendees: attendeesList,
+                allAttendees: attendeesList
+            });
+        });
+    }
+
+    handleChange(e) {
+        const itemName = e.target.name;
+        const itemValue = e.target.value;
+    
+        this.setState({ [itemName]: itemValue });
+      }    
+
+      chooseRandom(){
+        const randomAttendeeIndex = Math.floor(
+          Math.random() * this.state.allAttendees.length
+        );
+        if(randomAttendeeIndex !== undefined){
+            this.resetQuery();
+            this.setState({
+              displayAttendees: [this.state.allAttendees[randomAttendeeIndex]]
+            });
+        }
+      }
+    
+      resetQuery() {
+        this.setState({
+          displayAttendees: this.state.allAttendees,
+          searchQuery: ''
+        });
+      }
+        
+    render() {
+        const dataFilter = item =>
+          item.attendeeName
+            .toLowerCase()
+            .match(this.state.searchQuery.toLowerCase()) && true;
+        const filteredAttendees = this.state.displayAttendees.filter(
+          dataFilter
+        );
+    
+        return(
+            <div className="container mt-4">
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <h4 className="text-center font-weight-bolder">
+                            {this.state.meetingName} Attendees
+                        </h4>
+                        <div className="card bg-light mb-4">
+                            <div className="card-body text-center">
+                                <div className="input-group input-group-lg">
+                                    <input
+                                        type="text"
+                                        name="searchQuery"
+                                        value={this.state.searchQuery}
+                                        placeholder="Search Attendees"
+                                        className="form-control"
+                                        onChange={this.handleChange}
+                                    />
+                                    <div className="input-group-append">
+                                        <button
+                                        className="btn btn-sm btn-outline-info "
+                                        title="Pick a random attendee"
+                                        onClick={() => this.chooseRandom()}
+                                        >
+                                        <FaRandom />
+                                        </button>
+                                        <button
+                                        className="btn btn-sm btn-outline-info "
+                                        title="Reset Search"
+                                        onClick={() => this.resetQuery()}
+                                        >
+                                        <FaUndo />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <AttendeesListOld
+                userID={this.props.userID}
+                meetingID={this.props.meetingID}
+                adminUser={this.props.adminUser}
+                attendees={filteredAttendees}
+                />
+            </div>
+        );
+    }
+}
+
+export default AttendeesOld;
