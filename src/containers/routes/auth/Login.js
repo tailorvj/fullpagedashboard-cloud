@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import firebase from '../../Firebase';
-import FormError from '../../FormError';
+import firebase from '../../../utils/Firebase';
+import FormError from '../../../FormError';
 import {navigate} from '@reach/router';
 
 class Login extends Component {

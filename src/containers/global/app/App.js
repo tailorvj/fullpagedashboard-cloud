@@ -1,16 +1,16 @@
 // Import React
 import React, { Component } from 'react';
 import { Router, navigate } from '@reach/router';
-import firebase from '../../utils/Firebase';
+import firebase from '../../../utils/Firebase';
 
-import Home from '../../Home';
-import Welcome from '../../Welcome';
-import Navigation from '../../Navigation';
-import Login from '../routes/auth/Login';
-import Register from '../../Register';
-import Playlists from '../routes/playlists/Playlists';
-import CheckIn from '../../CheckIn';
-import URLs from '../routes/urls/URLs';
+import Home from '../../../Home';
+import Welcome from '../../../Welcome';
+import Navigation from '../../../Navigation';
+import Login from '../../routes/auth/Login';
+import Register from '../../../Register';
+import Playlists from '../../routes/playlists/Playlists';
+import CheckIn from '../../../CheckIn';
+import URLs from '../../routes/urls/URLs';
 
 class App extends Component {
   constructor() {

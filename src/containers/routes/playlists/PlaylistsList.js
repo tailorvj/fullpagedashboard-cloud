@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { navigate } from '@reach/router';
-import firebase from '../../Firebase';
-import FormError from '../../FormError';
+import firebase from '../../../utils/Firebase';
+import FormError from '../../../FormError';
 import { GoTrashcan, GoListUnordered } from 'react-icons/go';
 import { FaUserCheck } from 'react-icons/fa';
 

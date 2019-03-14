@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import firebase from './Firebase';
+import firebase from './utils/Firebase';
 import { navigate } from '@reach/router';
 
 class CheckIn extends Component {

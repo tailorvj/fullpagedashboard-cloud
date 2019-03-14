@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import FormError from './FormError';
-import firebase from './Firebase';
+import firebase from './utils/Firebase';
 
 class Register extends Component {
     constructor(props) {
