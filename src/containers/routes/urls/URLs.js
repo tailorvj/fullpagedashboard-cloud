@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
+import { navigate } from '@reach/router';
 import firebase from '../../../utils/Firebase';
 import URLsList from './URLsList';
-import { FaUndo, FaRandom } from 'react-icons/fa';
+import { MdPlaylistAdd } from 'react-icons/md';
 
 class URLs extends Component {
     constructor(props) {
@@ -20,13 +21,16 @@ class URLs extends Component {
   
     componentDidMount(){
         //Let's get the playlist name for the heading
-        const ref2 = firebase.database().ref(`playlists/${this.props.userID}/${this.props.playlistID}`);
-        ref2.on('value', snapshot => {
-            let playlistName = snapshot.val().playlistName;
-            this.setState({
-                playlistName: playlistName
+        if(this.props.userID && this.props.playlistID){
+            let ref2 = firebase.database().ref(`playlists/${this.props.userID}/${this.props.playlistID}`);
+            ref2.on('value', snapshot => {
+                let playlistName = snapshot.val().playlistName;
+                this.setState({
+                    playlistName: playlistName
+                });
             });
-        });
+    
+        }
 
         //gets URLs from Firebase and 
         //sets this.state.displayURLs
@@ -41,9 +45,10 @@ class URLs extends Component {
             for (let item in URLs){
                 URLsList.push({
                     URLID: item,
-                    URLName: URLs[item].URLName,
-                    URLEmail: URLs[item].URLEmail,
-                    star: URLs[item].star
+                    URLDescription: URLs[item].URLDescription,
+                    URLURL: URLs[item].URLURL,
+                    URLDuration: URLs[item].URLDuration,
+                    star: URLs[item].star                            
                 });
             }
             this.setState({
@@ -52,7 +57,7 @@ class URLs extends Component {
             });
         });
     }
-
+    
     handleChange(e) {
         const itemName = e.target.name;
         const itemValue = e.target.value;
@@ -81,7 +86,7 @@ class URLs extends Component {
         
     render() {
         const dataFilter = item =>
-          item.URLName
+          item.URLDescription
             .toLowerCase()
             .match(this.state.searchQuery.toLowerCase()) && true;
         const filteredURLs = this.state.displayURLs.filter(
@@ -91,48 +96,54 @@ class URLs extends Component {
         return(
             <div className="container mt-4">
                 <div className="row justify-content-center">
-                    <div className="col-md-8">
-                        <h4 className="text-center font-weight-bolder">
-                            {this.state.playlistName} URLs
-                        </h4>
-                        <div className="card bg-light mb-4">
+                    <div className="col-md-10 text-center">
+                        <h1 className="font-weight-light">{this.state.playlistName}</h1>
+                        <div className="card bg-light">
                             <div className="card-body text-center">
+
                                 <div className="input-group input-group-lg">
                                     <input
                                         type="text"
                                         name="searchQuery"
                                         value={this.state.searchQuery}
-                                        placeholder="Search URLs"
+                                        placeholder="Filter URLs"
                                         className="form-control"
                                         onChange={this.handleChange}
                                     />
                                     <div className="input-group-append">
                                         <button
-                                        className="btn btn-sm btn-outline-info "
-                                        title="Pick a random URL"
-                                        onClick={() => this.chooseRandom()}
+                                        type="submit"
+                                        className="btn btn-sm btn-info"
+                                        id="buttonAdd"
+                                        onClick={() => navigate(`/addURL/${this.props.userID}/${this.props.playlistID}`)}
                                         >
-                                        <FaRandom />
-                                        </button>
-                                        <button
-                                        className="btn btn-sm btn-outline-info "
-                                        title="Reset Search"
-                                        onClick={() => this.resetQuery()}
-                                        >
-                                        <FaUndo />
+                                            <MdPlaylistAdd />
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    {filteredURLs && filteredURLs.length ?
+                    <div className="col-11 col-md-8 text-center">
+                        <div className="card border-top-0 rounded-0">
+                            <div className="card-body py-2">
+                                <h4 className="card-title font-weight-light m-0">
+                                    Playlist URLs
+                                </h4>
+                            </div>
+                            <div className="div-group div-group-flush">
+                            <URLsList
+                            userID={this.props.userID}
+                            playlistID={this.props.playlistID}
+                            adminUser={this.props.adminUser}
+                            URLs={filteredURLs}
+                            />
+                            </div>
+                        </div>
+                    </div>
+                    : null}
                 </div>
-                <URLsList
-                userID={this.props.userID}
-                playlistID={this.props.playlistID}
-                adminUser={this.props.adminUser}
-                URLs={filteredURLs}
-                />
             </div>
         );
     }

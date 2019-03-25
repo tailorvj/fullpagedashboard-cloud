@@ -11,6 +11,8 @@ import Register from '../../../Register';
 import Playlists from '../../routes/playlists/Playlists';
 import CheckIn from '../../../CheckIn';
 import URLs from '../../routes/urls/URLs';
+import AddURL from '../../routes/urls/AddURL';
+import EditURL from '../../routes/urls/EditURL';
 
 class App extends Component {
   constructor() {
@@ -112,6 +114,14 @@ class App extends Component {
             adminUser={this.state.userID}
             userID={this.state.userID}
           />
+          <AddURL 
+            path="/addURL/:userId/:playlistID" 
+            userID={this.state.userID}
+            />
+          <EditURL 
+            path="/editURL/:userId/:playlistID/URLs/:URLID" 
+            userID={this.state.userID}
+            />
           <CheckIn 
             path="/checkin/:userId/:playlistID" 
             userID={this.state.userID}
