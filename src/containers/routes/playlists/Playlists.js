@@ -43,7 +43,7 @@ class Playlists extends Component {
                                             type="text"
                                             className="form-control"
                                             name="playlistName"
-                                            placeholder="Playlist name"
+                                            placeholder="New playlist name"
                                             aria-describedby="buttonAdd"
                                             value={this.state.playlistName}
                                             onChange={this.handleChange}
