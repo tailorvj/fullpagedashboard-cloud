@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { navigate } from '@reach/router';
 import firebase from '../../../utils/Firebase';
 import FormError from '../../../FormError';
-import { GoTrashcan, GoListUnordered } from 'react-icons/go';
+import { GoTrashcan } from 'react-icons/go';
 import { MdPlaylistAdd, MdEdit } from 'react-icons/md';
 
 
@@ -13,20 +13,25 @@ class PlaylistsList extends Component {
         errorMessage: null
         }
         this.deleteMetting = this.deletePlaylist.bind(this);
+
+        this.ref = '';
     }
 
     deletePlaylist = (e, whichPlaylist) => {
         e.preventDefault();
-        // console.log(`delete btn pressed: whichPlaylist: ${whichPlaylist} userID: ${this.props.userID}`);
         try{
-        const ref = firebase.database().ref(
+        this.ref = firebase.database().ref(
             `playlists/${this.props.userID}/${whichPlaylist}`
         );
-        ref.remove();
+        this.ref.remove();
         }
         catch(e) {
             this.setState({errorMessage: e});
         }
+    }
+
+    componentWillUnmount() {
+        // this.ref.off();
     }
 
   render() {

@@ -15,6 +15,14 @@ class EditURL extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleReset = this.handleReset.bind(this);
+
+    this.ref = firebase
+    .database()
+    .ref(
+      `playlists/${this.props.userID}/${this.props.playlistID}/URLs/${this.props.URLID}`
+    );
+    this.ref2 = firebase.database().ref(`playlists/${this.props.userID}/${this.props.playlistID}/URLs/${this.props.URLID}`);
+
   }
 
   handleChange(e) {
@@ -27,12 +35,7 @@ class EditURL extends Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    const ref = firebase
-      .database()
-      .ref(
-        `playlists/${this.props.userID}/${this.props.playlistID}/URLs/${this.props.URLID}`
-      );
-    ref.update({
+    this.ref.update({
       URLDescription: this.state.URLDescription,
       URLURL: this.state.URLURL,
       URLDuration: this.state.URLDuration,
@@ -51,22 +54,29 @@ class EditURL extends Component {
   }
 
   componentDidMount(){
+    this._isMounted = true;
     //Let's get the URL data and push it into Component state
     if(this.props.userID && this.props.playlistID && this.props.URLID){
-        let ref2 = firebase.database().ref(`playlists/${this.props.userID}/${this.props.playlistID}/URLs/${this.props.URLID}`);
-        ref2.on('value', snapshot => {
-            let URLDescription = snapshot.val().URLDescription;
-            let URLURL = snapshot.val().URLURL;
-            let URLDuration = snapshot.val().URLDuration;
-            this.setState({
-              URLDescription: URLDescription,
-              URLURL: URLURL,
-              URLDuration: URLDuration
-            });
-        });
-
+      this.ref2.on('value', snapshot => {
+        let URLDescription = snapshot.val().URLDescription;
+        let URLURL = snapshot.val().URLURL;
+        let URLDuration = snapshot.val().URLDuration;
+        if(this._isMounted){
+          this.setState({
+          URLDescription: URLDescription,
+          URLURL: URLURL,
+          URLDuration: URLDuration
+          });
+        }
+      });
     }
-}
+  }
+
+  componentWillUnmount(){
+    this._isMounted = false;
+    this.ref.off();
+    this.ref2.off();
+  }
 
   render() {
     return (
