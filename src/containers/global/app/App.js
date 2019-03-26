@@ -111,6 +111,7 @@ class App extends Component {
           />
           <URLs
             path="/URLs/:userID/:playlistID"
+            URLs = {this.state.URLs}
             adminUser={this.state.userID}
             userID={this.state.userID}
           />
