@@ -12,21 +12,27 @@ class URLsList extends Component {
             errorMessage: null
         }
         this.deleteURL = this.deleteURL.bind(this);
+
+        this.ref = '';
     }
 
     deleteURL = (e, whichURL) => {
         e.preventDefault();
-        console.log(`delete btn pressed: whichURL: ${whichURL} playlistID: ${this.props.playlistID} userID: ${this.props.userID}`);
         try{
-        const ref = firebase.database().ref(
+        this.ref = firebase.database().ref(
             `playlists/${this.props.userID}/${this.props.playlistID}/URLs/${whichURL}`
         );
-        ref.remove();
+        this.ref.remove();
         }
         catch(e) {
             this.setState({errorMessage: e});
         }
     }
+
+    componentWillUnmount() {
+        // this.ref.off();
+    }
+
 
   render() {
     // const admin = ((this.props.adminUser === this.props.userID) ? true : false);

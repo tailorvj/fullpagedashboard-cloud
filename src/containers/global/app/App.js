@@ -6,7 +6,7 @@ import firebase from '../../../utils/Firebase';
 import Home from '../../../Home';
 import Welcome from '../../../Welcome';
 import Navigation from '../../../Navigation';
-import Login from '../../routes/auth/Login';
+import GithubLogin from '../../routes/auth/GithubLogin';
 import Register from '../../../Register';
 import Playlists from '../../routes/playlists/Playlists';
 import CheckIn from '../../../CheckIn';
@@ -22,6 +22,8 @@ class App extends Component {
       displayName : null,
       userID: null
     };
+    this.playlistsRef = '';
+    this.ref = '';
   }
 
   registerUser = (userName) => {
@@ -53,26 +55,29 @@ class App extends Component {
   };
 
   addPlaylist = playlistName => {
-    const ref = firebase
+    this.ref = firebase
       .database()
       .ref(`playlists/${this.state.user.uid}`);
-    ref.push({ playlistName: playlistName });
+    this.ref.push({ playlistName: playlistName });
   };
 
   componentDidMount() {
-    firebase.auth().onAuthStateChanged(FBUser => {
+    this._isMounted = true;
+    this.listener = firebase.auth().onAuthStateChanged(FBUser => {
       if (FBUser) {
-        this.setState({
-          user: FBUser,
-          displayName: FBUser.displayName,
-          userID: FBUser.uid
-        });
+        if(this._isMounted){
+          this.setState({
+            user: FBUser,
+            displayName: FBUser.displayName,
+            userID: FBUser.uid
+          });
+        }
 
-        const playlistsRef = firebase
+        this.playlistsRef = firebase
           .database()
           .ref('playlists/' + FBUser.uid);
 
-        playlistsRef.on('value', snapshot => {
+        this.playlistsRef.on('value', snapshot => {
           let playlists = snapshot.val();
           let playlistsList = []; //Helper Array
 
@@ -82,16 +87,23 @@ class App extends Component {
               playlistName: playlists[item].playlistName
             });
           }
-
-          this.setState({
-            playlists: playlistsList,
-            howManyPlaylists: playlistsList.length
-          });
+          if(this._isMounted){
+            this.setState({
+              playlists: playlistsList,
+              howManyPlaylists: playlistsList.length
+            });
+          }
         });
       } else {
         this.setState({ user: null });
       }
     });
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+    this.ref.off();
+    this.playlistsRef.off();
   }
 
   render() {
@@ -102,7 +114,7 @@ class App extends Component {
 
         <Router>
           <Home path="/" user={this.state.user} />
-          <Login path="/login" />
+          <GithubLogin path="/login" />
           <Playlists
             path="/playlists"
             playlists={this.state.playlists}

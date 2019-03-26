@@ -16,29 +16,33 @@ class URLs extends Component {
   
       this.handleChange = this.handleChange.bind(this);
       this.resetQuery = this.resetQuery.bind(this);
-      this.chooseRandom = this.chooseRandom.bind(this);
+
+      this.ref = '';
+      this.ref2 = '';
     }
   
     componentDidMount(){
+        this._isMounted = true;
         //Let's get the playlist name for the heading
         if(this.props.userID && this.props.playlistID){
-            let ref2 = firebase.database().ref(`playlists/${this.props.userID}/${this.props.playlistID}`);
-            ref2.on('value', snapshot => {
+            this.ref2 = firebase.database().ref(`playlists/${this.props.userID}/${this.props.playlistID}`);
+            this.ref2.on('value', snapshot => {
                 let playlistName = snapshot.val().playlistName;
-                this.setState({
+                if(this._isMounted){
+                    this.setState({
                     playlistName: playlistName
-                });
+                    });
+                }
             });
-    
         }
 
         //gets URLs from Firebase and 
         //sets this.state.displayURLs
-        const ref = firebase.database().ref(
+        this.ref = firebase.database().ref(
             `playlists/${this.props.userID}/${this.props.playlistID}/URLs`
         );
 
-        ref.on('value', snapshot => {
+        this.ref.on('value', snapshot => {
             let URLs = snapshot.val();
             let URLsList = [];
             //convert Object to Array
@@ -51,46 +55,42 @@ class URLs extends Component {
                     star: URLs[item].star                            
                 });
             }
-            this.setState({
+            if(this._isMounted){
+                this.setState({
                 displayURLs: URLsList,
                 allURLs: URLsList
-            });
-        });
+                });
+            }
+        });  
     }
     
+    componentWillUnmount() {
+        this._isMounted = false;
+        this.ref.off();
+        this.ref2.off();
+    }
+
     handleChange(e) {
         const itemName = e.target.name;
         const itemValue = e.target.value;
     
         this.setState({ [itemName]: itemValue });
-      }    
-
-      chooseRandom(){
-        const randomURLIndex = Math.floor(
-          Math.random() * this.state.allURLs.length
-        );
-        if(randomURLIndex !== undefined){
-            this.resetQuery();
-            this.setState({
-              displayURLs: [this.state.allURLs[randomURLIndex]]
-            });
-        }
-      }
+    }    
     
-      resetQuery() {
+    resetQuery() {
         this.setState({
           displayURLs: this.state.allURLs,
           searchQuery: ''
         });
-      }
+    }
         
     render() {
         const dataFilter = item =>
-          item.URLDescription
+            item.URLDescription
             .toLowerCase()
             .match(this.state.searchQuery.toLowerCase()) && true;
         const filteredURLs = this.state.displayURLs.filter(
-          dataFilter
+            dataFilter
         );
     
         return(
