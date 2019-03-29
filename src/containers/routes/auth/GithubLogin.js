@@ -1,105 +1,84 @@
 import React, {Component} from 'react';
 import firebase from '../../../utils/Firebase';
-import FormError from '../../../FormError';
+import StyledFirebaseAuth from'react-firebaseui/StyledFirebaseAuth';
 import {navigate} from '@reach/router';
 
 class GithubLogin extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-          email: '',
-          password: '',
-          errorMessage: null
-        };
-    
-        //bind constructor this to method this
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-      }
-    
-      handleChange(e) {
-        const itemName = e.target.name;
-        const itemValue = e.target.value;
-    
-        this.setState({ [itemName]: itemValue });
-      }
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: '',
+      isSignedIn: false // Local signed-in state.
+    }
 
-      handleSubmit(e){
-        var registrationInfo = {
-            email: this.state.email,
-            password: this.state.password
-        };
-        e.preventDefault();
-        firebase.auth().signInWithEmailAndPassword(
-            registrationInfo.email, 
-            registrationInfo.password
-            ).then(()=>{
-                navigate('/playlists');
-            }).catch((error) => {
-                    if(error.message){
-                        this.setState({errorMessage: error.message});
-                    } else {
-                        this.setState({errorMessage: null});
-                    }
-                }   
-            );
+    // Configure FirebaseUI.
+    this.uiConfig={
+      // Popup signin flow rather than redirect flow for now
+      signInFlow:'popup',
+      // We will display Github login only for now.
+      signInOptions:[
+        // firebase.auth.GoogleAuthProvider.PROVIDER_ID ,
+        // firebase.auth.FacebookAuthProvider.PROVIDER_ID ,
+        // firebase.auth.TwitterAuthProvider.PROVIDER_ID ,
+        // firebase.auth.EmailAuthProvider.PROVIDER_ID ,
+        firebase.auth.GithubAuthProvider.PROVIDER_ID
+      ],
+      callbacks:{
+        // Avoid redirects after sign-in.
+        signInSuccessWithAuthResult :() => navigate('/playlists')
       }
+    }
+  };
 
-    render(){
-        return (
-          <form className="mt-3" onSubmit={this.handleSubmit}>
-          <div className="container">
-            <div className="row justify-content-center">
-              <div className="col-lg-6">
-                <div className="card bg-light">
-                  <div className="card-body">
-                    <h3 className="font-weight-light mb-3">Log in</h3>
-                    <section className="form-group">
-                            {this.state.errorMessage !== null ?
-                            <FormError 
-                                theMessage={this.state.errorMessage}
-                            /> : null}
+  // Listen to the Firebase Auth state and set the local state.
+  componentDidMount() {
+    this._isMounted = true;
+    firebase.auth().onAuthStateChanged(
+        (user) => {
+          if(this._isMounted){
+            this.setState({isSignedIn: !!user})
+          }
+        }
+    );
+  }
+  
+  // Make sure we un-register Firebase observers when the component unmounts.
+  componentWillUnmount() {
+    this._isMounted = false;
+    // this.unregisterAuthObserver();
+  }
 
-                      <label
-                        className="form-control-label sr-only"
-                        htmlFor="Email">
-                        Email
-                      </label>
-                      <input
-                        required
-                        className="form-control"
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="Email"
-                        value={this.state.email}
-                        onChange={this.handleChange}
-                      />
-                    </section>
-                    <section className="form-group">
-                      <input
-                        required
-                        className="form-control"
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        value={this.state.password}
-                        onChange={this.handleChange}
-                      />
-                    </section>
-                    <div className="form-group text-right mb-0">
-                      <button className="btn btn-primary" type="submit">
-                        Log in
-                      </button>
-                    </div>
-                  </div>
+  render() {
+    if (!this.state.isSignedIn) {
+      //display login button
+      return (
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-lg-6">
+              <div className="card bg-light">
+                <div className="card-body">
+                  <h3 className="font-weight-light mb-3">Log in</h3>
+                  <section className="form-group">
+                    {!this.state.isSignedIn ?
+                      <StyledFirebaseAuth 
+                        uiConfig={this.uiConfig} 
+                        firebaseAuth={firebase.auth()}
+                        /> : null
+                        }
+                  </section>
                 </div>
               </div>
             </div>
-          </div>
-        </form>
-            );
+          </div>      
+        </div>
+      );
     }
+    return (
+      <div className="container">
+        &nbsp;
+      </div>
+    );
+  }
 }
 
 export default GithubLogin;
