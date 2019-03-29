@@ -1,0 +1,21 @@
+[debug] [2019-03-29T15:11:30.587Z] ----------------------------------------------------------------------
+[debug] [2019-03-29T15:11:30.590Z] Command:       /Users/tailorvj/.nvm/versions/node/v10.3.0/bin/node /Users/tailorvj/.nvm/versions/node/v10.3.0/bin/firebase deploy
+[debug] [2019-03-29T15:11:30.591Z] CLI Version:   6.5.0
+[debug] [2019-03-29T15:11:30.591Z] Platform:      darwin
+[debug] [2019-03-29T15:11:30.591Z] Node Version:  v10.3.0
+[debug] [2019-03-29T15:11:30.592Z] Time:          Fri Mar 29 2019 18:11:30 GMT+0300 (IDT)
+[debug] [2019-03-29T15:11:30.592Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2019-03-29T15:11:30.611Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-03-29T15:11:30.612Z] > authorizing via signed-in user
+[debug] [2019-03-29T15:11:30.612Z] [iam] checking project react-spas-tvj for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasedatabase.instances.update","firebasehosting.sites.update","firebaserules.releases.create","firebaserules.releases.update","firebaserules.rulesets.create"]
+[debug] [2019-03-29T15:11:30.614Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2019-03-29T15:11:30.614Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2019-03-29T15:11:31.489Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-29T15:11:31.535Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/react-spas-tvj:testIamPermissions  
+
+[debug] [2019-03-29T15:11:33.158Z] <<< HTTP RESPONSE 200
+[debug] [2019-03-29T15:11:33.161Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/react-spas-tvj  
+ 
+[debug] [2019-03-29T15:11:34.130Z] <<< HTTP RESPONSE 200
