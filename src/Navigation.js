@@ -23,11 +23,6 @@ class Navigation extends Component {
                 log in
               </Link>
             )}
-            {!user && (
-              <Link className="nav-item nav-link" to="/register">
-                register
-              </Link>
-            )}
             {user && (
               <Link className="nav-item nav-link" to="/login"
                 onClick={e => logOutUser(e)}
