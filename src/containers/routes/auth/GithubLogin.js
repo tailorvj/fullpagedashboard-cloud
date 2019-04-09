@@ -52,24 +52,21 @@ class GithubLogin extends Component {
     if (!this.state.isSignedIn) {
       //display login button
       return (
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-lg-6">
-              <div className="card bg-light">
-                <div className="card-body">
-                  <h3 className="font-weight-light mb-3">Log in</h3>
-                  <section className="form-group">
-                    {!this.state.isSignedIn ?
-                      <StyledFirebaseAuth 
-                        uiConfig={this.uiConfig} 
-                        firebaseAuth={firebase.auth()}
-                        /> : null
-                        }
-                  </section>
-                </div>
+        <div>
+          <div className="ui vertical segment container">
+              <div className="ui header">
+                Playlist Manager
               </div>
-            </div>
-          </div>      
+              <p className="ui sub header" >
+                Manage your Raspberry Pi URL playlists from this app. 
+              </p>
+          </div>
+          {!this.state.isSignedIn ?
+            <StyledFirebaseAuth className="ui very padded basic segment"
+              uiConfig={this.uiConfig} 
+              firebaseAuth={firebase.auth()}
+              /> : null
+              }
         </div>
       );
     }

@@ -28,55 +28,32 @@ class Playlists extends Component {
     render(){
         // console.log(`Playlists render. this.props.userID: ${this.props.userID} .`);
         return (
-            <div className="container mt-4">
-                <div className="row justify-content-center">
-                    <div className="col-md-8 text-center">
-                        <h1 className="font-weight-light">Add a Playlist</h1>
-                        <div className="card bg-light">
-                            <div className="card-body text-center">
-                                <form
-                                    className="formgroup"
-                                    onSubmit={this.handleSubmit}
-                                >
-                                    <div className="input-group input-group-lg">
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            name="playlistName"
-                                            placeholder="New playlist name"
-                                            aria-describedby="buttonAdd"
-                                            value={this.state.playlistName}
-                                            onChange={this.handleChange}
-                                        />
-                                        <div className="input-group-append">
-                                            <button
-                                            type="submit"
-                                            className="btn btn-sm btn-info"
-                                            id="buttonAdd"
-                                            >
-                                            +
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
+            <div className="ui container">
+                <div className="ui header">Add a Playlist</div>
+                <div className="ui basic segment">
+
+                    <form className="ui form" onSubmit={this.handleSubmit}>
+                        <div className="ui action input">
+                            <input type="text" 
+                                placeholder="New playlist name..." 
+                                name="playlistName"
+                                aria-describedby="buttonAdd"
+                                value={this.state.playlistName}
+                                onChange={this.handleChange}
+                            />
+                            <button className="ui teal icon button" type="submit" id="buttonAdd">
+                                <i className="plus icon"></i>
+                            </button>
                         </div>
-                    </div>
+                    </form>
 
                     {this.props.playlists && this.props.playlists.length ?
-                    <div className="col-11 col-md-6 text-center">
-                        <div className="card border-top-0 rounded-0">
-                            <div className="card-body py-2">
-                                <h4 className="card-title font-weight-light m-0">
-                                    Your Playlists
-                                </h4>
-                            </div>
-                            <div className="div-group div-group-flush">
-                                <PlaylistsList playlists={this.props.playlists} userID={this.props.userID} />
-                            </div>
-                        </div>
+                    <div className="ui very padded basic segment">
+                        <div className="ui sub header">Your Playlists</div>
+                        <PlaylistsList playlists={this.props.playlists} userID={this.props.userID} />
                     </div>
                     : null}
+
                 </div>
             </div>
         );

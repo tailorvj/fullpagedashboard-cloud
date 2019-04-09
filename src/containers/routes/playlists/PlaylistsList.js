@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { navigate } from '@reach/router';
 import firebase from '../../../utils/Firebase';
 import FormError from '../../../FormError';
-import { GoTrashcan } from 'react-icons/go';
-import { MdPlaylistAdd, MdEdit } from 'react-icons/md';
+// import { GoTrashcan } from 'react-icons/go';
+// import { MdPlaylistAdd, MdEdit } from 'react-icons/md';
 
 
 class PlaylistsList extends Component {
@@ -38,46 +38,45 @@ class PlaylistsList extends Component {
     const { playlists } = this.props;
     const myPlaylists = playlists.map((item) => {
         return(
-            <div className="container" key={item.playlistID}>
-                <section className="row border-top clearfix pt-2 pb-2">
-                    <div className="col-8 float-left text-left">
-                        <div className="text-break">{item.playlistName}</div>
-                    </div>
-                    <div className="col-4 float-right">
-                        <div className="btn-group float-right border" role="group">
-                        <button className="btn btn-sm btn-outline-secondary mr-1"
-                        title="Add URL"
+            <div className="item" key={item.playlistID}>
+                <div className="right floated content">
+                    <button 
+                        className="ui basic icon button"
                         onClick={() => navigate(`/addURL/${this.props.userID}/${item.playlistID}`)}
-                        >
-                        <MdPlaylistAdd />
-                        </button>
-                        <button className="btn btn-sm btn-outline-secondary mr-1"
-                        title="URLs List"
+                    >
+                        <i className="icon edit"></i>
+                    </button>
+                    <button 
+                        className="ui basic icon button"
                         onClick={() => navigate(`/URLs/${this.props.userID}/${item.playlistID}`)}
-                        >
-                        <MdEdit />
-                        </button>
-                        <button className="btn btn-sm btn-outline-secondary"
-                        title="Delete Playlist"
+                    >
+                        <i className="icon eye"></i>
+                    </button>
+                    <button 
+                        className="ui basic icon button"
                         onClick={e => this.deletePlaylist(e, item.playlistID)}
-                        >
-                        <GoTrashcan />
-                        </button>
-                        </div>
-                    </div>
-                </section>
+                    >
+                        <i className="icon delete"></i>
+                    </button>
+                </div>
+                <i className="middle aligned icon list ul "></i>
+                <div className="middle aligned content">
+                  {item.playlistName}
+                </div>
             </div>
+
+
         );
     });
     return (
-      <div>
-        {this.state.errorMessage !== null ?
-        <FormError 
-            theMessage={this.state.errorMessage}
-        /> : null}
-
-        {myPlaylists}
-      </div>
+        <div className="ui middle aligned animated selection divided list">
+            {
+                this.state.errorMessage !== null ?
+                    <FormError theMessage={this.state.errorMessage}/> 
+                : null
+            }
+            {myPlaylists}
+        </div>
     );
   }
 }

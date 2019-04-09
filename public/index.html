@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/squarelogo_75J_2.ico" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
@@ -23,6 +23,8 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>FullPageDashboard Cloud</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="index.css">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -37,5 +39,35 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+<script>
+  $(document)
+    .ready(function() {
+
+      // fix menu when passed
+      // $('.masthead')
+      //   .visibility({
+      //     once: false,
+      //     onBottomPassed: function() {
+      //       $('.fixed.menu').transition('fade in');
+      //     },
+      //     onBottomPassedReverse: function() {
+      //       $('.fixed.menu').transition('fade out');
+      //     }
+      //   })
+      // ;
+
+      // create sidebar and attach to menu open
+      // $('.ui.sidebar')
+      //   .sidebar('attach events', '.toc.item')
+      // ;
+
+    })
+  ;
+</script>
   </body>
 </html>

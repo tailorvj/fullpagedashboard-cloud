@@ -1,39 +1,33 @@
 import React, { Component } from 'react';
-import { MdFeaturedPlayList } from 'react-icons/md';
 import {Link} from '@reach/router';
 
 class Navigation extends Component {
   render() {
-    const { user, logOutUser } = this.props;
+    // const { style } = this.props;
 
     return (
-      <nav className="site-nav family-sans navbar navbar-expand bg-primary navbar-dark higher">
-        <div className="container-fluid">
-          <Link to="/" className="navbar-brand">
-            <MdFeaturedPlayList className="mr-1" /> Playlist Manager
-          </Link>
-          <div className="navbar-nav ml-auto">
-            {user && (
-              <Link className="nav-item nav-link" to="/playlists">
-                playlists
+
+      <div className="ui large secondary pointing menu" style={{marginTop: 4 + 'em'}}>
+       <div className="ui container">
+            {/*!user && (
+              <Link to="/" className="item">
+                Playlist Manager
               </Link>
-            )}
-            {!user && (
-              <Link className="nav-item nav-link" to="/login">
-                log in
+            )*/}
+
+               <Link className="item active" to="/playlists">
+                Playlists
               </Link>
-            )}
-            {user && (
-              <Link className="nav-item nav-link" to="/login"
-                onClick={e => logOutUser(e)}
-              >
-                log out
+               <Link className="item" to="/devicegroups">
+                My Device Groups
               </Link>
-            )}
-          </div>
+               <Link className="item" to="/usergroups">
+                My User Groups
+              </Link>
         </div>
-      </nav>
-    );
+      </div>
+
+     );
   }
 }
 

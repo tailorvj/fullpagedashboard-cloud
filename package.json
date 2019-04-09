@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@reach/router": "^1.2.1",
-    "bootstrap": "^4.2.1",
+    "clean": "^4.0.2",
     "firebase": "^5.8.1",
     "gh-pages": "^2.0.1",
     "react": "^16.7.0",
