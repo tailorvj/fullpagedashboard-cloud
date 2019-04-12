@@ -42,7 +42,7 @@ class Playlists extends Component {
                 <div className="ui basic segment">
 
                     <form className="ui form" onSubmit={this.handleSubmit}>
-                        <div className="ui actio    n input">
+                        <div className="ui action input">
                             <input type="text" 
                                 placeholder="New playlist name..." 
                                 name="playlistName"
