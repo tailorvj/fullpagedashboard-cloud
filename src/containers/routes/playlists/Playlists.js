@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import firebase from '../../../utils/Firebase';
 import PlaylistsList from './PlaylistsList';
 
 class Playlists extends Component {
@@ -10,6 +11,7 @@ class Playlists extends Component {
     
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.addPlaylist = this.addPlaylist.bind(this);
       }
         
     handleChange(e) {
@@ -21,9 +23,15 @@ class Playlists extends Component {
 
     handleSubmit(e){
     e.preventDefault();
-    this.props.addPlaylist(this.state.playlistName);
+    this.addPlaylist(this.state.playlistName);
     this.setState({playlistName: ''});
     }    
+    addPlaylist = playlistName => {
+        this.ref = firebase
+          .database()
+          .ref(`playlists/${this.props.userID}`);
+        this.ref.push({ playlistName: playlistName });
+    };
 
     render(){
         // console.log(`Playlists render. this.props.userID: ${this.props.userID} .`);
@@ -52,8 +60,7 @@ class Playlists extends Component {
                         <h2 className="ui header">Your Playlists</h2>
                         <PlaylistsList 
                             playlists={this.props.playlists} 
-                            userID={this.props.userID} 
-                            updatePlaylistName={this.props.updatePlaylistName}
+                            userID={this.props.userID}
                         />
                     </div>
                     : null}

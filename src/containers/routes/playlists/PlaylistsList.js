@@ -15,7 +15,7 @@ class PlaylistsList extends Component {
         this.deleteMetting = this.deletePlaylist.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.updatePlaylistName=this.props.updatePlaylistName.bind(this);
+        this.updatePlaylistName=this.updatePlaylistName.bind(this);
 
         this.ref = '';
     }
@@ -44,7 +44,12 @@ class PlaylistsList extends Component {
         this.updatePlaylistName(this.state.whichPlaylist,this.state.playlistName);
         this.setState({whichPlaylist: null , playlistName: null});
     }    
-
+    updatePlaylistName = (playlistId, playlistName) => {
+        this.ref = firebase
+          .database()
+          .ref(`playlists/${this.props.userID}/`+playlistId);
+        this.ref.set({ playlistName: playlistName });
+   }
     componentWillUnmount() {
         // this.ref.off();
     }

@@ -55,19 +55,6 @@ class App extends Component {
     });
   };
 
-  addPlaylist = playlistName => {
-    this.ref = firebase
-      .database()
-      .ref(`playlists/${this.state.user.uid}`);
-    this.ref.push({ playlistName: playlistName });
-  };
-  updatePlaylistName = (playlistId, playlistName) => {
-    this.ref = firebase
-      .database()
-      .ref(`playlists/${this.state.user.uid}/`+playlistId);
-    this.ref.set({ playlistName: playlistName });
-  };
-
   componentDidMount() {
     this._isMounted = true;
     this.listener = firebase.auth().onAuthStateChanged(FBUser => {
@@ -173,8 +160,6 @@ class App extends Component {
           <Playlists
             path="/playlists"
             playlists={this.state.playlists}
-            addPlaylist={this.addPlaylist}
-            updatePlaylistName={this.updatePlaylistName}
             userID={this.state.userID}
           />
           )}
