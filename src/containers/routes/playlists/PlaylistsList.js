@@ -103,7 +103,11 @@ class PlaylistsList extends Component {
                                     {item.playlistName}&nbsp;&nbsp;
                                     {canEdit ?
                                     <a className="ui basic edit" href="#" 
-                                        onClick={(e) => this.setState({'whichPlaylist': item.playlistID})}>
+                                        onClick={(e) => { 
+                                                            e.cancelEvent = true; 
+                                                            this.setState({'whichPlaylist': item.playlistID})
+                                                        }
+                                                }>
                                         <i className="icon pencil alternate small"></i>
                                     </a>
                                     : ''}
@@ -144,7 +148,7 @@ class PlaylistsList extends Component {
         );
     });
     return (
-        <div className="ui animated selection relaxed divided list">
+        <div className="ui animated relaxed divided list">
         {/*<div className="ui middle aligned animated selection divided list">*/}
             {
                 this.state.errorMessage !== null ?
