@@ -46,93 +46,71 @@ class AddURL extends Component {
 
   handleReset(e) {
     e.preventDefault();
-    
-    navigate(
-      `/URLs/${this.props.userID}/${this.props.playlistID}`
-    );
+    window.history.back();
+    // navigate(
+    //   `/URLs/${this.props.userID}/${this.props.playlistID}`
+    // );
   }
 
   render() {
     return (
-      <form className="mt-3" onSubmit={this.handleSubmit} onReset={this.handleReset}>
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-lg-6">
-              <div className="card bg-light">
-                <div className="card-body">
-                  <h3 className="font-weight-light mb-3">Add URL to Playlist</h3>
-                  <section className="form-group">
-                    <label
-                      className="form-control-label sr-only"
-                      htmlFor="URLDescription"
-                    >
-                      Display Name
-                    </label>
-                    <input
-                      required
-                      className="form-control"
-                      type="text"
-                      id="URLDescription"
-                      name="URLDescription"
-                      placeholder="URL Description"
-                      value={this.state.URLDescription}
-                      onChange={this.handleChange}
-                    />
-                  </section>
-                  <section className="form-group">
-                    <label
-                      className="form-control-label sr-only"
-                      htmlFor="URLURL"
-                    >
-                      URL
-                    </label>
-                    <input
-                      required
-                      className="form-control"
-                      type="text"
-                      id="URLURL"
-                      name="URLURL"
-                      placeholder="https://www.example.com"
-                      value={this.state.URLURL}
-                      onChange={this.handleChange}
-                    />
-                  </section>
-                  <section className="form-group">
-                    <label
-                      className="form-control-label sr-only"
-                      htmlFor="URLDuration"
-                    >
-                      Duration
-                    </label>
-                    <input
-                      required
-                      className="form-control"
-                      type="text"
-                      id="URLDuration"
-                      name="URLDuration"
-                      placeholder="50000 (duration in milliseconds)"
-                      value={this.state.URLDuration}
-                      onChange={this.handleChange}
-                    />
-                  </section>
-
-                  <div className="clearfix">
-                    <span className="form-group float-left mb-0">
-                      <button className="btn btn-secondary btn-lg" type="reset">
-                        Cancel
-                      </button>
-                    </span>
-                    <span className="form-group float-right mb-0 ml-2">
-                      <button className="btn btn-primary btn-lg" type="submit">
-                        Add
-                      </button>
-                    </span>                  
-                  </div>
-                </div>
-              </div>
-            </div>
+      <form className="ui left aligned container form" onSubmit={this.handleSubmit} onReset={this.handleReset}>
+ 
+        <h3 className="ui center aligned header">Add URL to Playlist</h3>
+        <div className="eight wide field">
+          <label htmlFor="URLDescription">
+            Display Name
+          </label>
+          <input
+            required
+            type="text"
+            id="URLDescription"
+            name="URLDescription"
+            placeholder="URL Description"
+            value={this.state.URLDescription}
+            onChange={this.handleChange}
+          />
+        </div>
+        <div className="twelve wide required field">
+          <label htmlFor="URLURL">
+            URL
+          </label>
+          <input
+            required
+            className="form-control"
+            type="text"
+            id="URLURL"
+            name="URLURL"
+            placeholder="https://www.example.com"
+            value={this.state.URLURL}
+            onChange={this.handleChange}
+          />
+        </div>
+        <div className="six wide required field">
+          <label htmlFor="URLDuration">
+            Duration
+          </label>
+          <div className="ui right labeled input">
+            <input
+              required
+              className="form-control"
+              type="text"
+              id="URLDuration"
+              name="URLDuration"
+              placeholder="Duration in MSs"
+              value={this.state.URLDuration || 50000}
+              onChange={this.handleChange}
+              />
+              <div className="ui basic label">MilliSeconds</div>
           </div>
         </div>
+
+        <button className="ui button" type="reset">
+          Cancel
+        </button>
+        <button className="ui primary button" type="submit">
+          Add
+        </button>
       </form>
     );
   }

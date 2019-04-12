@@ -58,6 +58,15 @@ class PlaylistsList extends Component {
     const { playlists } = this.props;
     const canEdit = this.state.whichPlaylist == null;
     const myPlaylists = playlists.map((item) => {
+    let URLsCount=0;
+        this.URLs = firebase
+            .database()
+            .ref(`playlists/${this.props.userID}/${item.playlistID}/URLs`)
+            .on('value', snapshot => {
+                const arrObj = snapshot? snapshot.val(): {};
+                URLsCount = Object.keys(arrObj? arrObj: {}).length;
+            });
+
         return(
 
             <div className="item" key={item.playlistID}>
@@ -78,7 +87,7 @@ class PlaylistsList extends Component {
                         <i className="icon delete large"></i>
                     </button>
                 </div>
-                <div className="content" style={{paddingTop: .25 + 'em'}}>
+                <div className="content">
                      <form className="ui form" onSubmit={this.handleSubmit}>
                         {item.playlistID === this.state.whichPlaylist ? 
                             <div className="ui action input">
@@ -98,7 +107,7 @@ class PlaylistsList extends Component {
                                 </button>
                             </div>
                         :
-                            <div style={{paddingTop: .25 + 'em'}}>
+                            <div >
                                 <h2 className="header">
                                     {item.playlistName}&nbsp;&nbsp;
                                     {canEdit ?
@@ -112,6 +121,7 @@ class PlaylistsList extends Component {
                                     </a>
                                     : ''}
                                 </h2>
+                                <h5 className="ui grey left aligned header">&nbsp;({URLsCount} URLs)</h5>
                             </div>
                         }      
                     </form>

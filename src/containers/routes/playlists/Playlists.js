@@ -29,7 +29,8 @@ class Playlists extends Component {
     addPlaylist = playlistName => {
         this.ref = firebase
           .database()
-          .ref(`playlists/${this.props.userID}`);
+          .ref(`playlists/${this.props.userID}`)
+          .orderByChild("playlistName");
         this.ref.push({ playlistName: playlistName });
     };
 
@@ -41,7 +42,7 @@ class Playlists extends Component {
                 <div className="ui basic segment">
 
                     <form className="ui form" onSubmit={this.handleSubmit}>
-                        <div className="ui action input">
+                        <div className="ui actio    n input">
                             <input type="text" 
                                 placeholder="New playlist name..." 
                                 name="playlistName"
