@@ -49,8 +49,12 @@ class Playlists extends Component {
 
                     {this.props.playlists && this.props.playlists.length ?
                     <div className="ui very padded basic segment">
-                        <div className="ui sub header">Your Playlists</div>
-                        <PlaylistsList playlists={this.props.playlists} userID={this.props.userID} />
+                        <h2 className="ui header">Your Playlists</h2>
+                        <PlaylistsList 
+                            playlists={this.props.playlists} 
+                            userID={this.props.userID} 
+                            updatePlaylistName={this.props.updatePlaylistName}
+                        />
                     </div>
                     : null}
 

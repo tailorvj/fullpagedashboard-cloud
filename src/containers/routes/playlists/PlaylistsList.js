@@ -13,6 +13,9 @@ class PlaylistsList extends Component {
         errorMessage: null
         }
         this.deleteMetting = this.deletePlaylist.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.updatePlaylistName=this.props.updatePlaylistName.bind(this);
 
         this.ref = '';
     }
@@ -29,6 +32,18 @@ class PlaylistsList extends Component {
             this.setState({errorMessage: e});
         }
     }
+    handleChange(e, whichPlaylist) {
+        const itemName = e.target.name;
+        const itemValue = e.target.value;
+
+        this.setState({'whichPlaylist': whichPlaylist, [itemName]: itemValue });
+    }
+
+    handleSubmit(e){
+        e.preventDefault();
+        this.updatePlaylistName(this.state.whichPlaylist,this.state.playlistName);
+        this.setState({whichPlaylist: null , playlistName: null});
+    }    
 
     componentWillUnmount() {
         // this.ref.off();
@@ -36,6 +51,7 @@ class PlaylistsList extends Component {
 
   render() {
     const { playlists } = this.props;
+    const canEdit = this.state.whichPlaylist == null;
     const myPlaylists = playlists.map((item) => {
         return(
 
@@ -57,8 +73,40 @@ class PlaylistsList extends Component {
                         <i className="icon delete large"></i>
                     </button>
                 </div>
-                <div className="content" style={{paddingTop: .5 + 'em'}}>
-                    <h2 className="header">{item.playlistName}</h2>
+                <div className="content" style={{paddingTop: .25 + 'em'}}>
+                     <form className="ui form" onSubmit={this.handleSubmit}>
+                        {item.playlistID === this.state.whichPlaylist ? 
+                            <div className="ui action input">
+                                <input type="text" 
+                                    placeholder="New playlist name..." 
+                                    name="playlistName"
+                                    aria-describedby="buttonUpdate"
+                                    value={this.state.playlistName || item.playlistName}
+                                    onChange={(e) => this.handleChange(e,item.playlistID)}
+                                />
+                                <button className="ui green basic icon button" type="submit" id="buttonUpdate">
+                                    <i className="check icon"></i>
+                                </button>
+                                <button className="ui red cancel basic icon button" href="#" type="cancel" id="buttonCancel"
+                                    onClick={(e) => this.setState({'whichPlaylist': null, 'playlistName': null})}>
+                                    <i className="icon delete"></i>
+                                </button>
+                            </div>
+                        :
+                            <div style={{paddingTop: .25 + 'em'}}>
+                                <h2 className="header">
+                                    {item.playlistName}&nbsp;&nbsp;
+                                    {canEdit ?
+                                    <a className="ui basic edit" href="#" 
+                                        onClick={(e) => this.setState({'whichPlaylist': item.playlistID})}>
+                                        <i className="icon pencil alternate small"></i>
+                                    </a>
+                                    : ''}
+                                </h2>
+                            </div>
+                        }      
+                    </form>
+
                 </div>
                 {/*
                             <div className="item" key={item.playlistID}>
