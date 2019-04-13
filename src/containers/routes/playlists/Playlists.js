@@ -5,40 +5,99 @@ import PlaylistsList from './PlaylistsList';
 class Playlists extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-          playlistName: ''
-        };
     
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.addPlaylist = this.addPlaylist.bind(this);
-      }
+        this.resetQuery = this.resetQuery.bind(this);
         
-    handleChange(e) {
-    const itemName = e.target.name;
-    const itemValue = e.target.value;
+        this.playlistsRef = '';
 
-    this.setState({ [itemName]: itemValue });
+        this.state ={
+            playlistName: '',
+            playlists: [],
+            searchQuery: '',
+            howManyPlaylists: 0
+        };
+
+
+     }
+
+    componentDidMount(){
+        this._isMounted = true;
+        this.playlistsRef = firebase
+          .database()
+          .ref('playlists/' + this.props.userID)
+          .orderByChild("playlistName");
+
+        this.playlistsRef.on('value', snapshot => {
+            let playlists = snapshot.val();
+            let playlistsList = []; //Helper Array
+
+            for (let item in playlists) {
+                playlistsList.push({
+                  playlistID: item,
+                  // playlist: playlists[item],
+                  playlistName: playlists[item].playlistName,
+                  playlistURLs: playlists[item].URLs || {}
+                });
+            }
+            this.setState({
+                playlistName: '',
+                playlists: playlistsList,
+                howManyPlaylists: playlistsList.length
+            });
+        });
+    }       
+
+    componentWillUnmount() {
+        this._isMounted = false;
+        this.playlistsRef.off();
+    }
+
+    handleChange(e) {
+        const itemName = e.target.name;
+        const itemValue = e.target.value;
+
+        this.setState({ [itemName]: itemValue });
     }
 
     handleSubmit(e){
-    e.preventDefault();
-    this.addPlaylist(this.state.playlistName);
-    this.setState({playlistName: ''});
+        e.preventDefault();
+        this.addPlaylist(this.state.playlistName);
+        this.setState({playlistName: ''});
     }    
     addPlaylist = playlistName => {
         this.ref = firebase
           .database()
-          .ref(`playlists/${this.props.userID}`)
-          .orderByChild("playlistName");
+          .ref(`playlists/${this.props.userID}`);
         this.ref.push({ playlistName: playlistName });
     };
+    resetQuery() {
+        this.setState({
+          searchQuery: ''
+        });
+    }
 
     render(){
-        // console.log(`Playlists render. this.props.userID: ${this.props.userID} .`);
+        const {playlistName, playlists, searchQuery} = this.state;
+        var filteredList = [];
+
+        const dataFilter = item =>
+            (item.playlistName || '')
+            .toLowerCase()
+            .match(searchQuery.toLowerCase()) && true;
+
+        if (playlists)
+            filteredList = playlists.filter(
+                dataFilter
+            );
+
         return (
             <div className="ui container">
-                <div className="ui header">Add a Playlist</div>
+                <div className="ui header">
+                    Add a Playlist
+                </div>
                 <div className="ui basic segment">
 
                     <form className="ui form" onSubmit={this.handleSubmit}>
@@ -47,20 +106,37 @@ class Playlists extends Component {
                                 placeholder="New playlist name..." 
                                 name="playlistName"
                                 aria-describedby="buttonAdd"
-                                value={this.state.playlistName}
+                                value={playlistName}
                                 onChange={this.handleChange}
                             />
-                            <button className="ui teal icon button" type="submit" id="buttonAdd">
+                            <button className="ui icon button" type="submit" id="buttonAdd">
                                 <i className="plus icon"></i>
                             </button>
                         </div>
                     </form>
 
-                    {this.props.playlists && this.props.playlists.length ?
-                    <div className="ui very padded basic segment">
-                        <h2 className="ui header">Your Playlists</h2>
+                    {filteredList && filteredList.length ?
+                    <div className="ui very padded basic segment left aligned">
+                        <div className="ui inverted red segment" style={{display: 'flex',alignItems: 'center'}}>
+                            <span className="ui content header huge" 
+                                style={{marginBottom: 0}}>Your Playlists&nbsp;</span>
+                            <span className="ui {searchQuery.length? 'action':''} input icon right floated content">
+                                 <input type="text"
+                                    name="searchQuery"
+                                    value={searchQuery}
+                                    placeholder="Filter..."
+                                    onChange={this.handleChange}
+                                />
+                                {!searchQuery.length?
+                                <i className="filter disabled icon"></i>
+                                :
+                                <button className="ui basic inverted  white button icon"  
+                                    onClick={this.resetQuery}><i className="close icon"></i></button>                                
+                                }
+                           </span>
+                        </div>
                         <PlaylistsList 
-                            playlists={this.props.playlists} 
+                            playlists={filteredList} 
                             userID={this.props.userID}
                         />
                     </div>

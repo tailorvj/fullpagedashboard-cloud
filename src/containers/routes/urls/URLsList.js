@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import FormError from '../../../FormError';
 import { navigate } from '@reach/router';
 import firebase from '../../../utils/Firebase';
-import { GoTrashcan} from 'react-icons/go';
-import { MdEdit } from 'react-icons/md';
+import URLView from './URL.view'
 
 class URLsList extends Component {
     constructor(props){
@@ -40,42 +39,11 @@ class URLsList extends Component {
     
     const myURLs = URLs.map((item) => {
         return(
-            <div className="container" key={item.URLID}>
-                <section className="row border-top clearfix pt-2 pb-2">
-                    <div className="col-10 float-left text-left">
-                        <span className="d-flex justify-content-between">
-                            <a href={item.URLURL} target="_blank" rel="noopener noreferrer" className="text-decoration-none text-secondary">
-                            {item.URLDescription}
-                            </a>
-                            <span className="text-nowrap small">{item.URLDuration} ms</span>
-                        </span>
-                        
-                    </div>
-                    <div className="col-2 float-right">
-                        <div className="btn-group float-right border" role="group">
-                            <button
-                                className="btn btn-sm btn-outline-secondary"
-                                title="Delete URL"
-                                onClick={e =>
-                                this.deleteURL(
-                                    e,
-                                    item.URLID
-                                )
-                                }
-                            >
-                                <GoTrashcan />
-                            </button>
-                            <button
-                                className="btn btn-sm btn-outline-secondary"
-                                title="Edit URL"
-                                onClick={() => navigate(`/editURL/${this.props.userID}/${this.props.playlistID}/URLs/${item.URLID}`)}
-                            >
-                                <MdEdit />
-                            </button>
-                        </div>
-                    </div>
-                </section>
-            </div>
+            <URLView 
+                userID={this.props.userID} 
+                playlistID={this.props.playlistID} 
+                playlistName={this.props.playlistName}
+                item={item} urlID={item.URLID}></URLView>
         );
     });
 

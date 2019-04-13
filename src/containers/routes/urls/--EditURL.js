@@ -9,7 +9,7 @@ class EditURL extends Component {
       URLID: '',
       URLDescription: '',
       URLURL: '',
-      URLDuration: ''
+      URLDuration: 0
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -137,7 +137,7 @@ class EditURL extends Component {
                       id="URLDuration"
                       name="URLDuration"
                       placeholder="50000 (duration in milliseconds)"
-                      value={this.state.URLDuration}
+                      value={Number.parseInt(this.state.URLDuration) || 50000}
                       onChange={this.handleChange}
                     />
                   </section>

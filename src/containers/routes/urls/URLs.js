@@ -1,148 +1,163 @@
 import React, {Component} from 'react';
-import { navigate } from '@reach/router';
+import BackView from '../../global/Back.view';
 import firebase from '../../../utils/Firebase';
-import URLsList from './URLsList';
-import { MdPlaylistAdd } from 'react-icons/md';
+import URLView from './URL.view'
+import PlaylistView from '../playlists/Playlist.view';
 
 class URLs extends Component {
     constructor(props) {
-      super(props);
-      this.state = {
-        searchQuery: '',
-        allURLs: [],
-        displayURLs: [],
-        playlistName: ''
-      };
-  
-      this.handleChange = this.handleChange.bind(this);
-      this.resetQuery = this.resetQuery.bind(this);
+        super(props);
+        const {userID} = this.props;
+        this.state = {
+            listName: '',
+            list: [],
+            searchQuery: '',
+            howManyItems: 0,
+            playlist: this.props.location.state.playlist,
+            userID: userID
+        };
+        this.urlsRef = '';
+        this.playlistRef = '';
 
-      this.ref = '';
-      this.ref2 = '';
-    }
+        this.handleChange = this.handleChange.bind(this);
+        this.resetQuery = this.resetQuery.bind(this);
+
+     }
   
     componentDidMount(){
         this._isMounted = true;
-        //Let's get the playlist name for the heading
-        if(this.props.userID && this.props.playlistID){
-            this.ref2 = firebase.database().ref(`playlists/${this.props.userID}/${this.props.playlistID}`);
-            this.ref2.on('value', snapshot => {
-                let playlistName = snapshot.val().playlistName;
-                if(this._isMounted){
-                    this.setState({
-                    playlistName: playlistName
-                    });
-                }
-            });
-        }
 
-        //gets URLs from Firebase and 
-        //sets this.state.displayURLs
-        this.ref = firebase.database().ref(
-            `playlists/${this.props.userID}/${this.props.playlistID}/URLs`
-        );
+        this.playlistRef = firebase
+          .database()
+          .ref('playlists/'+this.props.userID+'/'+this.props.playlistID);
 
-        this.ref.on('value', snapshot => {
+        this.playlistRef.on('value', snapshot => {
+            let playlist = snapshot.val();
+
+            this.setState({
+                playlist
+            })
+          });
+
+        this.urlsRef = firebase
+          .database()
+          .ref('playlists/'+this.props.userID+'/'+this.props.playlistID+'/URLs/')
+          .orderByChild("URLDescription");
+
+        this.urlsRef.on('value', snapshot => {
             let URLs = snapshot.val();
-            let URLsList = [];
-            //convert Object to Array
+            var list= [];
+
             for (let item in URLs){
-                URLsList.push({
-                    URLID: item,
-                    URLDescription: URLs[item].URLDescription,
-                    URLURL: URLs[item].URLURL,
-                    URLDuration: URLs[item].URLDuration,
-                    star: URLs[item].star                            
+                list.push({ //listItems
+                    urlID: item, //itemID
+                    urlDesc: URLs[item].URLDescription,
+                    urlUrl: URLs[item].URLURL,
+                    urlDuration: Number.parseInt(URLs[item].URLDuration),
+                    star: URLs[item].star,
+                    playlistID: this.props.playlistID,
+                    userID: this.state.userID                            
                 });
             }
-            if(this._isMounted){
-                this.setState({
-                displayURLs: URLsList,
-                allURLs: URLsList
-                });
-            }
-        });  
+
+            this.setState({
+                list,       //list:listItems
+                filteredList: list, 
+                howManyItems: list.length
+                
+            })
+        });
+
     }
     
     componentWillUnmount() {
         this._isMounted = false;
-        this.ref.off();
-        this.ref2.off();
-    }
+        this.urlsRef.off();
+        this.playlistRef.off();
+   }
 
     handleChange(e) {
-        const itemName = e.target.name;
-        const itemValue = e.target.value;
-    
-        this.setState({ [itemName]: itemValue });
-    }    
-    
+        const keyName = e.target.name;
+        const keyValue = e.target.value;
+
+        this.setState({ [keyName]: keyValue });
+    }
+    refresh(e) {
+        this.setState({});
+    }
     resetQuery() {
         this.setState({
-          displayURLs: this.state.allURLs,
+          filteredList: this.state.list,
           searchQuery: ''
         });
     }
         
     render() {
-        const dataFilter = item =>
-            item.URLDescription
-            .toLowerCase()
-            .match(this.state.searchQuery.toLowerCase()) && true;
-        const filteredURLs = this.state.displayURLs.filter(
-            dataFilter
-        );
-    
-        return(
-            <div className="container mt-4">
-                <div className="row justify-content-center">
-                    <div className="col-md-10 text-center">
-                        <h1 className="font-weight-light">{this.state.playlistName}</h1>
-                        <div className="card bg-light">
-                            <div className="card-body text-center">
+        const {list, searchQuery, playlist} = this.state;
+        const {playlistName} = playlist;
+        const URLsCount = Object.keys(playlist.playlistURLs || {}).length
+        var filteredList = [];
 
-                                <div className="input-group input-group-lg">
-                                    <input
-                                        type="text"
-                                        name="searchQuery"
-                                        value={this.state.searchQuery}
-                                        placeholder="Filter URLs"
-                                        className="form-control"
-                                        onChange={this.handleChange}
-                                    />
-                                    <div className="input-group-append">
-                                        <button
-                                        type="submit"
-                                        className="btn btn-sm btn-info"
-                                        id="buttonAdd"
-                                        onClick={() => navigate(`/addURL/${this.props.userID}/${this.props.playlistID}`)}
-                                        >
-                                            <MdPlaylistAdd />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        const dataFilter = item =>
+            item.urlDesc
+            .toLowerCase()
+            .match(searchQuery.toLowerCase()) && true;
+
+        if (list)
+            filteredList = list.filter(
+                dataFilter
+            );
+
+        const myURLs = filteredList.map((item) => 
+        {
+            return(
+                <URLView key={item.urlID} {...item} callback={(e) => this.refresh(e)}
+                    playlistName={playlistName}></URLView>
+                
+            );
+        });
+        return(
+            <div className="ui container">
+                <BackView/>
+                {/*<div className="ui header">Playlist &quot;{playlistName}&quot;</div>*/}
+                {filteredList ?
+                    <div className="ui header">
+                        <PlaylistView key={this.props.playlistID}  userID={this.props.userID}
+                            item={playlist} URLsCount={URLsCount} 
+                            mode="header"/>
                     </div>
-                    {filteredURLs && filteredURLs.length ?
-                    <div className="col-11 col-md-8 text-center">
-                        <div className="card border-top-0 rounded-0">
-                            <div className="card-body py-2">
-                                <h4 className="card-title font-weight-light m-0">
-                                    Playlist URLs
-                                </h4>
-                            </div>
-                            <div className="div-group div-group-flush">
-                            <URLsList
-                            userID={this.props.userID}
-                            playlistID={this.props.playlistID}
-                            adminUser={this.props.adminUser}
-                            URLs={filteredURLs}
-                            />
-                            </div>
+                    :''
+                }
+
+                <div className="ui basic segment">
+
+                    {filteredList && filteredList.length ? 
+                    <div className="ui very padded basic segment left aligned">
+                        <div className="ui inverted red segment" style={{display: 'flex',alignItems: 'center'}}>
+                            <span className="ui content header huge" 
+                                style={{marginBottom: 0}}>URLs&nbsp;</span>
+                            <span className="ui {searchQuery.length? 'action':''} input icon right floated content">
+                                 <input type="text"
+                                    name="searchQuery"
+                                    value={searchQuery}
+                                    placeholder="Filter..."
+                                    onChange={this.handleChange}
+                                />
+                                {!searchQuery.length?
+                                <i className="filter disabled icon"></i>
+                                :
+                                <button className="ui basic inverted  white button icon"  
+                                    onClick={this.resetQuery}><i className="close icon"></i></button>                                
+                                }
+                           </span>
+                        </div>
+
+                        <div className="ui animated relaxed divided list">
+                            {myURLs}
                         </div>
                     </div>
                     : null}
+
                 </div>
             </div>
         );

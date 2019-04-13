@@ -13,7 +13,9 @@ import Playlists from '../../routes/playlists/Playlists';
 import CheckIn from '../../../CheckIn';
 import URLs from '../../routes/urls/URLs';
 import AddURL from '../../routes/urls/AddURL';
-import EditURL from '../../routes/urls/EditURL';
+// import EditURL from '../../routes/urls/EditURL';
+// import Filteredlist from '../filterBase';
+// import PlaylistsList from '../../routes/playlists/PlaylistsList';
 
 class App extends Component {
   constructor() {
@@ -23,8 +25,8 @@ class App extends Component {
       displayName : null,
       userID: null
     };
-    this.playlistsRef = '';
-    this.ref = '';
+    // this.playlistsRef = '';
+    // this.ref = '';
   }
 
   registerUser = (userName) => {
@@ -67,27 +69,6 @@ class App extends Component {
           });
         }
 
-        this.playlistsRef = firebase
-          .database()
-          .ref('playlists/' + FBUser.uid);
-
-        this.playlistsRef.on('value', snapshot => {
-          let playlists = snapshot.val();
-          let playlistsList = []; //Helper Array
-
-          for (let item in playlists) {
-            playlistsList.push({
-              playlistID: item,
-              playlistName: playlists[item].playlistName
-            });
-          }
-          if(this._isMounted){
-            this.setState({
-              playlists: playlistsList,
-              howManyPlaylists: playlistsList.length
-            });
-          }
-        });
       } else {
         this.setState({ user: null });
       }
@@ -96,12 +77,12 @@ class App extends Component {
 
   componentWillUnmount() {
     this._isMounted = false;
-    this.ref.off();
-    this.playlistsRef.off();
+    // this.ref.off();
+    // this.playlistsRef.off();
   }
 
   render() {
-    const { user , displayName} = this.state;
+    const { user, userID, displayName} = this.state;
 
     user ? navigate('/playlists') : navigate('/login');
 
@@ -156,31 +137,59 @@ class App extends Component {
           <GithubLogin className="ui fluid popup bottom left transition hidden" path="/login" />
           )}
 
+           {/*
+          <Filteredlist 
+              path="/playlists"
+              userID={userID}
+
+              pageTitle="Add a Playlist"
+              listTitle="Your Playlists"
+              collectionURL="playlists/:userID"
+              sortFieldName="playlistName">
+              <PlaylistsList path="/playlist"/>        
+          </Filteredlist>
+ /*
+                    <form className="ui form" onSubmit={this.handleSubmit}>
+                        <div className="ui action input">
+                            <input type="text" 
+                                placeholder="New playlist name..." 
+                                name="playlistName"
+                                aria-describedby="buttonAdd"
+                                value={playlistName}
+                                onChange={this.handleChange}
+                            />
+                            <button className="ui icon button" type="submit" id="buttonAdd">
+                                <i className="plus icon"></i>
+                            </button>
+                        </div>
+                    </form> * /
+          */}
+
           {user && (
-          <Playlists
-            path="/playlists"
-            playlists={this.state.playlists}
-            userID={this.state.userID}
-          />
+            <Playlists
+              path="/playlists"
+              // playlists={this.state.playlists}
+              userID={userID}
+            />
           )}
 
           <URLs
             path="/URLs/:userID/:playlistID"
-            URLs = {this.state.URLs}
-            adminUser={this.state.userID}
-            userID={this.state.userID}
+            // URLs = {this.state.URLs}
+            adminUser={userID}
+            userID={userID}
           />
           <AddURL 
-            path="/addURL/:userId/:playlistID" 
-            userID={this.state.userID}
+            path="/URL/:userId/:playlistID" 
+            userID={userID}
             />
-          <EditURL 
+{/*          <EditURL 
             path="/editURL/:userId/:playlistID/URLs/:URLID" 
-            userID={this.state.userID}
-            />
+            userID={userID}
+            />*/}
           <CheckIn 
             path="/checkin/:userId/:playlistID" 
-            userID={this.state.userID}
+            userID={userID}
             />
           <Register path="/register" registerUser={this.registerUser} />
         </Router>
