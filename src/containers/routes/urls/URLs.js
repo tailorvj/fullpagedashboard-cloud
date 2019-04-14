@@ -83,7 +83,7 @@ class URLs extends Component {
         this.setState({ [keyName]: keyValue });
     }
     refresh(e) {
-        this.setState({});
+        this.setState({timestemp: new Date()});
     }
     resetQuery() {
         this.setState({

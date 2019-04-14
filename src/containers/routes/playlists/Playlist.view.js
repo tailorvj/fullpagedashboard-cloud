@@ -51,7 +51,7 @@ class PlaylistView extends Component {
         .database()
         .ref(`playlists/${this.props.userID}/`+playlistId);
       this.ref.update({ playlistName: playlistName });
-      this.setState({ playlistName : playlistName });
+      // this.setState({ playlistName : playlistName });
  }
  componentDidMount(){
     this._isMounted = true;
@@ -73,20 +73,25 @@ class PlaylistView extends Component {
   render() {
     const { item, userID, URLsCount } = this.props
     const { playlistID } = item;
-    const canEdit = this.state.whichPlaylist == null;
+    const canEdit = false;//this.state.whichPlaylist == null;
     return (
     <div className="item" key={playlistID}>
         <div className="right floated content ui basic icon buttons">
-            <button className="ui link button" href="#"
-                onClick={() => {
-                  let listName = item.playlistName;
-                  navigate(`/URL/${userID}/${playlistID}`,{state: {playlistName:listName}})
-                }}>
-                <i className="large icons">
-                    <i className="fitted link  linkify icon"></i>
-                    <i className="plus corner icon"></i>
-                </i>
-            </button>
+            {/*edit button - temp. hidden on header */}
+            {!this.state.isHeader?
+              <button className="ui link button" href="#"
+                  onClick={() => {
+                    let listName = item.playlistName;
+                    navigate(`/URL/${userID}/${playlistID}`,{state: {playlistName:listName}})
+                  }}>
+                  <i className="large icons">
+                      <i className="fitted link  linkify icon"></i>
+                      <i className="plus corner icon"></i>
+                  </i>
+              </button>
+            :''}
+
+            {/*view list button - hidden on header */}
             {!this.state.isHeader?
               <button className="ui link button" href="#"
                   onClick={() => {
@@ -96,20 +101,23 @@ class PlaylistView extends Component {
               </button>
             :''}
 
-            <button className="ui link button" href="#"
-                onClick={e => this.deletePlaylist(e, playlistID)}>
-                <i className="icon trash large"></i>
-            </button>
+            {/*delete button - temp. hidden on header */}
+            {!this.state.isHeader?
+              <button className="ui link button" href="#"
+                  onClick={e => this.deletePlaylist(e, playlistID)}>
+                  <i className="icon trash large"></i>
+              </button>
+            :''}
         </div>
         <div className="content">
              <form className="ui form" onSubmit={this.handleSubmit}>
                 {playlistID === this.state.whichPlaylist ? 
                     <div className="ui action input">
                         <input type="text" 
-                            placeholder="New playlist name..." 
+                            placeholder="Playlist name..." 
                             name="playlistName"
                             aria-describedby="buttonUpdate"
-                            value={this.state.playlistName }
+                            value={item.playlistName }
                             onChange={(e) => this.handleChange(e,playlistID)}
                         />
                         <button className="ui green basic icon button" type="submit" id="buttonUpdate">
