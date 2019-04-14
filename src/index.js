@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 
 import App from './containers/global/app/App';
 
-import 'bootstrap/dist/css/bootstrap.css';
-import './index.css';
+// import 'bootstrap/dist/css/bootstrap.css';
+// import './index.css';
 
 import * as serviceWorker from './serviceWorker';
 

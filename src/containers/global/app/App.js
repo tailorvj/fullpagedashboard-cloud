@@ -2,9 +2,10 @@
 import React, { Component } from 'react';
 import { Router, navigate } from '@reach/router';
 import firebase from '../../../utils/Firebase';
+import {Link} from '@reach/router';
 
-import Home from '../../../Home';
-import Welcome from '../../../Welcome';
+//import Home from '../../../Home';
+// import Welcome from '../../../Welcome';
 import Navigation from '../../../Navigation';
 import GithubLogin from '../../routes/auth/GithubLogin';
 import Register from '../../../Register';
@@ -12,7 +13,9 @@ import Playlists from '../../routes/playlists/Playlists';
 import CheckIn from '../../../CheckIn';
 import URLs from '../../routes/urls/URLs';
 import AddURL from '../../routes/urls/AddURL';
-import EditURL from '../../routes/urls/EditURL';
+// import EditURL from '../../routes/urls/EditURL';
+// import Filteredlist from '../filterBase';
+// import PlaylistsList from '../../routes/playlists/PlaylistsList';
 
 class App extends Component {
   constructor() {
@@ -22,8 +25,8 @@ class App extends Component {
       displayName : null,
       userID: null
     };
-    this.playlistsRef = '';
-    this.ref = '';
+    // this.playlistsRef = '';
+    // this.ref = '';
   }
 
   registerUser = (userName) => {
@@ -54,13 +57,6 @@ class App extends Component {
     });
   };
 
-  addPlaylist = playlistName => {
-    this.ref = firebase
-      .database()
-      .ref(`playlists/${this.state.user.uid}`);
-    this.ref.push({ playlistName: playlistName });
-  };
-
   componentDidMount() {
     this._isMounted = true;
     this.listener = firebase.auth().onAuthStateChanged(FBUser => {
@@ -73,27 +69,6 @@ class App extends Component {
           });
         }
 
-        this.playlistsRef = firebase
-          .database()
-          .ref('playlists/' + FBUser.uid);
-
-        this.playlistsRef.on('value', snapshot => {
-          let playlists = snapshot.val();
-          let playlistsList = []; //Helper Array
-
-          for (let item in playlists) {
-            playlistsList.push({
-              playlistID: item,
-              playlistName: playlists[item].playlistName
-            });
-          }
-          if(this._isMounted){
-            this.setState({
-              playlists: playlistsList,
-              howManyPlaylists: playlistsList.length
-            });
-          }
-        });
       } else {
         this.setState({ user: null });
       }
@@ -102,45 +77,124 @@ class App extends Component {
 
   componentWillUnmount() {
     this._isMounted = false;
-    this.ref.off();
-    this.playlistsRef.off();
+    // this.ref.off();
+    // this.playlistsRef.off();
   }
 
   render() {
+    const { user, userID, displayName} = this.state;
+
+    user ? navigate('/playlists') : navigate('/login');
+
     return (
+
       <div>
-        <Navigation user={this.state.user} logOutUser={this.logOutUser} />
-        {this.state.user && <Welcome userName={this.state.displayName}  logOutUser={this.logOutUser} />}
+    {/* top header */}
+      <div className="ui large inverted blue top fixed menu blue ">
+         <div className="ui blue label item">
+            <img alt="logo" className="logo" src="Logo%20white.svg"/>&nbsp;&nbsp;&nbsp;
+            Full Page Dashboard (Cloud)
+        </div>  
+          <div className="right menu">
+            {!user && (
+              <Link className="item active dropdown" to="/login">
+                Log in / Sign up
+              </Link>
+            )}
+            {user && (              
+              <div className="item active">
+                {/*<img className="ui mini circular image" src="/images/avatar2/small/molly.png"/>*/}
+                <i className="ui circular icon user"></i>
+                <div className="content">
+                  <div className="ui sub header inverted">{displayName}</div>
+                  <Link to="/login" onClick={e => this.logOutUser(e)} style={{color: '#C0CBDD'}}>Log out</Link>
+                </div>
+              </div>              
+            )}
+          </div>
+      </div>
+      {user && (  
+        <Navigation/>
+      )}
+        {/*
+          <!-- Sidebar Menu -->
+          <div className="ui vertical inverted sidebar menu">
+            <a className="active item">Home</a>
+            <a className="item">Work</a>
+            <a className="item">Company</a>
+            <a className="item">Careers</a>
+            <a className="item">Login</a>
+            <a className="item">Signup</a>
+          </div>
+        */}
+        <div className="pusher">
+          <div className="ui vertical masthead center aligned segment">
 
         <Router>
-          <Home path="/" user={this.state.user} />
-          <GithubLogin path="/login" />
-          <Playlists
-            path="/playlists"
-            playlists={this.state.playlists}
-            addPlaylist={this.addPlaylist}
-            userID={this.state.userID}
-          />
+          {/* <Home path="/" user={this.state.user} />*/}
+
+          {user == null && (
+          <GithubLogin className="ui fluid popup bottom left transition hidden" path="/login" />
+          )}
+
+           {/*
+          <Filteredlist 
+              path="/playlists"
+              userID={userID}
+
+              pageTitle="Add a Playlist"
+              listTitle="Your Playlists"
+              collectionURL="playlists/:userID"
+              sortFieldName="playlistName">
+              <PlaylistsList path="/playlist"/>        
+          </Filteredlist>
+ /*
+                    <form className="ui form" onSubmit={this.handleSubmit}>
+                        <div className="ui action input">
+                            <input type="text" 
+                                placeholder="New playlist name..." 
+                                name="playlistName"
+                                aria-describedby="buttonAdd"
+                                value={playlistName}
+                                onChange={this.handleChange}
+                            />
+                            <button className="ui icon button" type="submit" id="buttonAdd">
+                                <i className="plus icon"></i>
+                            </button>
+                        </div>
+                    </form> * /
+          */}
+
+          {user && (
+            <Playlists
+              path="/playlists"
+              // playlists={this.state.playlists}
+              userID={userID}
+            />
+          )}
+
           <URLs
             path="/URLs/:userID/:playlistID"
-            URLs = {this.state.URLs}
-            adminUser={this.state.userID}
-            userID={this.state.userID}
+            // URLs = {this.state.URLs}
+            adminUser={userID}
+            userID={userID}
           />
           <AddURL 
-            path="/addURL/:userId/:playlistID" 
-            userID={this.state.userID}
+            path="/URL/:userId/:playlistID" 
+            userID={userID}
             />
-          <EditURL 
+{/*          <EditURL 
             path="/editURL/:userId/:playlistID/URLs/:URLID" 
-            userID={this.state.userID}
-            />
+            userID={userID}
+            />*/}
           <CheckIn 
             path="/checkin/:userId/:playlistID" 
-            userID={this.state.userID}
+            userID={userID}
             />
           <Register path="/register" registerUser={this.registerUser} />
         </Router>
+          </div>
+        </div>
       </div>
     );
   }
