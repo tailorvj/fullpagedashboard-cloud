@@ -115,7 +115,7 @@ class Playlists extends Component {
                         </div>
                     </form>
 
-                    {filteredList && filteredList.length ?
+                    {/*{filteredList && filteredList.length ?*/}
                     <div className="ui very padded basic segment left aligned">
                         <div className="ui inverted red segment" style={{display: 'flex',alignItems: 'center'}}>
                             <span className="ui content header huge" 
@@ -133,14 +133,17 @@ class Playlists extends Component {
                                 <button className="ui basic inverted  white button icon"  
                                     onClick={this.resetQuery}><i className="close icon"></i></button>                                
                                 }
-                           </span>
+                            </span>
+                            <span className="ui header content"
+                                style={{marginTop: 0}}>&nbsp;&nbsp;({this.state.howManyPlaylists} Playlists)</span>
+    
                         </div>
                         <PlaylistsList 
                             playlists={filteredList} 
                             userID={this.props.userID}
                         />
                     </div>
-                    : null}
+                    {/*: null}*/}
 
                 </div>
             </div>
