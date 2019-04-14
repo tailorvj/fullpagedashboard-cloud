@@ -152,7 +152,11 @@ class URLs extends Component {
                                 }
                            </span>
                            <span className="ui header content"
-                                style={{marginTop: 0}}>&nbsp;&nbsp;({this.state.howManyItems} URLs)</span>
+                                style={{marginTop: 0}}>&nbsp;&nbsp;(
+                                {filteredList && filteredList.length && filteredList.length < this.state.howManyItems ? 
+                                        filteredList.length + ' of '
+                                    :''}
+                                {this.state.howManyItems} URLs)</span>
                         </div>
 
                         <div className="ui animated relaxed divided list">

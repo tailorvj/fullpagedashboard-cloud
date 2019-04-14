@@ -135,7 +135,11 @@ class Playlists extends Component {
                                 }
                             </span>
                             <span className="ui header content"
-                                style={{marginTop: 0}}>&nbsp;&nbsp;({this.state.howManyPlaylists} Playlists)</span>
+                                style={{marginTop: 0}}>&nbsp;&nbsp;(
+                                    {filteredList && filteredList.length && filteredList.length < this.state.howManyPlaylists ? 
+                                        filteredList.length + ' of '
+                                    :''}
+                                    {this.state.howManyPlaylists} Playlists)</span>
     
                         </div>
                         <PlaylistsList 
