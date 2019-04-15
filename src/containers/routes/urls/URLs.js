@@ -131,9 +131,10 @@ class URLs extends Component {
 
                 <div className="ui basic segment">
 
-                    {filteredList && filteredList.length ? 
+                  {/*  {filteredList && filteredList.length ? */}
                     <div className="ui very padded basic segment left aligned">
                         <div className="ui inverted red segment" style={{display: 'flex',alignItems: 'center'}}>
+
                             <span className="ui content header huge" 
                                 style={{marginBottom: 0}}>URLs&nbsp;</span>
                             <span className="ui {searchQuery.length? 'action':''} input icon right floated content">
@@ -150,13 +151,19 @@ class URLs extends Component {
                                     onClick={this.resetQuery}><i className="close icon"></i></button>                                
                                 }
                            </span>
+                           <span className="ui header content"
+                                style={{marginTop: 0}}>&nbsp;&nbsp;(
+                                {filteredList && filteredList.length && filteredList.length < this.state.howManyItems ? 
+                                        filteredList.length + ' of '
+                                    :''}
+                                {this.state.howManyItems} URLs)</span>
                         </div>
 
                         <div className="ui animated relaxed divided list">
                             {myURLs}
                         </div>
                     </div>
-                    : null}
+                    {/*: null}*/}
 
                 </div>
             </div>
