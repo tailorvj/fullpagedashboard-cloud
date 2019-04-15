@@ -11,8 +11,10 @@ class Playlists extends Component {
         this.addPlaylist = this.addPlaylist.bind(this);
         this.resetQuery = this.resetQuery.bind(this);
         this.getData = this.getData.bind(this);
+        this.addPlaylist = this.addPlaylist.bind(this);
 
         this.playlistsRef = '';
+
         this.state ={
             searchQuery: '',
             playlistName: '',
@@ -30,13 +32,14 @@ class Playlists extends Component {
         // this.userRef = db.collection('users').doc(this.props.userID);
         // this.userDeviceGroups = this.userRef.collection('user_device_groups');
         // this.defaultDeviceGroup = this.userDeviceGroups.doc('default');//.limit(1) or .doc('default');
-        this.playlistsRef = db.collection('/device_groups/default/playlists')
-                                .orderBy("name", "asc");
+        this.playlistsRef = db.collection('/device_groups/default/playlists');
                             // db.collection('device_groups')
                                 // .doc(this.defaultDeviceGroup)
                                     // .collection('playlists').orderByChild("name");
 
-        this.playlistsRef.onSnapshot( snapshot => {
+        this.playlistsRef
+            .orderBy("name", "asc")
+            .onSnapshot( snapshot => {
             let playlistsList = []; //Helper Array
 
             snapshot.forEach( doc => {
@@ -82,7 +85,8 @@ class Playlists extends Component {
         //   .database()
         //   .ref(`playlists/${this.props.userID}`);
         // this.ref.push({ playlistName: playlistName });
-        this.playlistsRef.add({ name: playlistName, description: '', isActive:false });
+        this.playlistsRef
+        .add({ name: playlistName, description: '', isActive:false });
     };
     resetQuery() {
         this.setState({
