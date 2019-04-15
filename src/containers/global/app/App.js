@@ -7,7 +7,7 @@ import {Link} from '@reach/router';
 //import Home from '../../../Home';
 // import Welcome from '../../../Welcome';
 import Navigation from '../../../Navigation';
-import GithubLogin from '../../routes/auth/GithubLogin';
+import LoginView from '../../routes/auth/Login.view';
 import Register from '../../../Register';
 import Playlists from '../../routes/playlists/Playlists';
 import CheckIn from '../../../CheckIn';
@@ -134,7 +134,7 @@ class App extends Component {
           {/* <Home path="/" user={this.state.user} />*/}
 
           {user == null && (
-          <GithubLogin className="ui fluid popup bottom left transition hidden" path="/login" />
+          <LoginView className="ui fluid popup bottom left transition hidden" path="/login" />
           )}
 
            {/*
@@ -148,21 +148,6 @@ class App extends Component {
               sortFieldName="playlistName">
               <PlaylistsList path="/playlist"/>        
           </Filteredlist>
- /*
-                    <form className="ui form" onSubmit={this.handleSubmit}>
-                        <div className="ui action input">
-                            <input type="text" 
-                                placeholder="New playlist name..." 
-                                name="playlistName"
-                                aria-describedby="buttonAdd"
-                                value={playlistName}
-                                onChange={this.handleChange}
-                            />
-                            <button className="ui icon button" type="submit" id="buttonAdd">
-                                <i className="plus icon"></i>
-                            </button>
-                        </div>
-                    </form> * /
           */}
 
           {user && (

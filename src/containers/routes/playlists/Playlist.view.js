@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 // import {Card,Image,Icon, Label} from 'semantic-ui-react'
 // import cn from 'classnames'
 import { navigate } from '@reach/router';
-import firebase from '../../../utils/Firebase';
+import firebase /*, {db}*/ from '../../../utils/Firebase';
 
 class PlaylistView extends Component {
   constructor(props) {
@@ -72,7 +72,7 @@ class PlaylistView extends Component {
 
   render() {
     const { item, userID, URLsCount } = this.props
-    const { playlistID } = item;
+    const playlistID = item.playlistID.id;
     const canEdit = false;//this.state.whichPlaylist == null;
     return (
     <div className="item" key={playlistID}>

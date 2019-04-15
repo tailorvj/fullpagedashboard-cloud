@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import firebase from '../../../utils/Firebase';
+import firebase /*, {provider}*/ from '../../../utils/Firebase';
 import StyledFirebaseAuth from'react-firebaseui/StyledFirebaseAuth';
 import {navigate} from '@reach/router';
 
-class GithubLogin extends Component {
+class LoginView extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -40,6 +40,25 @@ class GithubLogin extends Component {
           }
         }
     );
+    // firebase.auth().getRedirectResult().then(function(result) {
+    //   if (result.credential) {
+    //     // This gives you a GitHub Access Token. You can use it to access the GitHub API.
+    //     var token = result.credential.accessToken;
+    //     // ...
+    //   }
+    //   // The signed-in user info.
+    //   var user = result.user;
+    // }).catch(function(error) {
+    //   // Handle Errors here.
+    //   var errorCode = error.code;
+    //   var errorMessage = error.message;
+    //   // The email of the user's account used.
+    //   var email = error.email;
+    //   // The firebase.auth.AuthCredential type that was used.
+    //   var credential = error.credential;
+    //   // ...
+    // });
+
   }
   
   // Make sure we un-register Firebase observers when the component unmounts.
@@ -50,6 +69,7 @@ class GithubLogin extends Component {
 
   render() {
     if (!this.state.isSignedIn) {
+      // firebase.auth().signInWithRedirect(provider);
       //display login button
       return (
         <div>
@@ -78,4 +98,4 @@ class GithubLogin extends Component {
   }
 }
 
-export default GithubLogin;
+export default LoginView;

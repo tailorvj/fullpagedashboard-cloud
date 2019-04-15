@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import firebase from '../../../utils/Firebase';
+import {db} from '../../../utils/Firebase';
 import PlaylistsList from './PlaylistsList';
 
 class Playlists extends Component {
@@ -10,44 +10,54 @@ class Playlists extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.addPlaylist = this.addPlaylist.bind(this);
         this.resetQuery = this.resetQuery.bind(this);
-        
-        this.playlistsRef = '';
+        this.getData = this.getData.bind(this);
 
+        this.playlistsRef = '';
         this.state ={
+            searchQuery: '',
             playlistName: '',
             playlists: [],
-            searchQuery: '',
             howManyPlaylists: 0
         };
-
-
+        
      }
+     getData(){
+        // this.playlistsRef = firebase
+        //   .database()
+        //   .ref('playlists/' + this.props.userID)
+        //   .orderByChild("playlistName");
 
-    componentDidMount(){
-        this._isMounted = true;
-        this.playlistsRef = firebase
-          .database()
-          .ref('playlists/' + this.props.userID)
-          .orderByChild("playlistName");
+        // this.userRef = db.collection('users').doc(this.props.userID);
+        // this.userDeviceGroups = this.userRef.collection('user_device_groups');
+        // this.defaultDeviceGroup = this.userDeviceGroups.doc('default');//.limit(1) or .doc('default');
+        this.playlistsRef = db.collection('/device_groups/default/playlists')
+                                .orderBy("name", "asc");
+                            // db.collection('device_groups')
+                                // .doc(this.defaultDeviceGroup)
+                                    // .collection('playlists').orderByChild("name");
 
-        this.playlistsRef.on('value', snapshot => {
-            let playlists = snapshot.val();
+        this.playlistsRef.onSnapshot( snapshot => {
             let playlistsList = []; //Helper Array
 
-            for (let item in playlists) {
-                playlistsList.push({
-                  playlistID: item,
-                  // playlist: playlists[item],
-                  playlistName: playlists[item].playlistName,
-                  playlistURLs: playlists[item].URLs || {}
+            snapshot.forEach( doc => {
+
+               playlistsList.push({
+                  playlistID: doc,
+                  playlistName: doc.data().name,
+                  playlistURLs: doc.data().URLs || {}
                 });
-            }
+            });
             this.setState({
                 playlistName: '',
                 playlists: playlistsList,
                 howManyPlaylists: playlistsList.length
             });
         });
+
+     }
+    componentDidMount(){
+        this._isMounted = true;
+        this.getData();
     }       
 
     componentWillUnmount() {
@@ -68,10 +78,11 @@ class Playlists extends Component {
         this.setState({playlistName: ''});
     }    
     addPlaylist = playlistName => {
-        this.ref = firebase
-          .database()
-          .ref(`playlists/${this.props.userID}`);
-        this.ref.push({ playlistName: playlistName });
+        // this.ref = firebase
+        //   .database()
+        //   .ref(`playlists/${this.props.userID}`);
+        // this.ref.push({ playlistName: playlistName });
+        this.playlistsRef.add({ name: playlistName, description: '', isActive:false });
     };
     resetQuery() {
         this.setState({
