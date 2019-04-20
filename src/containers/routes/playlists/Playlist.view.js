@@ -157,7 +157,7 @@ class PlaylistView extends Component {
                             : ''}
                         </h2>
                         {!this.state.isHeader?
-                          <h5 className="ui grey left aligned header" style={{marginTop: -1 + 'em'}}>&nbsp;({this.state.URLsCount} URLs)</h5>
+                          <h5 className="ui grey left aligned header">&nbsp;({this.state.URLsCount} URLs)</h5>
                         :''}
                     </div>
                 }      
