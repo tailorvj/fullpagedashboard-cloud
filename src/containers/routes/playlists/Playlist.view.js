@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 // import cn from 'classnames'
 import { navigate } from '@reach/router';
 import firebase /*, {db}*/ from '../../../utils/Firebase';
+import {db} from '../../../utils/Firebase';
 
 class PlaylistView extends Component {
   constructor(props) {
@@ -19,14 +20,17 @@ class PlaylistView extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.updatePlaylistName=this.updatePlaylistName.bind(this);
+    this.getData=this.getData.bind(this);
 
     this.ref = '';
+    this.URLs = '';
   }
   deletePlaylist = (e, whichPlaylist) => {
       e.preventDefault();
       try{
         this.ref = firebase.database().ref(
             `playlists/${this.props.userID}/${whichPlaylist}`
+        // db.collection('/device_groups/default/playlists').doc();            
         );
         this.ref.remove();
       }
@@ -55,15 +59,23 @@ class PlaylistView extends Component {
  }
  componentDidMount(){
     this._isMounted = true;
+    this.getData();
 
-    // this.playlistRef = firebase
-    //   .database()
-    //   .ref('playlists/'+this.props.userID+'/'+this.state.whichPlaylist);
+  }
+  getData(){
+    const {item} = this.props;
 
-    // this.playlistRef.on('value', snapshot => {
-    //     let playlist = snapshot.val();
-    //     this.setState({ playlistName : playlist.playlistName });
-    //   });
+    this.URLs = db.collection('/URLs/').where("playlistId", "==", item.playlistID);
+
+    this.URLs
+        // .orderBy("URLDescription", "asc")
+        .onSnapshot( snapshot => {
+          this.setState({URLsCount : snapshot.size});
+          // snapshot.forEach( doc => {
+          //   console.log("URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
+          // });
+    });
+
   }
   componentWillUnmount() {
     this._isMounted = false;
@@ -71,8 +83,9 @@ class PlaylistView extends Component {
   }
 
   render() {
-    const { item, userID, URLsCount } = this.props
-    const playlistID = item.playlistID.id;
+    const { item, userID/*, URLsCount*/ } = this.props
+    // const {URLsCount} = item;
+    const playlistID = item.id;
     const canEdit = false;//this.state.whichPlaylist == null;
     return (
     <div className="item" key={playlistID}>
@@ -131,7 +144,7 @@ class PlaylistView extends Component {
                 :
                     <div >
                         <h2 className="header">
-                            {item.playlistName}&nbsp;&nbsp;
+                            {item.deviceGroupName} / {item.playlistName}&nbsp;&nbsp;
                             {canEdit ?
                             <a className="ui basic edit" href="edit" 
                                 onClick={(e) => { 
@@ -144,7 +157,7 @@ class PlaylistView extends Component {
                             : ''}
                         </h2>
                         {!this.state.isHeader?
-                          <h5 className="ui grey left aligned header">&nbsp;({URLsCount} URLs)</h5>
+                          <h5 className="ui grey left aligned header" style={{marginTop: -1 + 'em'}}>&nbsp;({this.state.URLsCount} URLs)</h5>
                         :''}
                     </div>
                 }      
@@ -165,8 +178,8 @@ class PlaylistView extends Component {
 
 PlaylistView.propTypes = {
   userID: PropTypes.string.isRequired,
-  item: PropTypes.object.isRequired,
-  URLsCount: PropTypes.number.isRequired,
+  item: PropTypes.object.isRequired/*,
+  URLsCount: PropTypes.number.isRequired,*/
 }
 
 export default PlaylistView

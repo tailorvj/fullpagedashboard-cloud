@@ -1,7 +1,7 @@
 // Import React
 import React, { Component } from 'react';
 import { Router, navigate } from '@reach/router';
-import firebase from '../../../utils/Firebase';
+import firebase, {db} from '../../../utils/Firebase';
 import {Link} from '@reach/router';
 
 //import Home from '../../../Home';
@@ -25,6 +25,10 @@ class App extends Component {
       displayName : null,
       userID: null
     };
+    this.userRef='';
+    this.userUserGroupsRef='';
+    this.userDeviceGroupsRef='';
+
     // this.playlistsRef = '';
     // this.ref = '';
   }
@@ -56,6 +60,54 @@ class App extends Component {
       navigate('/login');
     });
   };
+ getData(){
+    this.userRef = db.collection('users').doc(this.state.userID);
+    this.userDeviceGroupsRef = this.userRef.collection('user_device_groups');
+    this.userUserGroupsRef = this.userRef.collection('user_user_groups');
+
+    this.userRef
+      .onSnapshot( snapshot => {
+        this.setState({
+            userName: snapshot.name
+        });        
+      })
+
+    this.userDeviceGroupsRef
+      // .orderBy("name", "asc")
+      .onSnapshot( snapshot => {
+        let deviceGroupsList = []; //Helper Array
+
+        snapshot.forEach( doc => {
+
+           deviceGroupsList.push({
+              deviceGroupsID: doc //.data()
+            });
+        });
+
+        this.setState({
+            deviceGroups: deviceGroupsList,
+            howManyDeviceGroups: deviceGroupsList.length
+        });
+      });
+    this.userUserGroupsRef
+      // .orderBy("name", "asc")
+      .onSnapshot( snapshot => {
+        let userGroupsList = []; //Helper Array
+
+        snapshot.forEach( doc => {
+
+           userGroupsList.push({
+              userGroupsID: doc //.data
+            });
+        });
+
+        this.setState({
+            userGroups: userGroupsList,
+            howManyUserGroups: userGroupsList.length
+        });
+      });
+
+}
 
   componentDidMount() {
     this._isMounted = true;
@@ -67,6 +119,8 @@ class App extends Component {
             displayName: FBUser.displayName,
             userID: FBUser.uid
           });
+          // this.getData();
+
         }
 
       } else {
@@ -128,7 +182,7 @@ class App extends Component {
           </div>
         */}
         <div className="pusher">
-          <div className="ui vertical masthead center aligned segment">
+          <div className="ui vertical masthead center aligned segment" style={{marginTop: 3+'em'}}>
 
         <Router>
           {/* <Home path="/" user={this.state.user} />*/}
@@ -153,6 +207,8 @@ class App extends Component {
           {user && (
             <Playlists
               path="/playlists"
+              // userGroups={this.state.userGroups}
+              // deviceGroups={this.state.deviceGroups}
               // playlists={this.state.playlists}
               userID={userID}
             />

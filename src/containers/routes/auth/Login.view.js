@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
-import firebase /*, {provider}*/ from '../../../utils/Firebase';
+// import firebase /*, {provider}*/ from '../../../utils/Firebase';
+import firebase/*, {auth, db}*/ from '../../../utils/Firebase';
+
 import StyledFirebaseAuth from'react-firebaseui/StyledFirebaseAuth';
 import {navigate} from '@reach/router';
 
@@ -25,7 +27,10 @@ class LoginView extends Component {
       ],
       callbacks:{
         // Avoid redirects after sign-in.
-        signInSuccessWithAuthResult :() => navigate('/playlists')
+        signInSuccessWithAuthResult :(authObj) => {
+          this.setState({uid : authObj.user.uid});
+          navigate('/playlists/')
+        }
       }
     }
   };
@@ -36,7 +41,10 @@ class LoginView extends Component {
     firebase.auth().onAuthStateChanged(
         (user) => {
           if(this._isMounted){
-            this.setState({isSignedIn: !!user})
+            this.setState({isSignedIn: !!user});
+            if (user) this.setState({uid: user.uid});
+            // if (this.state.isSignedIn)
+              // this.getData();
           }
         }
     );
