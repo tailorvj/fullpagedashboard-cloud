@@ -15,11 +15,11 @@ class PlaylistsList extends Component {
     }
 
   render() {
-    const { playlists, distinctDeviceGroups } = this.props;
+    const { playlists, /*distinctDeviceGroups */} = this.props;
     let deviceGroupName='';
     const myPlaylists = playlists.map((item) => 
         {
-            const changedGroup = item.deviceGroupName !== deviceGroupName;
+            // const changedGroup = item.deviceGroupName !== deviceGroupName;
             if (item.deviceGroupName !== deviceGroupName)
             {
                 deviceGroupName = item.deviceGroupName;
