@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import firebase from '../../../utils/Firebase';
+// import firebase from '../../../utils/Firebase';
+// import {db} from '../../../utils/Firebase';
 
 import PlaylistView from './Playlist.view';
 
@@ -10,25 +11,27 @@ class PlaylistsList extends Component {
         this.state = {
         errorMessage: null
         }
-        this.ref = '';
+        // this.ref = '';
     }
 
   render() {
-    const { playlists } = this.props;
+    const { playlists, /*distinctDeviceGroups */} = this.props;
+    let deviceGroupName='';
     const myPlaylists = playlists.map((item) => 
         {
-            let URLsCount=0;
-            this.URLs = firebase
-                .database()
-                .ref(`playlists/${this.props.userID}/${item.playlistID}/URLs`)
-                .on('value', snapshot => {
-                    const arrObj = snapshot? snapshot.val(): {};
-                    URLsCount = Object.keys(arrObj? arrObj: {}).length;
-                });
-
+            // const changedGroup = item.deviceGroupName !== deviceGroupName;
+            if (item.deviceGroupName !== deviceGroupName)
+            {
+                deviceGroupName = item.deviceGroupName;
+            }
+//             {/*<div key={item.deviceGroupId+'_'+item.playlistID}>*/}
+//               {changedGroup ?
+//                  <div className="item header" key={item.deviceGroupId+'_header'}>Device Group: {item.deviceGroupName}</div>
+//                :null
+//               }
+//             {/*</div>*/}
             return(
-                <PlaylistView key={item.playlistID} item={item} userID={this.props.userID} URLsCount={URLsCount}/>
-
+                    <PlaylistView key={item.deviceGroupName+"_"+item.playlistID} item={item} userID={this.props.userID} deletePlaylist={(e, whichPlaylist, deviceGroupId) => this.props.deletePlaylist(e, whichPlaylist, deviceGroupId)}/>
             );
         });
 

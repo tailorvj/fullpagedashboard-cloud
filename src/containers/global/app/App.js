@@ -7,12 +7,12 @@ import {Link} from '@reach/router';
 //import Home from '../../../Home';
 // import Welcome from '../../../Welcome';
 import Navigation from '../../../Navigation';
-import GithubLogin from '../../routes/auth/GithubLogin';
+import LoginView from '../../routes/auth/Login.view';
 import Register from '../../../Register';
 import Playlists from '../../routes/playlists/Playlists';
-import CheckIn from '../../../CheckIn';
+// import CheckIn from '../../../CheckIn';
 import URLs from '../../routes/urls/URLs';
-import AddURL from '../../routes/urls/AddURL';
+import URLDetails from '../../routes/urls/URLDetails';
 // import EditURL from '../../routes/urls/EditURL';
 // import Filteredlist from '../filterBase';
 // import PlaylistsList from '../../routes/playlists/PlaylistsList';
@@ -23,21 +23,28 @@ class App extends Component {
     this.state = {
       user: null, 
       displayName : null,
-      userID: null
+      userID: null,
+      photo: null
     };
+    this.userRef='';
+    this.userUserGroupsRef='';
+    this.userDeviceGroupsRef='';
+
     // this.playlistsRef = '';
     // this.ref = '';
   }
 
   registerUser = (userName) => {
     firebase.auth().onAuthStateChanged(FBUser => {
+      console.log("in App.js - registerUser, "+userName + JSON.stringify(FBUser));
       FBUser.updateProfile({
         displayName: userName
       }).then(()=>{
         this.setState({
           user: FBUser,
           displayName: FBUser.displayName,
-          userID: FBUser.uid
+          userID: FBUser.uid,
+          photo: FBUser.photoURL
         });
         navigate('/playlists');
       });
@@ -50,23 +57,84 @@ class App extends Component {
       user: null,
       displayName: null,
       userID: null,
+      photo:null,
       playlists: []
     });
     firebase.auth().signOut().then(()=>{
       navigate('/login');
     });
   };
+/* getData(){
+    this.userRef = db.collection('users').doc(this.state.userID);
+    this.userRef
+      .onSnapshot( snapshot => {
+        if (snapshot.name === null)
+        {
+          console.log("in App.js - getData - user not exists in users table, "+this.state.userID );
+
+        }
+        else
+        {
+          console.log("in App.js - getData - user exists "+this.state.userID);
+
+          this.setState({
+              userName: snapshot.name
+          });
+          this.userDeviceGroupsRef = this.userRef.collection('user_device_groups');
+          this.userUserGroupsRef = this.userRef.collection('user_user_groups');
+          this.userDeviceGroupsRef
+            // .orderBy("name", "asc")
+            .onSnapshot( snapshot => {
+              let deviceGroupsList = []; //Helper Array
+
+              snapshot.forEach( doc => {
+
+                 deviceGroupsList.push({
+                    deviceGroupsID: doc //.data()
+                  });
+              });
+
+              this.setState({
+                  deviceGroups: deviceGroupsList,
+                  howManyDeviceGroups: deviceGroupsList.length
+              });
+          });
+          this.userUserGroupsRef
+            // .orderBy("name", "asc")
+            .onSnapshot( snapshot => {
+              let userGroupsList = []; //Helper Array
+
+              snapshot.forEach( doc => {
+
+                 userGroupsList.push({
+                    userGroupsID: doc //.data
+                  });
+              });
+
+              this.setState({
+                  userGroups: userGroupsList,
+                  howManyUserGroups: userGroupsList.length
+              });
+          });
+        }
+      })
+}*/
 
   componentDidMount() {
     this._isMounted = true;
     this.listener = firebase.auth().onAuthStateChanged(FBUser => {
       if (FBUser) {
+        console.log("in App.js - componentDidMount, " + FBUser.displayName);      
+
         if(this._isMounted){
           this.setState({
             user: FBUser,
             displayName: FBUser.displayName,
-            userID: FBUser.uid
+            userID: FBUser.uid,
+            photo: FBUser.photoURL
           });
+          // this.getData();
+
         }
 
       } else {
@@ -82,7 +150,7 @@ class App extends Component {
   }
 
   render() {
-    const { user, userID, displayName} = this.state;
+    const { user, userID, displayName, photo} = this.state;
 
     user ? navigate('/playlists') : navigate('/login');
 
@@ -103,8 +171,8 @@ class App extends Component {
             )}
             {user && (              
               <div className="item active">
-                {/*<img className="ui mini circular image" src="/images/avatar2/small/molly.png"/>*/}
-                <i className="ui circular icon user"></i>
+                <img className="ui mini circular image" src={photo} style={{marginRight: 1 + 'em'}} alt="profile"/>
+                {/*<i className="ui circular icon user"></i>*/}
                 <div className="content">
                   <div className="ui sub header inverted">{displayName}</div>
                   <Link to="/login" onClick={e => this.logOutUser(e)} style={{color: '#C0CBDD'}}>Log out</Link>
@@ -128,13 +196,13 @@ class App extends Component {
           </div>
         */}
         <div className="pusher">
-          <div className="ui vertical masthead center aligned segment">
+          <div className="ui vertical masthead center aligned segment" style={{marginTop: 3+'em'}}>
 
         <Router>
           {/* <Home path="/" user={this.state.user} />*/}
 
           {user == null && (
-          <GithubLogin className="ui fluid popup bottom left transition hidden" path="/login" />
+          <LoginView className="ui fluid popup bottom left transition hidden" path="/login" />
           )}
 
            {/*
@@ -148,26 +216,13 @@ class App extends Component {
               sortFieldName="playlistName">
               <PlaylistsList path="/playlist"/>        
           </Filteredlist>
- /*
-                    <form className="ui form" onSubmit={this.handleSubmit}>
-                        <div className="ui action input">
-                            <input type="text" 
-                                placeholder="New playlist name..." 
-                                name="playlistName"
-                                aria-describedby="buttonAdd"
-                                value={playlistName}
-                                onChange={this.handleChange}
-                            />
-                            <button className="ui icon button" type="submit" id="buttonAdd">
-                                <i className="plus icon"></i>
-                            </button>
-                        </div>
-                    </form> * /
           */}
 
           {user && (
             <Playlists
               path="/playlists"
+              // userGroups={this.state.userGroups}
+              // deviceGroups={this.state.deviceGroups}
               // playlists={this.state.playlists}
               userID={userID}
             />
@@ -179,18 +234,18 @@ class App extends Component {
             adminUser={userID}
             userID={userID}
           />
-          <AddURL 
+          <URLDetails 
             path="/URL/:userId/:playlistID" 
             userID={userID}
             />
 {/*          <EditURL 
             path="/editURL/:userId/:playlistID/URLs/:URLID" 
             userID={userID}
-            />*/}
+            />
           <CheckIn 
             path="/checkin/:userId/:playlistID" 
             userID={userID}
-            />
+            />*/}
           <Register path="/register" registerUser={this.registerUser} />
         </Router>
           </div>
