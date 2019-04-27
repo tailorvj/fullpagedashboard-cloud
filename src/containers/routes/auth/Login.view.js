@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 // import firebase /*, {provider}*/ from '../../../utils/Firebase';
-import firebase/*, {auth, db}*/ from '../../../utils/Firebase';
+import firebase,{db}/*, {auth, db}*/ from '../../../utils/Firebase';
 
 import StyledFirebaseAuth from'react-firebaseui/StyledFirebaseAuth';
 import {navigate} from '@reach/router';
@@ -40,6 +40,56 @@ class LoginView extends Component {
     this._isMounted = true;
     firebase.auth().onAuthStateChanged(
         (user) => {
+          console.log("in Login.view.js - componentDidMount, " + user.displayName + " db:"+db)
+          var userRef = db.collection('users').doc(user.uid);
+          userRef.get().then(function(doc) {
+              if (doc.exists) {
+                  console.log("User data:", doc.data());
+              } else {
+                  // doc.data() will be undefined in this case
+                  console.log("New user! - creating default data");
+
+                  userRef.set({
+                     name: user.name
+                  });
+
+                  //add default user group for this user
+                  userRef.collection('user_user_groups').add(user.id);
+
+                  db.collection('user_groups').doc(user.id).set({
+                    name: "default user group"
+                  });
+                  db.collection('user_groups').doc(user.id).collection("users").doc(user.id).set({isAdmin:true});
+
+                  //add default device group
+                  userRef.collection('user_device_groups').add(user.id);
+                  db.collection('device_groups').doc(user.id).set({
+                    name: "default device group",
+                    userGroupId: user.id
+                  });
+                  db.collection('device_groups').doc(user.id)
+                    .collection("playlists").add(user.id);
+
+                  db.collection("playlists").doc(user.id).set({
+                    description: "default playlist",
+                    deviceGroupId: user.id,
+                    isActive: true,
+                    name: "default device group"
+                  })
+
+                  db.collection("URLs").add({
+                    description: "Otot",
+                    duration: 5000,
+                    playlistId: user.id,
+                    star: false,
+                    url: "http://dev.otot.tv"
+                  })
+                  this.setState({newUser:true});
+              }
+          }).catch(function(error) {
+              console.log("Error getting user:", error);
+          });  
+
           if(this._isMounted){
             this.setState({isSignedIn: !!user});
             if (user) this.setState({uid: user.uid});
@@ -80,7 +130,7 @@ class LoginView extends Component {
       // firebase.auth().signInWithRedirect(provider);
       //display login button
       return (
-        <div>
+        <div style={{marginTop: 3+'em'}}>
           <div className="ui vertical segment container">
               <div className="ui header">
                 Playlist Manager
@@ -88,6 +138,16 @@ class LoginView extends Component {
               <p className="ui sub header" >
                 Manage your Raspberry Pi URL playlists from this app. 
               </p>
+              {this.state.newUser ?
+                <p>
+                Welcome to OTOT.
+                you can now<br/>
+                Register a new device 
+                <hr> OR</hr>
+                Buy a new device 
+                </p>
+                : null
+              }
           </div>
           {!this.state.isSignedIn ?
             <StyledFirebaseAuth className="ui very padded basic segment"

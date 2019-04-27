@@ -1,18 +1,22 @@
 import React, { Component } from 'react';
-import firebase from '../../../utils/Firebase';
+import {db} from '../../../utils/Firebase';
 // import { navigate } from '@reach/router';
 
-class AddURL extends Component {
+class URLDetails extends Component {
   constructor(props) {
     super(props);
-    const {playlistName, urlID, urlDesc, urlUrl, urlDuration, mode} = this.props.location.state;
+    const {playlist, urlItem, mode} = this.props.location.state;
+
+    const {playlistID, playlistName} = playlist;
+    const {urlID, description, url, duration} = urlItem || {};
 
     this.state = {
+      playlistID,
       playlistName,
       urlID: urlID || '',
-      urlDesc: urlDesc || '',
-      urlUrl: urlUrl || '',
-      urlDuration: urlDuration || 50000,
+      urlDesc: description || '',
+      urlUrl: url || '',
+      urlDuration: duration || 50000,
       isEdit: mode === "edit"
     };
 
@@ -32,32 +36,30 @@ class AddURL extends Component {
     e.preventDefault();
     if (!this.state.isEdit) {
       //add new
-      const ref = firebase
-        .database()
-        .ref(
-          `playlists/${this.props.userID}/${
-            this.props.playlistID
-          }/URLs`
-        );
-      ref.push({
-        URLDescription: this.state.urlDesc,
-        URLURL: this.state.urlUrl,
-        URLDuration: this.state.urlDuration
+      const ref = db
+        // .collection(`playlists/${this.props.userID}/`)
+        // .doc(this.props.playlistID)
+        .collection('URLs');
+      ref.add({
+        playlistId: this.state.playlistID,
+        description: this.state.urlDesc,
+        url: this.state.urlUrl,
+        duration: this.state.urlDuration,
+        star: false,
       });
     }
     else
     {
       //update existing
-      firebase
-        .database()
-        .ref(
-          `playlists/${this.props.userID}/${
-            this.props.playlistID
-          }/URLs/${this.state.urlID}`
-        ).update({
-        URLDescription: this.state.urlDesc,
-        URLURL: this.state.urlUrl,
-        URLDuration: this.state.urlDuration
+      db
+        .collection('URLs')
+        .doc(this.state.urlID)
+        .set({
+          playlistId: this.state.playlistID,
+          description: this.state.urlDesc,
+          url: this.state.urlUrl,
+          duration: this.state.urlDuration,
+          star: false
       });
     }
     window.history.back();
@@ -135,4 +137,4 @@ class AddURL extends Component {
   }
 }
 
-export default AddURL;
+export default URLDetails;

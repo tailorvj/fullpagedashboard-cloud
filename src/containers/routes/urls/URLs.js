@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import BackView from '../../global/Back.view';
-import firebase from '../../../utils/Firebase';
+import {db} from '../../../utils/Firebase';
 import URLView from './URL.view'
 import PlaylistView from '../playlists/Playlist.view';
 
@@ -25,40 +25,45 @@ class URLs extends Component {
      }
   
     componentDidMount(){
+        const {userID} = this.props;
+
         this._isMounted = true;
 
-        this.playlistRef = firebase
-          .database()
-          .ref('playlists/'+this.props.userID+'/'+this.props.playlistID);
+        // this.playlistRef = db
+        //   .doc('playlists/'+this.props.playlistID);
 
-        this.playlistRef.on('value', snapshot => {
-            let playlist = snapshot.val();
+        // this.playlistRef.onSnapshot(snapshot => {
+        //     let playlist = {...playlist, ...snapshot.data()};
 
-            this.setState({
-                playlist
-            })
-          });
+        //     // this.setState({
+        //     //     playlist
+        //     // })
+        //   });
 
-        this.urlsRef = firebase
-          .database()
-          .ref('playlists/'+this.props.userID+'/'+this.props.playlistID+'/URLs/')
-          .orderByChild("URLDescription");
+        this.urlsRef = db
+          // .ref('playlists/'+this.props.userID+'/'+this.props.playlistID+'/URLs/')
+          .collection('URLs')
+          .where("playlistId", "==", this.props.playlistID)
+          ;
 
-        this.urlsRef.on('value', snapshot => {
-            let URLs = snapshot.val();
+        this.urlsRef
+          .orderBy("description","asc")
+          .onSnapshot(snapshot => {
             var list= [];
+            snapshot.forEach( doc => {
+                var data = doc.data();
 
-            for (let item in URLs){
                 list.push({ //listItems
-                    urlID: item, //itemID
-                    urlDesc: URLs[item].URLDescription,
-                    urlUrl: URLs[item].URLURL,
-                    urlDuration: Number.parseInt(URLs[item].URLDuration),
-                    star: URLs[item].star,
+                    urlID: doc.id, //itemID
+                    ...data,
+                    // urlDesc: data.description,
+                    // urlUrl: data.url,
+                    // urlDuration: Number.parseInt(data.duration),
+                    // star: data.star,
                     playlistID: this.props.playlistID,
-                    userID: this.state.userID                            
+                    userID                          
                 });
-            }
+            });
 
             this.setState({
                 list,       //list:listItems
@@ -72,8 +77,8 @@ class URLs extends Component {
     
     componentWillUnmount() {
         this._isMounted = false;
-        this.urlsRef.off();
-        this.playlistRef.off();
+        // this.urlsRef.off();
+        // this.playlistRef.off();
    }
 
     handleChange(e) {
@@ -95,11 +100,11 @@ class URLs extends Component {
     render() {
         const {list, searchQuery, playlist} = this.state;
         const {playlistName} = playlist;
-        const URLsCount = Object.keys(playlist.playlistURLs || {}).length
+        const URLsCount = list.length;//this.state.URLsCount || this.state.howManyItems;//Object.keys(playlist.playlistURLs || {}).length
         var filteredList = [];
 
         const dataFilter = item =>
-            item.urlDesc
+            item.description
             .toLowerCase()
             .match(searchQuery.toLowerCase()) && true;
 
@@ -122,7 +127,7 @@ class URLs extends Component {
                 {/*<div className="ui header">Playlist &quot;{playlistName}&quot;</div>*/}
                 {filteredList ?
                     <div className="ui header">
-                        <PlaylistView key={this.props.playlistID}  userID={this.props.userID}
+                        <PlaylistView key={playlist.playlistID}  userID={this.props.userID}
                             item={playlist} URLsCount={URLsCount} 
                             mode="header"/>
                     </div>

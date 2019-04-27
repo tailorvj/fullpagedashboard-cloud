@@ -11,7 +11,7 @@ class PlaylistsList extends Component {
         this.state = {
         errorMessage: null
         }
-        this.ref = '';
+        // this.ref = '';
     }
 
   render() {
@@ -42,7 +42,7 @@ class PlaylistsList extends Component {
 
 
             return(
-                    <PlaylistView key={item.deviceGroupName+"_"+item.playlistID} item={item} userID={this.props.userID} />
+                    <PlaylistView key={item.deviceGroupName+"_"+item.playlistID} item={item} userID={this.props.userID} deletePlaylist={(e, whichPlaylist, deviceGroupId) => this.props.deletePlaylist(e, whichPlaylist, deviceGroupId)}/>
 
             );
         });

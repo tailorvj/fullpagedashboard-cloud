@@ -1,7 +1,7 @@
 // Import React
 import React, { Component } from 'react';
 import { Router, navigate } from '@reach/router';
-import firebase, {db} from '../../../utils/Firebase';
+import firebase from '../../../utils/Firebase';
 import {Link} from '@reach/router';
 
 //import Home from '../../../Home';
@@ -12,7 +12,7 @@ import Register from '../../../Register';
 import Playlists from '../../routes/playlists/Playlists';
 import CheckIn from '../../../CheckIn';
 import URLs from '../../routes/urls/URLs';
-import AddURL from '../../routes/urls/AddURL';
+import URLDetails from '../../routes/urls/URLDetails';
 // import EditURL from '../../routes/urls/EditURL';
 // import Filteredlist from '../filterBase';
 // import PlaylistsList from '../../routes/playlists/PlaylistsList';
@@ -23,7 +23,8 @@ class App extends Component {
     this.state = {
       user: null, 
       displayName : null,
-      userID: null
+      userID: null,
+      photo: null
     };
     this.userRef='';
     this.userUserGroupsRef='';
@@ -35,13 +36,15 @@ class App extends Component {
 
   registerUser = (userName) => {
     firebase.auth().onAuthStateChanged(FBUser => {
+      console.log("in App.js - registerUser, "+userName + JSON.stringify(FBUser));
       FBUser.updateProfile({
         displayName: userName
       }).then(()=>{
         this.setState({
           user: FBUser,
           displayName: FBUser.displayName,
-          userID: FBUser.uid
+          userID: FBUser.uid,
+          photo: FBUser.photoURL
         });
         navigate('/playlists');
       });
@@ -54,70 +57,81 @@ class App extends Component {
       user: null,
       displayName: null,
       userID: null,
+      photo:null,
       playlists: []
     });
     firebase.auth().signOut().then(()=>{
       navigate('/login');
     });
   };
- getData(){
+/* getData(){
     this.userRef = db.collection('users').doc(this.state.userID);
-    this.userDeviceGroupsRef = this.userRef.collection('user_device_groups');
-    this.userUserGroupsRef = this.userRef.collection('user_user_groups');
-
     this.userRef
       .onSnapshot( snapshot => {
-        this.setState({
-            userName: snapshot.name
-        });        
+        if (snapshot.name === null)
+        {
+          console.log("in App.js - getData - user not exists in users table, "+this.state.userID );
+
+        }
+        else
+        {
+          console.log("in App.js - getData - user exists "+this.state.userID);
+
+          this.setState({
+              userName: snapshot.name
+          });
+          this.userDeviceGroupsRef = this.userRef.collection('user_device_groups');
+          this.userUserGroupsRef = this.userRef.collection('user_user_groups');
+          this.userDeviceGroupsRef
+            // .orderBy("name", "asc")
+            .onSnapshot( snapshot => {
+              let deviceGroupsList = []; //Helper Array
+
+              snapshot.forEach( doc => {
+
+                 deviceGroupsList.push({
+                    deviceGroupsID: doc //.data()
+                  });
+              });
+
+              this.setState({
+                  deviceGroups: deviceGroupsList,
+                  howManyDeviceGroups: deviceGroupsList.length
+              });
+          });
+          this.userUserGroupsRef
+            // .orderBy("name", "asc")
+            .onSnapshot( snapshot => {
+              let userGroupsList = []; //Helper Array
+
+              snapshot.forEach( doc => {
+
+                 userGroupsList.push({
+                    userGroupsID: doc //.data
+                  });
+              });
+
+              this.setState({
+                  userGroups: userGroupsList,
+                  howManyUserGroups: userGroupsList.length
+              });
+          });
+        }
       })
-
-    this.userDeviceGroupsRef
-      // .orderBy("name", "asc")
-      .onSnapshot( snapshot => {
-        let deviceGroupsList = []; //Helper Array
-
-        snapshot.forEach( doc => {
-
-           deviceGroupsList.push({
-              deviceGroupsID: doc //.data()
-            });
-        });
-
-        this.setState({
-            deviceGroups: deviceGroupsList,
-            howManyDeviceGroups: deviceGroupsList.length
-        });
-      });
-    this.userUserGroupsRef
-      // .orderBy("name", "asc")
-      .onSnapshot( snapshot => {
-        let userGroupsList = []; //Helper Array
-
-        snapshot.forEach( doc => {
-
-           userGroupsList.push({
-              userGroupsID: doc //.data
-            });
-        });
-
-        this.setState({
-            userGroups: userGroupsList,
-            howManyUserGroups: userGroupsList.length
-        });
-      });
-
-}
+}*/
 
   componentDidMount() {
     this._isMounted = true;
     this.listener = firebase.auth().onAuthStateChanged(FBUser => {
       if (FBUser) {
+        console.log("in App.js - componentDidMount, " + FBUser.displayName);      
+
         if(this._isMounted){
           this.setState({
             user: FBUser,
             displayName: FBUser.displayName,
-            userID: FBUser.uid
+            userID: FBUser.uid,
+            photo: FBUser.photoURL
           });
           // this.getData();
 
@@ -136,7 +150,7 @@ class App extends Component {
   }
 
   render() {
-    const { user, userID, displayName} = this.state;
+    const { user, userID, displayName, photo} = this.state;
 
     user ? navigate('/playlists') : navigate('/login');
 
@@ -157,8 +171,8 @@ class App extends Component {
             )}
             {user && (              
               <div className="item active">
-                {/*<img className="ui mini circular image" src="/images/avatar2/small/molly.png"/>*/}
-                <i className="ui circular icon user"></i>
+                <img className="ui mini circular image" src={photo} style={{marginRight: 1 + 'em'}} alt="profile"/>
+                {/*<i className="ui circular icon user"></i>*/}
                 <div className="content">
                   <div className="ui sub header inverted">{displayName}</div>
                   <Link to="/login" onClick={e => this.logOutUser(e)} style={{color: '#C0CBDD'}}>Log out</Link>
@@ -220,7 +234,7 @@ class App extends Component {
             adminUser={userID}
             userID={userID}
           />
-          <AddURL 
+          <URLDetails 
             path="/URL/:userId/:playlistID" 
             userID={userID}
             />
