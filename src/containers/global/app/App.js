@@ -10,7 +10,7 @@ import Navigation from '../../../Navigation';
 import LoginView from '../../routes/auth/Login.view';
 import Register from '../../../Register';
 import Playlists from '../../routes/playlists/Playlists';
-import CheckIn from '../../../CheckIn';
+// import CheckIn from '../../../CheckIn';
 import URLs from '../../routes/urls/URLs';
 import URLDetails from '../../routes/urls/URLDetails';
 // import EditURL from '../../routes/urls/EditURL';
@@ -241,11 +241,11 @@ class App extends Component {
 {/*          <EditURL 
             path="/editURL/:userId/:playlistID/URLs/:URLID" 
             userID={userID}
-            />*/}
+            />
           <CheckIn 
             path="/checkin/:userId/:playlistID" 
             userID={userID}
-            />
+            />*/}
           <Register path="/register" registerUser={this.registerUser} />
         </Router>
           </div>

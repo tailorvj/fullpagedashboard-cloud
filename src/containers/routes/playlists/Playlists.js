@@ -170,13 +170,6 @@ class Playlists extends Component {
         this.setState({playlistName: ''});
     }    
     addPlaylist = (deviceGroupId, playlistName) => {
-        // this.ref = firebase
-        //   .database()
-        //   .ref(`playlists/${this.props.userID}`);
-        // this.ref.push({ playlistName: playlistName });
-        // this.playlistsRef = 
-        //     db.collection('/playlists/');
-            /*.where("deviceGroupId", "==", deviceGroupId);*/
         var devGroupRef = db.collection('/device_groups/'+deviceGroupId+'/playlists');
         db.collection('/playlists/')
             .add({ name: playlistName, description: '', isActive:false , deviceGroupId: deviceGroupId })

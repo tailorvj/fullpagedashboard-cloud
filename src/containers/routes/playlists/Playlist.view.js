@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 // import {Card,Image,Icon, Label} from 'semantic-ui-react'
 // import cn from 'classnames'
 import { navigate } from '@reach/router';
-import firebase /*, {db}*/ from '../../../utils/Firebase';
 import {db} from '../../../utils/Firebase';
 
 class PlaylistView extends Component {
@@ -67,10 +66,7 @@ class PlaylistView extends Component {
       this.setState({whichPlaylist: null , playlistName: null});
   }    
   updatePlaylistName = (playlistId, playlistName) => {
-      this.ref = firebase
-        .database()
-        .ref(`playlists/${this.props.userID}/`+playlistId);
-      this.ref.update({ playlistName: playlistName });
+      db.doc('playlists/'+playlistId).update({ playlistName: playlistName });
       // this.setState({ playlistName : playlistName });
  }
  componentDidMount(){

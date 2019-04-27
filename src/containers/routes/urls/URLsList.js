@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import FormError from '../../../FormError';
 import { navigate } from '@reach/router';
-import firebase from '../../../utils/Firebase';
+import {db} from '../../../utils/Firebase';
 import URLView from './URL.view'
 
 class URLsList extends Component {
@@ -12,16 +12,13 @@ class URLsList extends Component {
         }
         this.deleteURL = this.deleteURL.bind(this);
 
-        this.ref = '';
+        // this.ref = '';
     }
 
     deleteURL = (e, whichURL) => {
         e.preventDefault();
         try{
-        this.ref = firebase.database().ref(
-            `playlists/${this.props.userID}/${this.props.playlistID}/URLs/${whichURL}`
-        );
-        this.ref.remove();
+            db.doc(`/URLs/${whichURL}`).delete();
         }
         catch(e) {
             this.setState({errorMessage: e});

@@ -24,26 +24,14 @@ class PlaylistsList extends Component {
             {
                 deviceGroupName = item.deviceGroupName;
             }
-            // let URLsCount=Object.keys(item.playlistURLs).length;
-            // this.URLs = []
-            // firebase
-            //     .database()
-            //     .ref(`playlists/${this.props.userID}/${item.playlistID}/URLs`)
-            //     .on('value', snapshot => {
-            //         const arrObj = snapshot? snapshot.val(): {};
-            //         URLsCount = Object.keys(arrObj? arrObj: {}).length;
-            //     });
-                //             {/*<div key={item.deviceGroupId+'_'+item.playlistID}>*/}
-                //     {changedGroup ?
-                //         <div className="item header" key={item.deviceGroupId+'_header'}>Device Group: {item.deviceGroupName}</div>
-                //         :null
-                //     }
-                // {/*</div>*/}
-
-
+//             {/*<div key={item.deviceGroupId+'_'+item.playlistID}>*/}
+//               {changedGroup ?
+//                  <div className="item header" key={item.deviceGroupId+'_header'}>Device Group: {item.deviceGroupName}</div>
+//                :null
+//               }
+//             {/*</div>*/}
             return(
                     <PlaylistView key={item.deviceGroupName+"_"+item.playlistID} item={item} userID={this.props.userID} deletePlaylist={(e, whichPlaylist, deviceGroupId) => this.props.deletePlaylist(e, whichPlaylist, deviceGroupId)}/>
-
             );
         });
 

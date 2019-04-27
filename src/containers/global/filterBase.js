@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import firebase from '../../utils/Firebase';
+import {db} from '../../utils/Firebase';
 
 // example usage:
 //----------------------------------------------
@@ -16,7 +16,7 @@ class Filteredlist extends Component {
         super(props);
 
         this.resetQuery = this.resetQuery.bind(this);        
-        this.listRef = '';
+        // this.listRef = '';
 
         const {pageTitle, listTitle, collectionURL, sortFieldName, userID} = this.props;
 
@@ -35,23 +35,25 @@ class Filteredlist extends Component {
 
     componentDidMount(){
         this._isMounted = true;
-        this.listRef = firebase
-          .database()
-          .ref(this.state.collectionURL)
-          .orderByChild(this.state.sortFieldName);
+        this.listRef = db
+          .collection(this.state.collectionURL)
+          .orderBy(this.state.sortFieldName,"asc");
 
-        this.listRef.on('value', snapshot => {
-            let list = snapshot.val();
+        this.listRef.onSnapshot( snapshot => {
             let listItems = []; //Helper Array
 
-            for (let item in list) {
+            snapshot.forEach( doc => 
+            {
+                var data = doc.data();
+
                 listItems.push({
-                  itemID: item,
-                  // playlist: playlists[item],
-                  itemName: list[item][this.state.sortFieldName],
-                  ...list[item]
+                  itemID: doc.id,
+                  // item: data,
+                  itemName: data[this.state.sortFieldName],
+                  ...data
                 });
-            }
+            })
+
             this.setState({
                 itemName: '',
                 list: listItems,
@@ -62,7 +64,7 @@ class Filteredlist extends Component {
 
     componentWillUnmount() {
         this._isMounted = false;
-        this.listRef.off();
+        this.listRef();
     }
 
     handleChange(e) {
