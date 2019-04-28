@@ -2,10 +2,7 @@
 import React, { Component } from 'react';
 import { Router, navigate } from '@reach/router';
 import firebase from '../../../utils/Firebase';
-import {Link} from '@reach/router';
 
-//import Home from '../../../Home';
-// import Welcome from '../../../Welcome';
 import Navigation from '../../../Navigation';
 import LoginView from '../../routes/auth/Login.view';
 import Register from '../../../Register';
@@ -13,9 +10,8 @@ import Playlists from '../../routes/playlists/Playlists';
 // import CheckIn from '../../../CheckIn';
 import URLs from '../../routes/urls/URLs';
 import URLDetails from '../../routes/urls/URLDetails';
-// import EditURL from '../../routes/urls/EditURL';
-// import Filteredlist from '../filterBase';
-// import PlaylistsList from '../../routes/playlists/PlaylistsList';
+
+import PageHeader from '../PageHeader.view';
 
 class App extends Component {
   constructor() {
@@ -29,9 +25,6 @@ class App extends Component {
     this.userRef='';
     this.userUserGroupsRef='';
     this.userDeviceGroupsRef='';
-
-    // this.playlistsRef = '';
-    // this.ref = '';
   }
 
   registerUser = (userName) => {
@@ -64,61 +57,6 @@ class App extends Component {
       navigate('/login');
     });
   };
-/* getData(){
-    this.userRef = db.collection('users').doc(this.state.userID);
-    this.userRef
-      .onSnapshot( snapshot => {
-        if (snapshot.name === null)
-        {
-          console.log("in App.js - getData - user not exists in users table, "+this.state.userID );
-
-        }
-        else
-        {
-          console.log("in App.js - getData - user exists "+this.state.userID);
-
-          this.setState({
-              userName: snapshot.name
-          });
-          this.userDeviceGroupsRef = this.userRef.collection('user_device_groups');
-          this.userUserGroupsRef = this.userRef.collection('user_user_groups');
-          this.userDeviceGroupsRef
-            // .orderBy("name", "asc")
-            .onSnapshot( snapshot => {
-              let deviceGroupsList = []; //Helper Array
-
-              snapshot.forEach( doc => {
-
-                 deviceGroupsList.push({
-                    deviceGroupsID: doc //.data()
-                  });
-              });
-
-              this.setState({
-                  deviceGroups: deviceGroupsList,
-                  howManyDeviceGroups: deviceGroupsList.length
-              });
-          });
-          this.userUserGroupsRef
-            // .orderBy("name", "asc")
-            .onSnapshot( snapshot => {
-              let userGroupsList = []; //Helper Array
-
-              snapshot.forEach( doc => {
-
-                 userGroupsList.push({
-                    userGroupsID: doc //.data
-                  });
-              });
-
-              this.setState({
-                  userGroups: userGroupsList,
-                  howManyUserGroups: userGroupsList.length
-              });
-          });
-        }
-      })
-}*/
 
   componentDidMount() {
     this._isMounted = true;
@@ -145,8 +83,6 @@ class App extends Component {
 
   componentWillUnmount() {
     this._isMounted = false;
-    // this.ref.off();
-    // this.playlistsRef.off();
   }
 
   render() {
@@ -158,29 +94,7 @@ class App extends Component {
 
       <div>
     {/* top header */}
-      <div className="ui large inverted blue top fixed menu blue ">
-         <div className="ui blue label item">
-            <img alt="logo" className="logo" src="Logo%20white.svg"/>&nbsp;&nbsp;&nbsp;
-            Full Page Dashboard (Cloud)
-        </div>  
-          <div className="right menu">
-            {!user && (
-              <Link className="item active dropdown" to="/login">
-                Log in / Sign up
-              </Link>
-            )}
-            {user && (              
-              <div className="item active">
-                <img className="ui mini circular image" src={photo} style={{marginRight: 1 + 'em'}} alt="profile"/>
-                {/*<i className="ui circular icon user"></i>*/}
-                <div className="content">
-                  <div className="ui sub header inverted">{displayName}</div>
-                  <Link to="/login" onClick={e => this.logOutUser(e)} style={{color: '#C0CBDD'}}>Log out</Link>
-                </div>
-              </div>              
-            )}
-          </div>
-      </div>
+      <PageHeader user={user} photo={photo} displayName={displayName}/>
       {user && (  
         <Navigation/>
       )}
@@ -195,8 +109,9 @@ class App extends Component {
             <a className="item">Signup</a>
           </div>
         */}
-        <div className="pusher">
-          <div className="ui vertical masthead center aligned segment" style={{marginTop: 3+'em'}}>
+        <div >
+          {/*<div className="ui hidden divider"></div> */}
+          <div className="ui vertical masthead center aligned segment">
 
         <Router>
           {/* <Home path="/" user={this.state.user} />*/}

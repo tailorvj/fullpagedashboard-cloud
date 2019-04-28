@@ -261,7 +261,7 @@ class Playlists extends Component {
                               {deviceGroupsList}
                               </select>
                             </div>
-                            <div className="field">
+                            <div className="required field">
                                 {/*<div className="ui action input">*/}
                                     <label>Playlist Name</label>
                                     <input type="text" 
