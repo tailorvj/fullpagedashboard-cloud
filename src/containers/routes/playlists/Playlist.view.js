@@ -135,7 +135,7 @@ class PlaylistView extends Component {
               </button>
             :''}
         </div>
-        <div className="content">
+        <div className="left floated content">
              <form className="ui form" onSubmit={this.handleSubmit}>
                 {playlistID === this.state.whichPlaylist ? 
                     <div className="ui action input">

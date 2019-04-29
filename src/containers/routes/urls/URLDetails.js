@@ -78,7 +78,7 @@ class URLDetails extends Component {
       <form className="ui left aligned container form" onSubmit={this.handleSubmit} onReset={this.handleReset}>
  
         <h3 className="ui center aligned header">{this.state.isEdit ? 'Update URL of' : 'Add URL to'} {this.state.playlistName}</h3>
-        <div className="eight wide field">
+        <div className="field">
           <label htmlFor="urlDesc">
             Display Name
           </label>
@@ -92,7 +92,7 @@ class URLDetails extends Component {
             onChange={this.handleChange}
           />
         </div>
-        <div className="twelve wide required field">
+        <div className="required field">
           <label htmlFor="urlUrl">
             URL
           </label>
@@ -106,9 +106,9 @@ class URLDetails extends Component {
             onChange={this.handleChange}
           />
         </div>
-        <div className="six wide required field">
+        <div className="required field">
           <label htmlFor="urlDuration">
-            Duration
+            Duration (ms)
           </label>
           <div className="ui right labeled input">
             <input
@@ -122,7 +122,6 @@ class URLDetails extends Component {
               value={this.state.urlDuration || 50000}
               onChange={this.handleChange}
               />
-              <div className="ui basic label">MilliSeconds</div>
           </div>
         </div>
 

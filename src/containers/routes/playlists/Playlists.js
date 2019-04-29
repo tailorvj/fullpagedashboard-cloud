@@ -287,31 +287,39 @@ class Playlists extends Component {
                         </div>
                     </form>
                 </div>
-                <div>
-                    <div className="ui inverted red segment">
-                        <div className={ fieldClass + ' ui input icon right floated content'}>
-                             <input type="text"
-                                name="searchQuery"
-                                value={searchQuery}
-                                placeholder="Filter..."
-                                onChange={this.handleChange}
-                            />
-                            {!searchQuery.length?
-                            <i className="filter disabled icon"></i>
-                            :
-                            <button className="ui basic inverted  white button icon"  
-                                onClick={this.resetQuery}><i className="close icon"></i></button>                                
-                            }
-                        </div>
-                    </div>
-
-                    <div className="ui header"
-                        style={{marginTop: 0}}>&nbsp;&nbsp;(
+                <div className="ui inverted red segment">
+                    <span className="ui large header">Playlists</span>
+                    <span className="ui header">&nbsp;&nbsp;(
                             {filteredList && filteredList.length && filteredList.length < this.state.howManyPlaylists ? 
                                 filteredList.length + ' of '
                             :''}
-                            {this.state.howManyPlaylists} Playlists)
+                            {this.state.howManyPlaylists} items)
+                    </span>
+                    <form className="ui form">
+                      <div className="ui text container">
+                        <div className="ui basic field">
+                            <div className={ fieldClass + ' ui input icon'}>
+
+                                {!searchQuery.length?
+                                <i className="filter disabled icon"></i>
+                                :null}
+
+                                 <input type="text"
+                                    name="searchQuery"
+                                    value={searchQuery}
+                                    placeholder="Filter..."
+                                    onChange={this.handleChange}
+                                />
+                                {searchQuery.length?
+                                <button className="ui basic inverted  white button icon"  
+                                    onClick={this.resetQuery}><i className="close icon"></i></button> 
+                                :null}
+                            </div>
+                        </div>
+                      </div>
+                    </form>
                     </div>
+                    <div>
 
                     <PlaylistsList deletePlaylist={(e, whichPlaylist, deviceGroupId)=>this.deletePlaylist(e, whichPlaylist, deviceGroupId)}
                         distinctDeviceGroups = {distinctDeviceGroups}
