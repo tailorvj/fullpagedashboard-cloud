@@ -239,7 +239,7 @@ class Playlists extends Component {
                 else
                     return null;
             });
-
+        const fieldClass = searchQuery.length? 'action':'';
         const dataFilter = item =>
             (item.playlistName || '')
             .toLowerCase()
@@ -289,7 +289,7 @@ class Playlists extends Component {
                 </div>
                 <div>
                     <div className="ui inverted red segment">
-                        <div className="ui {searchQuery.length? 'action':''} input icon right floated content">
+                        <div className={ fieldClass + ' ui input icon right floated content'}>
                              <input type="text"
                                 name="searchQuery"
                                 value={searchQuery}

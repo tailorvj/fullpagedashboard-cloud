@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-// import firebase from '../../../utils/Firebase';
-// import {db} from '../../../utils/Firebase';
 
 import PlaylistView from './Playlist.view';
 
@@ -11,23 +9,17 @@ class PlaylistsList extends Component {
         this.state = {
         errorMessage: null
         }
-        // this.ref = '';
     }
 
   render() {
-    const { playlists, /*distinctDeviceGroups */} = this.props;
+    const { playlists} = this.props;
     let deviceGroupName='';
     const myPlaylists = playlists.map((item) => 
         {
-            // const titleSpaceBefore = deviceGroupName !== ''? 
-            //     <div className="ui hidden divider"/>
-            //     :null;
-
             const groupTitle = (item.deviceGroupName !== deviceGroupName ?
                 <div className="item" key={item.deviceGroupId}>
-                    {/*titleSpaceBefore*/}
                     <div className="ui hidden divider"/>
-                    <span key={item.deviceGroupId+"_title"} className="ui tiny grey sub header">{item.deviceGroupName}</span>
+                    <span key={item.deviceGroupId+"_title"} className="ui left aligned tiny blue sub header">{item.deviceGroupName}</span>
                 </div>
                : null);
 
