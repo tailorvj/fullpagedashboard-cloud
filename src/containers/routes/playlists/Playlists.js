@@ -1,6 +1,13 @@
 import React, {Component} from 'react';
 import {db} from '../../../utils/Firebase';
 import PlaylistsList from './PlaylistsList';
+// import {Container, Header, Card} from 'semantic-ui-react'
+//          <Container fluid>
+//           <Header className="row" as="h5" dividing>{msg}</Header>
+//           <Card.Group itemsPerRow={3}>
+//             {contactsList}
+//           </Card.Group>
+//         </Container>
 
 class Playlists extends Component {
     constructor(props) {
@@ -245,78 +252,74 @@ class Playlists extends Component {
 
         return (
             <div className="ui container">
-                <div className="ui header">
-                    Add a Playlist
-                </div>
-                <div className="ui basic segment">
+                <div className="ui segment">
+                    <div className="ui header">
+                        Add a Playlist
+                    </div>
 
                     <form className="ui form" onSubmit={this.handleSubmit}>
-                        <div className="fields">
-                            <div className="field">
-                              <label>Device Group</label>
+                        <div className="ui text container">
+                            <div className="ui basic field">
                               <select 
-                                className="ui fluid dropdown"
+                                className="ui dropdown"
                                 name="deviceGroupId" 
                                 onChange={this.handleChange}>
                               {deviceGroupsList}
                               </select>
                             </div>
-                            <div className="required field">
-                                {/*<div className="ui action input">*/}
-                                    <label>Playlist Name</label>
+                            <div className="ui basic required field">
+                                <div className="ui input">
                                     <input type="text" 
                                         placeholder="New playlist name..." 
                                         name="playlistName"
                                         aria-describedby="buttonAdd"
                                         value={playlistName}
                                         onChange={this.handleChange}
+                                        style={{paddingRight: 1+'em'}}
                                     />
-                            </div>
-                            <div className="field">
-                                <label>&nbsp;</label>
-                                <button className="ui icon button" type="submit" id="buttonAdd">
-                                    <i className="plus icon"></i>
-                                </button>
+                                    <button className="ui icon button" 
+                                        type="submit" id="buttonAdd"
+                                        style={{marginLeft: -1+'em'}}>
+                                        <i className="plus icon"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </form>
-
-                    {/*{filteredList && filteredList.length ?*/}
-                    <div className="ui very padded basic segment left aligned">
-                        <div className="ui inverted red segment" style={{display: 'flex',alignItems: 'center'}}>
-                            <span className="ui content header huge" 
-                                style={{marginBottom: 0}}>Your Playlists&nbsp;</span>
-                            <span className="ui {searchQuery.length? 'action':''} input icon right floated content">
-                                 <input type="text"
-                                    name="searchQuery"
-                                    value={searchQuery}
-                                    placeholder="Filter..."
-                                    onChange={this.handleChange}
-                                />
-                                {!searchQuery.length?
-                                <i className="filter disabled icon"></i>
-                                :
-                                <button className="ui basic inverted  white button icon"  
-                                    onClick={this.resetQuery}><i className="close icon"></i></button>                                
-                                }
-                            </span>
-                            <span className="ui header content"
-                                style={{marginTop: 0}}>&nbsp;&nbsp;(
-                                    {filteredList && filteredList.length && filteredList.length < this.state.howManyPlaylists ? 
-                                        filteredList.length + ' of '
-                                    :''}
-                                    {this.state.howManyPlaylists} Playlists)</span>
-    
-                        </div>
-                        <PlaylistsList deletePlaylist={(e, whichPlaylist, deviceGroupId)=>this.deletePlaylist(e, whichPlaylist, deviceGroupId)}
-                            distinctDeviceGroups = {distinctDeviceGroups}
-                            playlists={filteredList} 
-                            userID={this.props.userID}
-                        />
-                    </div>
-                    {/*: null}*/}
-
                 </div>
+                <div>
+                    <div className="ui inverted red segment">
+                        <div className="ui {searchQuery.length? 'action':''} input icon right floated content">
+                             <input type="text"
+                                name="searchQuery"
+                                value={searchQuery}
+                                placeholder="Filter..."
+                                onChange={this.handleChange}
+                            />
+                            {!searchQuery.length?
+                            <i className="filter disabled icon"></i>
+                            :
+                            <button className="ui basic inverted  white button icon"  
+                                onClick={this.resetQuery}><i className="close icon"></i></button>                                
+                            }
+                        </div>
+                    </div>
+
+                    <div className="ui header"
+                        style={{marginTop: 0}}>&nbsp;&nbsp;(
+                            {filteredList && filteredList.length && filteredList.length < this.state.howManyPlaylists ? 
+                                filteredList.length + ' of '
+                            :''}
+                            {this.state.howManyPlaylists} Playlists)
+                    </div>
+
+                    <PlaylistsList deletePlaylist={(e, whichPlaylist, deviceGroupId)=>this.deletePlaylist(e, whichPlaylist, deviceGroupId)}
+                        distinctDeviceGroups = {distinctDeviceGroups}
+                        playlists={filteredList} 
+                        userID={this.props.userID}
+                    />
+                </div>
+
             </div>
         );
     }

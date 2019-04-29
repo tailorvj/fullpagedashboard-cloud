@@ -96,11 +96,13 @@ class PlaylistView extends Component {
 
   render() {
     const { item, userID/*, URLsCount*/ } = this.props
+    const {isHeader} = this.state;
+
     // const {URLsCount} = item;
     const playlistID = item.id;
     const canEdit = false;//this.state.whichPlaylist == null;
     return (
-    <div className="item" key={playlistID}>
+    <div className="" key={playlistID}>
         <div className="right floated content ui basic icon buttons">
             {/*edit button - temp. hidden on header */}
             {!this.state.isHeader?
@@ -154,8 +156,8 @@ class PlaylistView extends Component {
                     </div>
                 :
                     <div >
-                        <h2 className="header">
-                            {item.deviceGroupName} / {item.playlistName}&nbsp;&nbsp;
+                        <h4 className="ui left aligned header">
+                            {item.playlistName}&nbsp;&nbsp;
                             {canEdit ?
                             <a className="ui basic edit" href="edit" 
                                 onClick={(e) => { 
@@ -166,8 +168,8 @@ class PlaylistView extends Component {
                                 <i className="icon pencil alternate small"></i>
                             </a>
                             : ''}
-                        </h2>
-                        {!this.state.isHeader?
+                        </h4>
+                        {!isHeader?
                           <h5 className="ui grey left aligned header">&nbsp;({this.state.URLsCount} URLs)</h5>
                         :''}
                     </div>

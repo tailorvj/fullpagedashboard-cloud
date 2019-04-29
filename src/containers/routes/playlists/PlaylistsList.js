@@ -19,19 +19,28 @@ class PlaylistsList extends Component {
     let deviceGroupName='';
     const myPlaylists = playlists.map((item) => 
         {
-            // const changedGroup = item.deviceGroupName !== deviceGroupName;
+            // const titleSpaceBefore = deviceGroupName !== ''? 
+            //     <div className="ui hidden divider"/>
+            //     :null;
+
+            const groupTitle = (item.deviceGroupName !== deviceGroupName ?
+                <div className="item" key={item.deviceGroupId}>
+                    {/*titleSpaceBefore*/}
+                    <div className="ui hidden divider"/>
+                    <span key={item.deviceGroupId+"_title"} className="ui tiny grey sub header">{item.deviceGroupName}</span>
+                </div>
+               : null);
+
             if (item.deviceGroupName !== deviceGroupName)
             {
                 deviceGroupName = item.deviceGroupName;
             }
-//             {/*<div key={item.deviceGroupId+'_'+item.playlistID}>*/}
-//               {changedGroup ?
-//                  <div className="item header" key={item.deviceGroupId+'_header'}>Device Group: {item.deviceGroupName}</div>
-//                :null
-//               }
-//             {/*</div>*/}
             return(
+                <div className="item" key={item.deviceGroupId+"_"+item.playlistID}>
+                    {groupTitle}
+                    <div className="ui hidden divider"/>
                     <PlaylistView key={item.deviceGroupName+"_"+item.playlistID} item={item} userID={this.props.userID} deletePlaylist={(e, whichPlaylist, deviceGroupId) => this.props.deletePlaylist(e, whichPlaylist, deviceGroupId)}/>
+                </div>
             );
         });
 
