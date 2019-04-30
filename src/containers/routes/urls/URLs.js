@@ -126,10 +126,12 @@ class URLs extends Component {
                 <BackView/>
                 {/*<div className="ui header">Playlist &quot;{playlistName}&quot;</div>*/}
                 {filteredList ?
-                    <div className="ui header">
-                        <PlaylistView key={playlist.playlistID}  userID={this.props.userID}
-                            item={playlist} URLsCount={URLsCount} 
-                            mode="header"/>
+                    <div className="ui segment">
+                        <div className="ui header">
+                            <PlaylistView key={playlist.playlistID}  userID={this.props.userID}
+                                item={playlist} URLsCount={URLsCount} 
+                                mode="header"/>
+                        </div>
                     </div>
                     :''
                 }

@@ -5,11 +5,11 @@ class PageHeader extends Component {
   render() {
   	const {user, displayName, photo} = this.props;
     return (
-      <div className="ui borderless large inverted blue menu ">
+      <div className="ui borderless large inverted red menu " style={{backgroundColor: '#C21E4A'}}>
 	    {/*<div className="item toc">
 	     	<i className="bars icon"></i>
 	    </div>*/}
-        <div className="ui blue label item">
+        <div className="ui label item">
             <img alt="logo" className="logo" src="Logo%20white.svg"/>
             {/*<div style={{width: 'min-content',marginLeft: 1+'em'}}>
             	Full Page Dashboard (Cloud)

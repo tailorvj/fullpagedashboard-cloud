@@ -6,10 +6,10 @@ class Navigation extends Component {
     // const { style } = this.props;
 
     return (
-       <div style={{marginTop: -2+'em'}}>
+       <div style={{marginTop: -2+'em', marginBottom: -2+'em'}}>
           <div className="ui vertical segment container">
  
-            <div className="ui large secondary pointing menu">
+            <div className="ui secondary pointing menu">
              <div className="ui container">
                   {/*!user && (
                     <Link to="/" className="item">
@@ -17,13 +17,13 @@ class Navigation extends Component {
                     </Link>
                   )*/}
 
-                     <Link className="item active" to="/playlists">
+                     <Link className="blue item active" to="/playlists" data-tab="playlists">
                       Playlists
                     </Link>
-                     <Link className="item" to="/devicegroups">
+                     <Link className="teal item" to="/devicegroups" data-tab="devicegroups">
                      Devices
                     </Link>
-                     <Link className="item" to="/usergroups">
+                     <Link className="green item" to="/usergroups" data-tab="usergroups">
                      Users
                     </Link>
               </div>

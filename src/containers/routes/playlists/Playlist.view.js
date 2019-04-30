@@ -16,7 +16,6 @@ class PlaylistView extends Component {
       playlistName: null
     }
 
-    // this.deletePlaylist = this.props.deletePlaylist.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.updatePlaylistName=this.updatePlaylistName.bind(this);
@@ -25,34 +24,6 @@ class PlaylistView extends Component {
     this.ref = '';
     this.URLs = '';
   }
-  // deletePlaylist = (e, whichPlaylist, deviceGroupId) => {
-  //     e.preventDefault();
-  //     try{
-  //       //need to delete this playlist URLs -> 
-  //       //TODO: it is recomended to do this via a cloud function !!!
-  //       //https://firebase.google.com/docs/firestore/solutions/delete-collections
-  //       db.collection('URLs').where("playlistId", "==", whichPlaylist)
-  //         .get()
-  //         .then( snapshot => {
-  //         snapshot.forEach( doc => {
-  //           if (doc)
-  //           {
-  //             console.log("deleteing URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
-  //             db.collection('URLs').doc(doc.id).delete();
-  //           }
-  //         });
-  //       });
-  //       db.doc(`playlists/${whichPlaylist}`).delete();
-  //       // delete this playlist from the device group
-  //       db.collection('device_groups').doc(deviceGroupId).collection('playlists').doc(whichPlaylist).delete();
-
-  //       //temporary until we keep the data on app state (redux):
-  //       // navigate('/login');
-  //     }
-  //     catch(e) {
-  //         this.setState({errorMessage: e});
-  //     }
-  // }
   handleChange(e, whichPlaylist) {
       const itemName = e.target.name;
       const itemValue = e.target.value;
@@ -67,7 +38,6 @@ class PlaylistView extends Component {
   }    
   updatePlaylistName = (playlistId, playlistName) => {
       db.doc('playlists/'+playlistId).update({ playlistName: playlistName });
-      // this.setState({ playlistName : playlistName });
  }
  componentDidMount(){
     this._isMounted = true;
@@ -80,7 +50,7 @@ class PlaylistView extends Component {
     this.URLs = db.collection('/URLs/').where("playlistId", "==", item.playlistID);
 
     this.URLs
-        // .orderBy("URLDescription", "asc")
+        // .orderBy("description", "asc")
         .onSnapshot( snapshot => {
           this.setState({URLsCount : snapshot.size});
           // snapshot.forEach( doc => {
@@ -91,7 +61,6 @@ class PlaylistView extends Component {
   }
   componentWillUnmount() {
     this._isMounted = false;
-    // this.playlistRef.off();
   }
 
   render() {
@@ -102,7 +71,48 @@ class PlaylistView extends Component {
     const playlistID = item.id;
     const canEdit = false;//this.state.whichPlaylist == null;
     return (
-    <div className="" key={playlistID}>
+    <div className="ui basic item" key={playlistID}>
+        <div className="left floated content">
+           <form className="ui form" onSubmit={this.handleSubmit}>
+              {playlistID === this.state.whichPlaylist ? 
+                  <div className="ui action input">
+                      <input type="text" 
+                          placeholder="Playlist name..." 
+                          name="playlistName"
+                          aria-describedby="buttonUpdate"
+                          value={item.playlistName }
+                          onChange={(e) => this.handleChange(e,playlistID)}
+                      />
+                      <button className="ui green basic icon button" type="submit" id="buttonUpdate">
+                          <i className="check icon"></i>
+                      </button>
+                      <button className="ui red cancel basic icon button" href="#" type="cancel" id="buttonCancel"
+                          onClick={(e) => this.setState({'whichPlaylist': null, 'playlistName': null})}>
+                          <i className="icon delete"></i>
+                      </button>
+                  </div>
+              :
+                  <div >
+                      <h3 className="ui left aligned blue header">
+                          {item.playlistName}&nbsp;&nbsp;
+                          {canEdit ?
+                          <a className="ui basic edit" href="edit" 
+                              onClick={(e) => { 
+                                                  e.preventDefault();
+                                                  this.setState({'whichPlaylist': playlistID})
+                                              }
+                                      }>
+                              <i className="icon pencil alternate small"></i>
+                          </a>
+                          : ''}
+                      </h3>
+                      {!isHeader?
+                        <h5 className="ui inverted grey left aligned header">&nbsp;({this.state.URLsCount} URLs)</h5>
+                      :''}
+                  </div>
+              }      
+          </form>
+        </div>
         <div className="right floated content ui basic icon buttons">
             {/*edit button - temp. hidden on header */}
             {!this.state.isHeader?
@@ -130,52 +140,10 @@ class PlaylistView extends Component {
             {/*delete button - temp. hidden on header */}
             {!this.state.isHeader?
               <button className="ui link button" href="#"
-                  onClick={e => this.deletePlaylist(e, item.playlistID, item.deviceGroupId)}>
+                  onClick={e => this.props.deletePlaylist(e, item.playlistID, item.deviceGroupId)}>
                   <i className="icon trash large"></i>
               </button>
             :''}
-        </div>
-        <div className="left floated content">
-             <form className="ui form" onSubmit={this.handleSubmit}>
-                {playlistID === this.state.whichPlaylist ? 
-                    <div className="ui action input">
-                        <input type="text" 
-                            placeholder="Playlist name..." 
-                            name="playlistName"
-                            aria-describedby="buttonUpdate"
-                            value={item.playlistName }
-                            onChange={(e) => this.handleChange(e,playlistID)}
-                        />
-                        <button className="ui green basic icon button" type="submit" id="buttonUpdate">
-                            <i className="check icon"></i>
-                        </button>
-                        <button className="ui red cancel basic icon button" href="#" type="cancel" id="buttonCancel"
-                            onClick={(e) => this.setState({'whichPlaylist': null, 'playlistName': null})}>
-                            <i className="icon delete"></i>
-                        </button>
-                    </div>
-                :
-                    <div >
-                        <h4 className="ui left aligned header">
-                            {item.playlistName}&nbsp;&nbsp;
-                            {canEdit ?
-                            <a className="ui basic edit" href="edit" 
-                                onClick={(e) => { 
-                                                    e.preventDefault();
-                                                    this.setState({'whichPlaylist': playlistID})
-                                                }
-                                        }>
-                                <i className="icon pencil alternate small"></i>
-                            </a>
-                            : ''}
-                        </h4>
-                        {!isHeader?
-                          <h5 className="ui grey left aligned header">&nbsp;({this.state.URLsCount} URLs)</h5>
-                        :''}
-                    </div>
-                }      
-            </form>
-
         </div>
         {
             this.state.errorMessage !== null ?

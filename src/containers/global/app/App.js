@@ -12,6 +12,7 @@ import URLs from '../../routes/urls/URLs';
 import URLDetails from '../../routes/urls/URLDetails';
 
 import PageHeader from '../PageHeader.view';
+// import Tab from '../Tab.view';
 
 class App extends Component {
   constructor() {
@@ -141,7 +142,15 @@ class App extends Component {
               // playlists={this.state.playlists}
               userID={userID}
             />
+
           )}
+          {/*user && (
+            <Tab path="/devicegroups" data-tab="devicegroups">
+                <h4 className="ui grey header">
+                    Device Groups
+                </h4>
+            </Tab>
+          )*/}
 
           <URLs
             path="/URLs/:userID/:playlistID"
