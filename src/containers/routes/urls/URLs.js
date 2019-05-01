@@ -100,7 +100,6 @@ class URLs extends Component {
     render() {
         const {list, searchQuery, playlist} = this.state;
         const {playlistName} = playlist;
-        const URLsCount = list.length;//this.state.URLsCount || this.state.howManyItems;//Object.keys(playlist.playlistURLs || {}).length
         var filteredList = [];
 
         const dataFilter = item =>
@@ -113,6 +112,8 @@ class URLs extends Component {
                 dataFilter
             );
 
+        // let URLsCount = filteredList.length;//this.state.URLsCount || this.state.howManyItems;//Object.keys(playlist.playlistURLs || {}).length
+
         const myURLs = filteredList.map((item) => 
         {
             return(
@@ -124,54 +125,42 @@ class URLs extends Component {
         return(
             <div className="ui container">
                 <BackView/>
+                <div className="ui hidden divider"/>
+
                 {/*<div className="ui header">Playlist &quot;{playlistName}&quot;</div>*/}
                 {filteredList ?
-                    <div className="ui segment">
-                        <div className="ui header">
-                            <PlaylistView key={playlist.playlistID}  userID={this.props.userID}
-                                item={playlist} URLsCount={URLsCount} 
+                             <PlaylistView key={playlist.playlistID}  userID={this.props.userID}
+                                item={playlist} URLsCount={filteredList.length} totalCount={list.length}
                                 mode="header"/>
-                        </div>
-                    </div>
                     :''
                 }
 
-                <div className="ui basic segment">
-
-                  {/*  {filteredList && filteredList.length ? */}
-                    <div className="ui very padded basic segment left aligned">
-                        <div className="ui inverted red segment" style={{display: 'flex',alignItems: 'center'}}>
-
-                            <span className="ui content header huge" 
-                                style={{marginBottom: 0}}>URLs&nbsp;</span>
-                            <span className="ui {searchQuery.length? 'action':''} input icon right floated content">
-                                 <input type="text"
-                                    name="searchQuery"
-                                    value={searchQuery}
-                                    placeholder="Filter..."
-                                    onChange={this.handleChange}
-                                />
-                                {!searchQuery.length?
-                                <i className="filter disabled icon"></i>
-                                :
-                                <button className="ui basic inverted  white button icon"  
-                                    onClick={this.resetQuery}><i className="close icon"></i></button>                                
-                                }
-                           </span>
-                           <span className="ui header content"
-                                style={{marginTop: 0}}>&nbsp;&nbsp;(
-                                {filteredList && filteredList.length && filteredList.length < this.state.howManyItems ? 
-                                        filteredList.length + ' of '
-                                    :''}
-                                {this.state.howManyItems} URLs)</span>
-                        </div>
-
-                        <div className="ui animated relaxed divided list">
-                            {myURLs}
+                <form className="ui basic segment form">
+                    <div className="ui basic field">
+                        <div className={ (searchQuery.length? 'action':'icon') + ' ui input'}>
+                            {!searchQuery.length?
+                            <i className="filter disabled icon"></i>
+                            :null}
+                            <input type="text"
+                                name="searchQuery"
+                                value={searchQuery}
+                                placeholder="Filter..."
+                                onChange={this.handleChange}
+                                style={{paddingRight: 1 + 'em!important'}}
+                            />
+                            {searchQuery.length?
+                            <button className="ui icon button "  style={{marginLeft: -1 + 'em'}}
+                                onClick={this.resetQuery}>
+                                <i className="close icon"></i>
+                            </button> 
+                            :null}
                         </div>
                     </div>
-                    {/*: null}*/}
+                </form>
+                <div className="ui divider hidden"/>
 
+                <div className="ui animated relaxed divided list">
+                    {myURLs}
                 </div>
             </div>
         );

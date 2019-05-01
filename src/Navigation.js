@@ -6,7 +6,7 @@ class Navigation extends Component {
     // const { style } = this.props;
 
     return (
-       <div style={{marginTop: -2+'em', marginBottom: -2+'em'}}>
+       <div style={{marginTop: -2+'em'}}>
           <div className="ui vertical segment container">
  
             <div className="ui secondary pointing menu">

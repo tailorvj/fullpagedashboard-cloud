@@ -1,14 +1,6 @@
 import React, {Component} from 'react';
 import {db} from '../../../utils/Firebase';
 import PlaylistsList from './PlaylistsList';
-// import { navigate } from '@reach/router';
-// import {Container, Header, Card} from 'semantic-ui-react'
-//          <Container fluid>
-//           <Header className="row" as="h5" dividing>{msg}</Header>
-//           <Card.Group itemsPerRow={3}>
-//             {contactsList}
-//           </Card.Group>
-//         </Container>
 
 class Playlists extends Component {
     constructor(props) {
@@ -24,6 +16,7 @@ class Playlists extends Component {
         this.getPlaylists = this.getPlaylists.bind(this);
 
         this.state ={
+            debug:true,
             searchQuery: '',
             playlistName: '',
             playlists: [],
@@ -45,7 +38,7 @@ class Playlists extends Component {
             UGsnapshot.forEach( doc => 
             {
                 const userGroupId = doc.id;
-                console.log("in Playlists.js - getData - user group "+doc.id);
+                if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id);
                 //get user device groups
 
                 this.userDeviceGroupsRef = db.collection('/device_groups/').where("userGroupId", "==", userGroupId);
@@ -57,16 +50,19 @@ class Playlists extends Component {
                 //     .then( DGsnapshot =>
                 {
                     let deviceGroupsList = []; //Helper Array
-                    if(DGsnapshot)
-                        console.log("in Playlists.js - getData - user group "+doc.id + " size:"+DGsnapshot.size);
-                    else
-                        console.log("in Playlists.js - getData - user group "+doc.id + " size:0");
+
+                    if(this.state.debug) {
+                        if(DGsnapshot)
+                            console.log("in Playlists.js - getData - user group "+doc.id + " size:"+DGsnapshot.size);
+                        else
+                            console.log("in Playlists.js - getData - user group "+doc.id + " size:0");
+                    }
 
                     DGsnapshot.forEach( doc => 
                     {
                         const deviceGroupId = doc.id;
                         const deviceGroupName = doc.data().name;
-                        console.log("user group id:" + userGroupId + ", device group id:" + deviceGroupId);
+                        if(this.state.debug) console.log("user group id:" + userGroupId + ", device group id:" + deviceGroupId);
 
                        // get device group playlists
 
@@ -113,7 +109,7 @@ class Playlists extends Component {
 
             snapshot.forEach( doc => {
                 const playlistID = doc.id;
-                console.log("device group:"+deviceGroupId+" playlist: ("+playlistID+ ') ' + doc.data().name);
+                if(this.state.debug) console.log("device group:"+deviceGroupId+" playlist: ("+playlistID+ ') ' + doc.data().name);
 
                 // if (playlistsList.includes())
                 if (playlistsList.filter(
@@ -228,10 +224,6 @@ class Playlists extends Component {
                 that.forceUpdate();
             });
 
-
-        //temporary until we keep the data on app state (redux):
-        // navigate('/login');
-        //this.state.playlists
       }
       catch(e) {
           this.setState({errorMessage: e});
@@ -248,17 +240,6 @@ class Playlists extends Component {
         const {playlistName, playlists, searchQuery} = this.state;
         let filteredList = [];
         let groups = [];
-        // let deviceGroupId='';
-        // const groups = playlists.filter((item) => 
-        // {
-        //     if (item.deviceGroupId !== deviceGroupId)
-        //     {
-        //         deviceGroupId = item.deviceGroupId;
-        //         //return ({id: item.deviceGroupId, name: item.deviceGroupName});
-        //         return true;
-        //     }
-        //     return false;
-        // });
 
         let distinctDeviceGroups = [];
         const deviceGroupsList = playlists.map((item) => 
@@ -275,8 +256,6 @@ class Playlists extends Component {
                 else
                     return null;
             });
-
-        const fieldClass = searchQuery.length? 'action':'icon';
 
         const dataFilter = item =>
             (item.playlistName || '')
@@ -298,7 +277,7 @@ class Playlists extends Component {
                     <form className="ui form" onSubmit={this.handleSubmit}>
                         <div className="ui text container">
                           <select 
-                            className="ui dropdown"
+                            className="ui sub header dropdown"
                             name="deviceGroupId" 
                             onChange={this.handleChange}>
                           {deviceGroupsList}
@@ -337,7 +316,7 @@ class Playlists extends Component {
                     </div>
                     <form className="ui form">
                         <div className="ui basic field">
-                            <div className={ fieldClass + ' ui input'}>
+                            <div className={ (searchQuery.length? 'action':'icon') + ' ui input'}>
                                 {!searchQuery.length?
                                 <i className="filter disabled icon"></i>
                                 :null}

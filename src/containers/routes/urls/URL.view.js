@@ -85,7 +85,7 @@ class URLView extends Component {
             </button>
             <button className="ui link button" href="#"
                 onClick={e => this.deleteURL(e, urlID)}>
-                <i className="icon delete large"></i>
+                <i className="icon trash large"></i>
             </button>
         </div>
         <div className="content">

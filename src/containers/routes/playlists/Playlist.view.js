@@ -45,18 +45,21 @@ class PlaylistView extends Component {
 
   }
   getData(){
-    const {item} = this.props;
+    const {item, URLsCount} = this.props;
+    if (this.state.isHeader)
+    {
+      this.setState({URLsCount : URLsCount});
+    }
+    else
+    {
+      this.URLs = db.collection('/URLs/').where("playlistId", "==", item.playlistID);
 
-    this.URLs = db.collection('/URLs/').where("playlistId", "==", item.playlistID);
+      this.URLs
+          .onSnapshot( snapshot => {
+            this.setState({URLsCount : snapshot.size});
+      });      
+    }
 
-    this.URLs
-        // .orderBy("description", "asc")
-        .onSnapshot( snapshot => {
-          this.setState({URLsCount : snapshot.size});
-          // snapshot.forEach( doc => {
-          //   console.log("URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
-          // });
-    });
 
   }
   componentWillUnmount() {
@@ -70,11 +73,14 @@ class PlaylistView extends Component {
     // const {URLsCount} = item;
     const playlistID = item.id;
     const canEdit = false;//this.state.whichPlaylist == null;
+    const headerClasses = isHeader? '':'left aligned';
+    const headerClasses2 = isHeader? 'ui header':'left floated content';
     return (
     <div className="ui basic item" key={playlistID}>
-        <div className="left floated content">
-           <form className="ui form" onSubmit={this.handleSubmit}>
+  
+        <div className={headerClasses2}>
               {playlistID === this.state.whichPlaylist ? 
+                <form className="ui form" onSubmit={this.handleSubmit}>
                   <div className="ui action input">
                       <input type="text" 
                           placeholder="Playlist name..." 
@@ -91,9 +97,10 @@ class PlaylistView extends Component {
                           <i className="icon delete"></i>
                       </button>
                   </div>
+                </form>
               :
                   <div >
-                      <h3 className="ui left aligned blue header">
+                      <span className={"ui "+headerClasses+" blue header"}>
                           {item.playlistName}&nbsp;&nbsp;
                           {canEdit ?
                           <a className="ui basic edit" href="edit" 
@@ -105,15 +112,17 @@ class PlaylistView extends Component {
                               <i className="icon pencil alternate small"></i>
                           </a>
                           : ''}
-                      </h3>
+                      </span>
                       {!isHeader?
                         <h5 className="ui inverted grey left aligned header">&nbsp;({this.state.URLsCount} URLs)</h5>
-                      :''}
+                      :
+                        <span className="header">&nbsp;({this.props.URLsCount || this.state.URLsCount}
+                        {isHeader && this.props.URLsCount < this.props.totalCount ? ' of '+this.props.totalCount:''} URLs)</span>
+                      }
                   </div>
               }      
-          </form>
-        </div>
-        <div className="right floated content ui basic icon buttons">
+          </div>
+          <div className="right floated content ui basic icon buttons">
             {/*edit button - temp. hidden on header */}
             {!this.state.isHeader?
               <button className="ui link button" href="#"
@@ -144,15 +153,13 @@ class PlaylistView extends Component {
                   <i className="icon trash large"></i>
               </button>
             :''}
-        </div>
+          </div>
         {
             this.state.errorMessage !== null ?
                 <div className="ui error message">{this.state.errorMessage}</div> 
             : null
         }
-
      </div>
-
     )
   }
 }
