@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import BackView from '../../global/Back.view';
-import firebase from '../../../utils/Firebase';
+import {db} from '../../../utils/Firebase';
 import URLView from './URL.view'
 import PlaylistView from '../playlists/Playlist.view';
 
@@ -25,40 +25,45 @@ class URLs extends Component {
      }
   
     componentDidMount(){
+        const {userID} = this.props;
+
         this._isMounted = true;
 
-        this.playlistRef = firebase
-          .database()
-          .ref('playlists/'+this.props.userID+'/'+this.props.playlistID);
+        // this.playlistRef = db
+        //   .doc('playlists/'+this.props.playlistID);
 
-        this.playlistRef.on('value', snapshot => {
-            let playlist = snapshot.val();
+        // this.playlistRef.onSnapshot(snapshot => {
+        //     let playlist = {...playlist, ...snapshot.data()};
 
-            this.setState({
-                playlist
-            })
-          });
+        //     // this.setState({
+        //     //     playlist
+        //     // })
+        //   });
 
-        this.urlsRef = firebase
-          .database()
-          .ref('playlists/'+this.props.userID+'/'+this.props.playlistID+'/URLs/')
-          .orderByChild("URLDescription");
+        this.urlsRef = db
+          // .ref('playlists/'+this.props.userID+'/'+this.props.playlistID+'/URLs/')
+          .collection('URLs')
+          .where("playlistId", "==", this.props.playlistID)
+          ;
 
-        this.urlsRef.on('value', snapshot => {
-            let URLs = snapshot.val();
+        this.urlsRef
+          .orderBy("description","asc")
+          .onSnapshot(snapshot => {
             var list= [];
+            snapshot.forEach( doc => {
+                var data = doc.data();
 
-            for (let item in URLs){
                 list.push({ //listItems
-                    urlID: item, //itemID
-                    urlDesc: URLs[item].URLDescription,
-                    urlUrl: URLs[item].URLURL,
-                    urlDuration: Number.parseInt(URLs[item].URLDuration),
-                    star: URLs[item].star,
+                    urlID: doc.id, //itemID
+                    ...data,
+                    // urlDesc: data.description,
+                    // urlUrl: data.url,
+                    // urlDuration: Number.parseInt(data.duration),
+                    // star: data.star,
                     playlistID: this.props.playlistID,
-                    userID: this.state.userID                            
+                    userID                          
                 });
-            }
+            });
 
             this.setState({
                 list,       //list:listItems
@@ -72,8 +77,8 @@ class URLs extends Component {
     
     componentWillUnmount() {
         this._isMounted = false;
-        this.urlsRef.off();
-        this.playlistRef.off();
+        // this.urlsRef.off();
+        // this.playlistRef.off();
    }
 
     handleChange(e) {
@@ -95,11 +100,10 @@ class URLs extends Component {
     render() {
         const {list, searchQuery, playlist} = this.state;
         const {playlistName} = playlist;
-        const URLsCount = Object.keys(playlist.playlistURLs || {}).length
         var filteredList = [];
 
         const dataFilter = item =>
-            item.urlDesc
+            item.description
             .toLowerCase()
             .match(searchQuery.toLowerCase()) && true;
 
@@ -107,6 +111,8 @@ class URLs extends Component {
             filteredList = list.filter(
                 dataFilter
             );
+
+        // let URLsCount = filteredList.length;//this.state.URLsCount || this.state.howManyItems;//Object.keys(playlist.playlistURLs || {}).length
 
         const myURLs = filteredList.map((item) => 
         {
@@ -119,52 +125,42 @@ class URLs extends Component {
         return(
             <div className="ui container">
                 <BackView/>
+                <div className="ui hidden divider"/>
+
                 {/*<div className="ui header">Playlist &quot;{playlistName}&quot;</div>*/}
                 {filteredList ?
-                    <div className="ui header">
-                        <PlaylistView key={this.props.playlistID}  userID={this.props.userID}
-                            item={playlist} URLsCount={URLsCount} 
-                            mode="header"/>
-                    </div>
+                             <PlaylistView key={playlist.playlistID}  userID={this.props.userID}
+                                item={playlist} URLsCount={filteredList.length} totalCount={list.length}
+                                mode="header"/>
                     :''
                 }
 
-                <div className="ui basic segment">
-
-                  {/*  {filteredList && filteredList.length ? */}
-                    <div className="ui very padded basic segment left aligned">
-                        <div className="ui inverted red segment" style={{display: 'flex',alignItems: 'center'}}>
-
-                            <span className="ui content header huge" 
-                                style={{marginBottom: 0}}>URLs&nbsp;</span>
-                            <span className="ui {searchQuery.length? 'action':''} input icon right floated content">
-                                 <input type="text"
-                                    name="searchQuery"
-                                    value={searchQuery}
-                                    placeholder="Filter..."
-                                    onChange={this.handleChange}
-                                />
-                                {!searchQuery.length?
-                                <i className="filter disabled icon"></i>
-                                :
-                                <button className="ui basic inverted  white button icon"  
-                                    onClick={this.resetQuery}><i className="close icon"></i></button>                                
-                                }
-                           </span>
-                           <span className="ui header content"
-                                style={{marginTop: 0}}>&nbsp;&nbsp;(
-                                {filteredList && filteredList.length && filteredList.length < this.state.howManyItems ? 
-                                        filteredList.length + ' of '
-                                    :''}
-                                {this.state.howManyItems} URLs)</span>
-                        </div>
-
-                        <div className="ui animated relaxed divided list">
-                            {myURLs}
+                <form className="ui basic segment form">
+                    <div className="ui basic field">
+                        <div className={ (searchQuery.length? 'action':'icon') + ' ui input'}>
+                            {!searchQuery.length?
+                            <i className="filter disabled icon"></i>
+                            :null}
+                            <input type="text"
+                                name="searchQuery"
+                                value={searchQuery}
+                                placeholder="Filter..."
+                                onChange={this.handleChange}
+                                style={{paddingRight: 1 + 'em!important'}}
+                            />
+                            {searchQuery.length?
+                            <button className="ui icon button "  style={{marginLeft: -1 + 'em'}}
+                                onClick={this.resetQuery}>
+                                <i className="close icon"></i>
+                            </button> 
+                            :null}
                         </div>
                     </div>
-                    {/*: null}*/}
+                </form>
+                <div className="ui divider hidden"/>
 
+                <div className="ui animated relaxed divided list">
+                    {myURLs}
                 </div>
             </div>
         );

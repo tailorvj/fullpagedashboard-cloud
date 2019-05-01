@@ -2,20 +2,17 @@
 import React, { Component } from 'react';
 import { Router, navigate } from '@reach/router';
 import firebase from '../../../utils/Firebase';
-import {Link} from '@reach/router';
 
-//import Home from '../../../Home';
-// import Welcome from '../../../Welcome';
 import Navigation from '../../../Navigation';
-import GithubLogin from '../../routes/auth/GithubLogin';
+import LoginView from '../../routes/auth/Login.view';
 import Register from '../../../Register';
 import Playlists from '../../routes/playlists/Playlists';
-import CheckIn from '../../../CheckIn';
+// import CheckIn from '../../../CheckIn';
 import URLs from '../../routes/urls/URLs';
-import AddURL from '../../routes/urls/AddURL';
-// import EditURL from '../../routes/urls/EditURL';
-// import Filteredlist from '../filterBase';
-// import PlaylistsList from '../../routes/playlists/PlaylistsList';
+import URLDetails from '../../routes/urls/URLDetails';
+
+import PageHeader from '../PageHeader.view';
+// import Tab from '../Tab.view';
 
 class App extends Component {
   constructor() {
@@ -23,21 +20,25 @@ class App extends Component {
     this.state = {
       user: null, 
       displayName : null,
-      userID: null
+      userID: null,
+      photo: null
     };
-    // this.playlistsRef = '';
-    // this.ref = '';
+    this.userRef='';
+    this.userUserGroupsRef='';
+    this.userDeviceGroupsRef='';
   }
 
   registerUser = (userName) => {
     firebase.auth().onAuthStateChanged(FBUser => {
+      console.log("in App.js - registerUser, "+userName + JSON.stringify(FBUser));
       FBUser.updateProfile({
         displayName: userName
       }).then(()=>{
         this.setState({
           user: FBUser,
           displayName: FBUser.displayName,
-          userID: FBUser.uid
+          userID: FBUser.uid,
+          photo: FBUser.photoURL
         });
         navigate('/playlists');
       });
@@ -50,6 +51,7 @@ class App extends Component {
       user: null,
       displayName: null,
       userID: null,
+      photo:null,
       playlists: []
     });
     firebase.auth().signOut().then(()=>{
@@ -61,12 +63,17 @@ class App extends Component {
     this._isMounted = true;
     this.listener = firebase.auth().onAuthStateChanged(FBUser => {
       if (FBUser) {
+        console.log("in App.js - componentDidMount, " + FBUser.displayName);      
+
         if(this._isMounted){
           this.setState({
             user: FBUser,
             displayName: FBUser.displayName,
-            userID: FBUser.uid
+            userID: FBUser.uid,
+            photo: FBUser.photoURL
           });
+          // this.getData();
+
         }
 
       } else {
@@ -77,12 +84,10 @@ class App extends Component {
 
   componentWillUnmount() {
     this._isMounted = false;
-    // this.ref.off();
-    // this.playlistsRef.off();
   }
 
   render() {
-    const { user, userID, displayName} = this.state;
+    const { user, userID, displayName, photo} = this.state;
 
     user ? navigate('/playlists') : navigate('/login');
 
@@ -90,29 +95,7 @@ class App extends Component {
 
       <div>
     {/* top header */}
-      <div className="ui large inverted blue top fixed menu blue ">
-         <div className="ui blue label item">
-            <img alt="logo" className="logo" src="Logo%20white.svg"/>&nbsp;&nbsp;&nbsp;
-            Full Page Dashboard (Cloud)
-        </div>  
-          <div className="right menu">
-            {!user && (
-              <Link className="item active dropdown" to="/login">
-                Log in / Sign up
-              </Link>
-            )}
-            {user && (              
-              <div className="item active">
-                {/*<img className="ui mini circular image" src="/images/avatar2/small/molly.png"/>*/}
-                <i className="ui circular icon user"></i>
-                <div className="content">
-                  <div className="ui sub header inverted">{displayName}</div>
-                  <Link to="/login" onClick={e => this.logOutUser(e)} style={{color: '#C0CBDD'}}>Log out</Link>
-                </div>
-              </div>              
-            )}
-          </div>
-      </div>
+      <PageHeader user={user} photo={photo} displayName={displayName}/>
       {user && (  
         <Navigation/>
       )}
@@ -127,14 +110,15 @@ class App extends Component {
             <a className="item">Signup</a>
           </div>
         */}
-        <div className="pusher">
+        <div >
+          {/*<div className="ui hidden divider"></div> */}
           <div className="ui vertical masthead center aligned segment">
 
         <Router>
           {/* <Home path="/" user={this.state.user} />*/}
 
           {user == null && (
-          <GithubLogin className="ui fluid popup bottom left transition hidden" path="/login" />
+          <LoginView className="ui fluid popup bottom left transition hidden" path="/login" />
           )}
 
            {/*
@@ -148,30 +132,25 @@ class App extends Component {
               sortFieldName="playlistName">
               <PlaylistsList path="/playlist"/>        
           </Filteredlist>
- /*
-                    <form className="ui form" onSubmit={this.handleSubmit}>
-                        <div className="ui action input">
-                            <input type="text" 
-                                placeholder="New playlist name..." 
-                                name="playlistName"
-                                aria-describedby="buttonAdd"
-                                value={playlistName}
-                                onChange={this.handleChange}
-                            />
-                            <button className="ui icon button" type="submit" id="buttonAdd">
-                                <i className="plus icon"></i>
-                            </button>
-                        </div>
-                    </form> * /
           */}
 
           {user && (
             <Playlists
               path="/playlists"
+              // userGroups={this.state.userGroups}
+              // deviceGroups={this.state.deviceGroups}
               // playlists={this.state.playlists}
               userID={userID}
             />
+
           )}
+          {/*user && (
+            <Tab path="/devicegroups" data-tab="devicegroups">
+                <h4 className="ui grey header">
+                    Device Groups
+                </h4>
+            </Tab>
+          )*/}
 
           <URLs
             path="/URLs/:userID/:playlistID"
@@ -179,18 +158,18 @@ class App extends Component {
             adminUser={userID}
             userID={userID}
           />
-          <AddURL 
+          <URLDetails 
             path="/URL/:userId/:playlistID" 
             userID={userID}
             />
 {/*          <EditURL 
             path="/editURL/:userId/:playlistID/URLs/:URLID" 
             userID={userID}
-            />*/}
+            />
           <CheckIn 
             path="/checkin/:userId/:playlistID" 
             userID={userID}
-            />
+            />*/}
           <Register path="/register" registerUser={this.registerUser} />
         </Router>
           </div>

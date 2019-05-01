@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 // import {Card,Image,Icon, Label} from 'semantic-ui-react'
 // import cn from 'classnames'
 import { navigate } from '@reach/router';
-import firebase from '../../../utils/Firebase';
+import {db} from '../../../utils/Firebase';
 
 class URLView extends Component {
   constructor(props) {
@@ -28,18 +28,12 @@ class URLView extends Component {
       this.setState({whichURL: null , urlName: null});
   }    
   updateURLName = (urlID, urlName) => {
-      this.ref = firebase
-        .database()
-        .ref(`playlists/${this.props.userID}/`+this.props.playlistID+'/URLs/'+urlID);
-      this.ref.set({ urlName: urlName });
+      db.doc('/URLs/'+urlID).set({ urlName: urlName });
  }
  deleteURL = (e, whichURL) => {
     e.preventDefault();
     try{
-      this.ref = firebase.database().ref(
-          `playlists/${this.props.userID}/${this.props.playlistID}/URLs/${whichURL}`
-      );
-      this.ref.remove();
+      db.doc(`URLs/${whichURL}`).delete();
       //update parent !!!
       this.props.callback();
     }
@@ -49,7 +43,7 @@ class URLView extends Component {
 }
 
   render() {
-    const {  userID, playlistID , urlID, urlDesc, urlUrl, urlDuration} = this.props
+    const {  userID, playlistID , urlID, description, url, duration} = this.props
     const canEdit = this.state.whichURL == null;
     return (
      <div className="item" key={urlID}>
@@ -69,13 +63,29 @@ class URLView extends Component {
             <button className="ui link button" href="#"
                 onClick={() => {
                   //let listName = this.props.playlistName;
-                  navigate(`/URL/${userID}/${playlistID}`,{state: {userID, playlistID , urlID, urlDesc, urlUrl, urlDuration, mode: "edit", playlistName: this.props.playlistName}});
+                  navigate(`/URL/${userID}/${playlistID}`,
+                    {state: 
+                      {
+                        // userID, 
+                        mode: "edit",
+                        playlist: {
+                          playlistID , 
+                          playlistName: this.props.playlistName
+                        }, 
+                        urlItem: {
+                          urlID, 
+                          description, 
+                          url, 
+                          duration
+                        }
+                      }
+                    });
                 }}>
                 <i className="icon pencil alternate large"></i>
             </button>
             <button className="ui link button" href="#"
                 onClick={e => this.deleteURL(e, urlID)}>
-                <i className="icon delete large"></i>
+                <i className="icon trash large"></i>
             </button>
         </div>
         <div className="content">
@@ -84,9 +94,9 @@ class URLView extends Component {
                     <div className="ui action input">
                         <input type="text" 
                             placeholder="New URL name..." 
-                            name="urlDesc"
+                            name="description"
                             aria-describedby="buttonUpdate"
-                            value={this.state.urlDesc || urlDesc}
+                            value={this.state.description || description}
                             onChange={(e) => this.handleChange(e,urlID)}
                         />
                         <button className="ui green basic icon button" type="submit" id="buttonUpdate">
@@ -100,8 +110,8 @@ class URLView extends Component {
                 :
                     <div >
                         <h2 className="header">
-                            <a href={urlUrl} target="_blank" rel="noopener noreferrer">
-                            {urlDesc}
+                            <a href={url} target="_blank" rel="noopener noreferrer">
+                            {description}
                             </a>
                             &nbsp;&nbsp;
                             {canEdit ?
@@ -115,7 +125,7 @@ class URLView extends Component {
                             </a>
                             : ''}
                         </h2>
-                        <h5 className="ui grey left aligned header">{urlDuration} ms</h5>
+                        <h5 className="ui grey left aligned header">{duration} ms</h5>
                      </div>
                 }      
             </form>
@@ -135,10 +145,10 @@ class URLView extends Component {
 URLView.propTypes = {
   userID: PropTypes.string.isRequired,
   playlistID: PropTypes.string.isRequired,
-  urlID: PropTypes.string.isRequired,
-  urlDesc: PropTypes.string.isRequired, 
-  urlUrl: PropTypes.string.isRequired, 
-  urlDuration: PropTypes.number.isRequired
+  urlID: PropTypes.string.isRequired//,
+  // urlDesc: PropTypes.string.isRequired, 
+  // urlUrl: PropTypes.string.isRequired, 
+  // urlDuration: PropTypes.number.isRequired
 }
 
 export default URLView

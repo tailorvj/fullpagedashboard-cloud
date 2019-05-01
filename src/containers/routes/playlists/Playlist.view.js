@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 // import {Card,Image,Icon, Label} from 'semantic-ui-react'
 // import cn from 'classnames'
 import { navigate } from '@reach/router';
-import firebase from '../../../utils/Firebase';
+import {db} from '../../../utils/Firebase';
 
 class PlaylistView extends Component {
   constructor(props) {
@@ -19,20 +19,10 @@ class PlaylistView extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.updatePlaylistName=this.updatePlaylistName.bind(this);
+    this.getData=this.getData.bind(this);
 
     this.ref = '';
-  }
-  deletePlaylist = (e, whichPlaylist) => {
-      e.preventDefault();
-      try{
-        this.ref = firebase.database().ref(
-            `playlists/${this.props.userID}/${whichPlaylist}`
-        );
-        this.ref.remove();
-      }
-      catch(e) {
-          this.setState({errorMessage: e});
-      }
+    this.URLs = '';
   }
   handleChange(e, whichPlaylist) {
       const itemName = e.target.name;
@@ -47,42 +37,97 @@ class PlaylistView extends Component {
       this.setState({whichPlaylist: null , playlistName: null});
   }    
   updatePlaylistName = (playlistId, playlistName) => {
-      this.ref = firebase
-        .database()
-        .ref(`playlists/${this.props.userID}/`+playlistId);
-      this.ref.update({ playlistName: playlistName });
-      // this.setState({ playlistName : playlistName });
+      db.doc('playlists/'+playlistId).update({ playlistName: playlistName });
  }
  componentDidMount(){
     this._isMounted = true;
+    this.getData();
 
-    // this.playlistRef = firebase
-    //   .database()
-    //   .ref('playlists/'+this.props.userID+'/'+this.state.whichPlaylist);
+  }
+  getData(){
+    const {item, URLsCount} = this.props;
+    if (this.state.isHeader)
+    {
+      this.setState({URLsCount : URLsCount});
+    }
+    else
+    {
+      this.URLs = db.collection('/URLs/').where("playlistId", "==", item.playlistID);
 
-    // this.playlistRef.on('value', snapshot => {
-    //     let playlist = snapshot.val();
-    //     this.setState({ playlistName : playlist.playlistName });
-    //   });
+      this.URLs
+          .onSnapshot( snapshot => {
+            this.setState({URLsCount : snapshot.size});
+      });      
+    }
+
+
   }
   componentWillUnmount() {
     this._isMounted = false;
-    // this.playlistRef.off();
   }
 
   render() {
-    const { item, userID, URLsCount } = this.props
-    const { playlistID } = item;
+    const { item, userID/*, URLsCount*/ } = this.props
+    const {isHeader} = this.state;
+
+    // const {URLsCount} = item;
+    const playlistID = item.id;
     const canEdit = false;//this.state.whichPlaylist == null;
+    const headerClasses = isHeader? '':'left aligned';
+    const headerClasses2 = isHeader? 'ui header':'left floated content';
     return (
-    <div className="item" key={playlistID}>
-        <div className="right floated content ui basic icon buttons">
+    <div className="ui basic item" key={playlistID}>
+  
+        <div className={headerClasses2}>
+              {playlistID === this.state.whichPlaylist ? 
+                <form className="ui form" onSubmit={this.handleSubmit}>
+                  <div className="ui action input">
+                      <input type="text" 
+                          placeholder="Playlist name..." 
+                          name="playlistName"
+                          aria-describedby="buttonUpdate"
+                          value={item.playlistName }
+                          onChange={(e) => this.handleChange(e,playlistID)}
+                      />
+                      <button className="ui green basic icon button" type="submit" id="buttonUpdate">
+                          <i className="check icon"></i>
+                      </button>
+                      <button className="ui red cancel basic icon button" href="#" type="cancel" id="buttonCancel"
+                          onClick={(e) => this.setState({'whichPlaylist': null, 'playlistName': null})}>
+                          <i className="icon delete"></i>
+                      </button>
+                  </div>
+                </form>
+              :
+                  <div >
+                      <span className={"ui "+headerClasses+" blue header"}>
+                          {item.playlistName}&nbsp;&nbsp;
+                          {canEdit ?
+                          <a className="ui basic edit" href="edit" 
+                              onClick={(e) => { 
+                                                  e.preventDefault();
+                                                  this.setState({'whichPlaylist': playlistID})
+                                              }
+                                      }>
+                              <i className="icon pencil alternate small"></i>
+                          </a>
+                          : ''}
+                      </span>
+                      {!isHeader?
+                        <h5 className="ui inverted grey left aligned header">&nbsp;({this.state.URLsCount} URLs)</h5>
+                      :
+                        <span className="header">&nbsp;({this.props.URLsCount || this.state.URLsCount}
+                        {isHeader && this.props.URLsCount < this.props.totalCount ? ' of '+this.props.totalCount:''} URLs)</span>
+                      }
+                  </div>
+              }      
+          </div>
+          <div className="right floated content ui basic icon buttons">
             {/*edit button - temp. hidden on header */}
             {!this.state.isHeader?
               <button className="ui link button" href="#"
                   onClick={() => {
-                    let listName = item.playlistName;
-                    navigate(`/URL/${userID}/${playlistID}`,{state: {playlistName:listName}})
+                    navigate(`/URL/${userID}/${playlistID}`,{state: { playlist:item}})
                   }}>
                   <i className="large icons">
                       <i className="fitted link  linkify icon"></i>
@@ -95,7 +140,7 @@ class PlaylistView extends Component {
             {!this.state.isHeader?
               <button className="ui link button" href="#"
                   onClick={() => {
-                    navigate(`/URLs/${userID}/${playlistID}`,{state: {playlist:item}})
+                    navigate(`/URLs/${userID}/${item.playlistID}`,{state: {playlistID:item.playlistID, playlist:item}})
                   }}>
                   <i className="icon eye large"></i>
               </button>
@@ -104,69 +149,25 @@ class PlaylistView extends Component {
             {/*delete button - temp. hidden on header */}
             {!this.state.isHeader?
               <button className="ui link button" href="#"
-                  onClick={e => this.deletePlaylist(e, playlistID)}>
+                  onClick={e => this.props.deletePlaylist(e, item.playlistID, item.deviceGroupId)}>
                   <i className="icon trash large"></i>
               </button>
             :''}
-        </div>
-        <div className="content">
-             <form className="ui form" onSubmit={this.handleSubmit}>
-                {playlistID === this.state.whichPlaylist ? 
-                    <div className="ui action input">
-                        <input type="text" 
-                            placeholder="Playlist name..." 
-                            name="playlistName"
-                            aria-describedby="buttonUpdate"
-                            value={item.playlistName }
-                            onChange={(e) => this.handleChange(e,playlistID)}
-                        />
-                        <button className="ui green basic icon button" type="submit" id="buttonUpdate">
-                            <i className="check icon"></i>
-                        </button>
-                        <button className="ui red cancel basic icon button" href="#" type="cancel" id="buttonCancel"
-                            onClick={(e) => this.setState({'whichPlaylist': null, 'playlistName': null})}>
-                            <i className="icon delete"></i>
-                        </button>
-                    </div>
-                :
-                    <div >
-                        <h2 className="header">
-                            {item.playlistName}&nbsp;&nbsp;
-                            {canEdit ?
-                            <a className="ui basic edit" href="edit" 
-                                onClick={(e) => { 
-                                                    e.preventDefault();
-                                                    this.setState({'whichPlaylist': playlistID})
-                                                }
-                                        }>
-                                <i className="icon pencil alternate small"></i>
-                            </a>
-                            : ''}
-                        </h2>
-                        {!this.state.isHeader?
-                          <h5 className="ui grey left aligned header">&nbsp;({URLsCount} URLs)</h5>
-                        :''}
-                    </div>
-                }      
-            </form>
-
-        </div>
+          </div>
         {
             this.state.errorMessage !== null ?
                 <div className="ui error message">{this.state.errorMessage}</div> 
             : null
         }
-
      </div>
-
     )
   }
 }
 
 PlaylistView.propTypes = {
   userID: PropTypes.string.isRequired,
-  item: PropTypes.object.isRequired,
-  URLsCount: PropTypes.number.isRequired,
+  item: PropTypes.object.isRequired/*,
+  URLsCount: PropTypes.number.isRequired,*/
 }
 
 export default PlaylistView

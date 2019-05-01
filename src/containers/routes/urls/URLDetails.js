@@ -1,18 +1,22 @@
 import React, { Component } from 'react';
-import firebase from '../../../utils/Firebase';
+import {db} from '../../../utils/Firebase';
 // import { navigate } from '@reach/router';
 
-class AddURL extends Component {
+class URLDetails extends Component {
   constructor(props) {
     super(props);
-    const {playlistName, urlID, urlDesc, urlUrl, urlDuration, mode} = this.props.location.state;
+    const {playlist, urlItem, mode} = this.props.location.state;
+
+    const {playlistID, playlistName} = playlist;
+    const {urlID, description, url, duration} = urlItem || {};
 
     this.state = {
+      playlistID,
       playlistName,
       urlID: urlID || '',
-      urlDesc: urlDesc || '',
-      urlUrl: urlUrl || '',
-      urlDuration: urlDuration || 50000,
+      urlDesc: description || '',
+      urlUrl: url || '',
+      urlDuration: duration || 50000,
       isEdit: mode === "edit"
     };
 
@@ -32,32 +36,30 @@ class AddURL extends Component {
     e.preventDefault();
     if (!this.state.isEdit) {
       //add new
-      const ref = firebase
-        .database()
-        .ref(
-          `playlists/${this.props.userID}/${
-            this.props.playlistID
-          }/URLs`
-        );
-      ref.push({
-        URLDescription: this.state.urlDesc,
-        URLURL: this.state.urlUrl,
-        URLDuration: this.state.urlDuration
+      const ref = db
+        // .collection(`playlists/${this.props.userID}/`)
+        // .doc(this.props.playlistID)
+        .collection('URLs');
+      ref.add({
+        playlistId: this.state.playlistID,
+        description: this.state.urlDesc,
+        url: this.state.urlUrl,
+        duration: this.state.urlDuration,
+        star: false,
       });
     }
     else
     {
       //update existing
-      firebase
-        .database()
-        .ref(
-          `playlists/${this.props.userID}/${
-            this.props.playlistID
-          }/URLs/${this.state.urlID}`
-        ).update({
-        URLDescription: this.state.urlDesc,
-        URLURL: this.state.urlUrl,
-        URLDuration: this.state.urlDuration
+      db
+        .collection('URLs')
+        .doc(this.state.urlID)
+        .set({
+          playlistId: this.state.playlistID,
+          description: this.state.urlDesc,
+          url: this.state.urlUrl,
+          duration: this.state.urlDuration,
+          star: false
       });
     }
     window.history.back();
@@ -76,7 +78,7 @@ class AddURL extends Component {
       <form className="ui left aligned container form" onSubmit={this.handleSubmit} onReset={this.handleReset}>
  
         <h3 className="ui center aligned header">{this.state.isEdit ? 'Update URL of' : 'Add URL to'} {this.state.playlistName}</h3>
-        <div className="eight wide field">
+        <div className="field">
           <label htmlFor="urlDesc">
             Display Name
           </label>
@@ -90,7 +92,7 @@ class AddURL extends Component {
             onChange={this.handleChange}
           />
         </div>
-        <div className="twelve wide required field">
+        <div className="required field">
           <label htmlFor="urlUrl">
             URL
           </label>
@@ -104,9 +106,9 @@ class AddURL extends Component {
             onChange={this.handleChange}
           />
         </div>
-        <div className="six wide required field">
+        <div className="required field">
           <label htmlFor="urlDuration">
-            Duration
+            Duration (ms)
           </label>
           <div className="ui right labeled input">
             <input
@@ -120,7 +122,6 @@ class AddURL extends Component {
               value={this.state.urlDuration || 50000}
               onChange={this.handleChange}
               />
-              <div className="ui basic label">MilliSeconds</div>
           </div>
         </div>
 
@@ -135,4 +136,4 @@ class AddURL extends Component {
   }
 }
 
-export default AddURL;
+export default URLDetails;
