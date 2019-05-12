@@ -16,7 +16,7 @@ class Playlists extends Component {
         this.getPlaylists = this.getPlaylists.bind(this);
 
         this.state ={
-            debug:true,
+            debug:false,
             searchQuery: '',
             playlistName: '',
             playlists: [],
@@ -53,9 +53,9 @@ class Playlists extends Component {
 
                     if(this.state.debug) {
                         if(DGsnapshot)
-                            console.log("in Playlists.js - getData - user group "+doc.id + " size:"+DGsnapshot.size);
+                            if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:"+DGsnapshot.size);
                         else
-                            console.log("in Playlists.js - getData - user group "+doc.id + " size:0");
+                            if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:0");
                     }
 
                     DGsnapshot.forEach( doc => 
@@ -182,7 +182,7 @@ class Playlists extends Component {
 
     };
     deletePlaylist = (e, whichPlaylist, deviceGroupId) => {
-      console.log("delete playlist "+whichPlaylist+" of device-group "+deviceGroupId);
+      if(this.state.debug) console.log("delete playlist "+whichPlaylist+" of device-group "+deviceGroupId);
       e.preventDefault();
       let that=this;
       try{
@@ -195,7 +195,7 @@ class Playlists extends Component {
           snapshot.forEach( doc => {
             if (doc)
             {
-              console.log("deleteing URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
+              if(this.state.debug) console.log("deleteing URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
               db.collection('URLs').doc(doc.id)
                 .delete()
                 .then(function() {

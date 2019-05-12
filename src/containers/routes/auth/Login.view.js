@@ -9,6 +9,7 @@ class LoginView extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      debug: false,
       email: '',
       isSignedIn: false // Local signed-in state.
     }
@@ -40,14 +41,15 @@ class LoginView extends Component {
     this._isMounted = true;
     firebase.auth().onAuthStateChanged(
         (user) => {
-          console.log("in Login.view.js - componentDidMount, " + user.displayName + " db:"+db)
+          const {debug} = this.state;
+          if(debug) console.log("in Login.view.js - componentDidMount, " + user.displayName + " db:"+db)
           var userRef = db.collection('users').doc(user.uid);
           userRef.get().then(function(doc) {
               if (doc.exists) {
-                  console.log("User data:", doc.data());
+                  if(debug) console.log("User data:", doc.data());
               } else {
                   // doc.data() will be undefined in this case
-                  console.log("New user! - creating default data");
+                  if(debug) console.log("New user! - creating default data");
 
                   userRef.set({
                      name: user.name

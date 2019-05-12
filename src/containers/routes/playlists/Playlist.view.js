@@ -13,7 +13,7 @@ class PlaylistView extends Component {
       isHeader: props.mode === "header",
       errorMessage: null,
       whichPlaylist: null , 
-      playlistName: null
+      playlistName: this.props.item.playlistName
     }
 
     this.handleChange = this.handleChange.bind(this);
@@ -34,10 +34,10 @@ class PlaylistView extends Component {
   handleSubmit(e){
       e.preventDefault();
       this.updatePlaylistName(this.state.whichPlaylist,this.state.playlistName);
-      this.setState({whichPlaylist: null , playlistName: null});
+      this.setState({whichPlaylist: null});
   }    
   updatePlaylistName = (playlistId, playlistName) => {
-      db.doc('playlists/'+playlistId).update({ playlistName: playlistName });
+      db.doc('playlists/'+playlistId).update({ name: playlistName });
  }
  componentDidMount(){
     this._isMounted = true;
@@ -71,8 +71,8 @@ class PlaylistView extends Component {
     const {isHeader} = this.state;
 
     // const {URLsCount} = item;
-    const playlistID = item.id;
-    const canEdit = false;//this.state.whichPlaylist == null;
+    const playlistID = item.playlistID;//id;
+    const canEdit = this.state.whichPlaylist == null;
     const headerClasses = isHeader? '':'left aligned';
     const headerClasses2 = isHeader? 'ui header':'left floated content';
     return (
@@ -86,7 +86,7 @@ class PlaylistView extends Component {
                           placeholder="Playlist name..." 
                           name="playlistName"
                           aria-describedby="buttonUpdate"
-                          value={item.playlistName }
+                          value={/*item.playlistName*/this.state.playlistName }
                           onChange={(e) => this.handleChange(e,playlistID)}
                       />
                       <button className="ui green basic icon button" type="submit" id="buttonUpdate">
@@ -101,7 +101,7 @@ class PlaylistView extends Component {
               :
                   <div >
                       <span className={"ui "+headerClasses+" blue header"}>
-                          {item.playlistName}&nbsp;&nbsp;
+                          {/*item.playlistName*/this.state.playlistName}&nbsp;&nbsp;
                           {canEdit ?
                           <a className="ui basic edit" href="edit" 
                               onClick={(e) => { 
