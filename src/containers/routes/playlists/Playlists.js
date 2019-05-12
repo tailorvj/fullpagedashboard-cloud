@@ -20,6 +20,10 @@ class Playlists extends Component {
             searchQuery: '',
             playlistName: '',
             playlists: [],
+            userGroups: [],
+            deviceGroupsList: [], 
+            distinctDeviceGroups: [], 
+            groups: [],
             howManyPlaylists: 0,
             refreshReq: false
         };
@@ -50,6 +54,10 @@ class Playlists extends Component {
                 //     .then( DGsnapshot =>
                 {
                     let deviceGroupsList = []; //Helper Array
+                    let groups = [];
+
+                    let distinctDeviceGroups = [];
+                    let deviceGroupsListStr =[];
 
                     if(this.state.debug) {
                         if(DGsnapshot)
@@ -67,7 +75,6 @@ class Playlists extends Component {
                        // get device group playlists
 
                        var playlistsList = this.getPlaylists(deviceGroupId, deviceGroupName);
-
                        deviceGroupsList.push({
                           deviceGroupsID: deviceGroupId, //.data()
                           deviceGroupName: deviceGroupName,
@@ -75,20 +82,33 @@ class Playlists extends Component {
                           howManyPlaylists: playlistsList.length
 
                         });
+                        if (!distinctDeviceGroups.includes(deviceGroupId))
+                        {
+                            distinctDeviceGroups.push(deviceGroupId);
+                            groups.push({id: deviceGroupId, name: deviceGroupName, count:playlistsList.length});
+
+                            deviceGroupsListStr.push(
+                                <option key={deviceGroupId} value={deviceGroupId}>{deviceGroupName}</option>);
+                        }
+
                     });
 
                     userGroupsList.push({
                         userGroupsID: userGroupId, //.data
-                        deviceGroups: deviceGroupsList,
+                        deviceGroups: deviceGroupsList,//?
                         howManyDeviceGroups: deviceGroupsList.length                        
                     });
 
                     this.setState({
                         userGroups: userGroupsList,
-                        howManyUserGroups: userGroupsList.length
+                        howManyUserGroups: userGroupsList.length,
+                        deviceGroupsListStr, 
+                        distinctDeviceGroups, 
+                        groups
                     });
 
-                  });
+
+                });
 
             });
 
@@ -237,25 +257,8 @@ class Playlists extends Component {
     }
 
     render(){
-        const {playlistName, playlists, searchQuery} = this.state;
+        const {playlistName, playlists, searchQuery, deviceGroupsListStr, distinctDeviceGroups, groups} = this.state;
         let filteredList = [];
-        let groups = [];
-
-        let distinctDeviceGroups = [];
-        const deviceGroupsList = playlists.map((item) => 
-            {
-                if (!distinctDeviceGroups.includes(item.deviceGroupId))
-                {
-                    distinctDeviceGroups.push(item.deviceGroupId);
-                    groups.push({id: item.deviceGroupId, name: item.deviceGroupName});
-
-                    return(
-                        <option key={item.deviceGroupId} value={item.deviceGroupId}>{item.deviceGroupName}</option>
-                    );
-                }
-                else
-                    return null;
-            });
 
         const dataFilter = item =>
             (item.playlistName || '')
@@ -280,7 +283,7 @@ class Playlists extends Component {
                             className="ui sub header dropdown"
                             name="deviceGroupId" 
                             onChange={this.handleChange}>
-                          {deviceGroupsList}
+                          {deviceGroupsListStr}
                           </select>
                             <div className="ui basic field">
                                 <div className="ui action input">
