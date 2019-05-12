@@ -78,7 +78,7 @@ class PlaylistView extends Component {
     return (
     <div className="ui basic item" key={playlistID}>
   
-        <div className={headerClasses2}>
+          <span className={headerClasses2}>
               {playlistID === this.state.whichPlaylist ? 
                 <form className="ui form" onSubmit={this.handleSubmit}>
                   <div className="ui action input">
@@ -99,7 +99,7 @@ class PlaylistView extends Component {
                   </div>
                 </form>
               :
-                  <div >
+                  <span >
                       <span className={"ui "+headerClasses+" blue header"}>
                           {/*item.playlistName*/this.state.playlistName}&nbsp;&nbsp;
                           {canEdit ?
@@ -119,12 +119,12 @@ class PlaylistView extends Component {
                         <span className="header">&nbsp;({this.props.URLsCount || this.state.URLsCount}
                         {isHeader && this.props.URLsCount < this.props.totalCount ? ' of '+this.props.totalCount:''} URLs)</span>
                       }
-                  </div>
+                  </span>
               }      
-          </div>
-          <div className="right floated content ui basic icon buttons">
+          </span>
+          <span className="right floated content ui basic icon buttons">
             {/*edit button - temp. hidden on header */}
-            {!this.state.isHeader?
+            {true/*!this.state.isHeader*/?
               <button className="ui link button" href="#"
                   onClick={() => {
                     navigate(`/URL/${userID}/${playlistID}`,{state: { playlist:item}})
@@ -153,7 +153,7 @@ class PlaylistView extends Component {
                   <i className="icon trash large"></i>
               </button>
             :''}
-          </div>
+          </span>
         {
             this.state.errorMessage !== null ?
                 <div className="ui error message">{this.state.errorMessage}</div> 
