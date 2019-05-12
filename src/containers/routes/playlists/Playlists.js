@@ -274,7 +274,7 @@ class Playlists extends Component {
                         Add a Playlist
                     </h4>
 
-                    <form className="ui form" onSubmit={this.handleSubmit}>
+                    <form name="addPlaylistForm" className="ui form" onSubmit={this.handleSubmit}>
                         <div className="ui text container">
                           <select 
                             className="ui sub header dropdown"
@@ -290,6 +290,13 @@ class Playlists extends Component {
                                         aria-describedby="buttonAdd"
                                         value={playlistName}
                                         onChange={this.handleChange}
+                                        onKeyDown={(e) => {
+                                            if(e.keyCode===27)
+                                            {
+                                                document.getElementsByName("buttonReset")[0].click();
+                                                this.setState({playlistName: ''});
+                                            }
+                                        }}
                                         style={{paddingRight: 1+'em'}}
                                     />
                                     <button className="ui icon button" 
@@ -297,6 +304,7 @@ class Playlists extends Component {
                                         style={{marginLeft: -1+'em'}}>
                                         <i className="plus icon"></i>
                                     </button>
+                                    <button style={{display:'none'}} type="reset" name="buttonReset"/>
                                 </div>
                             </div>
                         </div>

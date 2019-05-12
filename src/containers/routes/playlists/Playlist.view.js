@@ -18,6 +18,7 @@ class PlaylistView extends Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
     this.updatePlaylistName=this.updatePlaylistName.bind(this);
     this.getData=this.getData.bind(this);
 
@@ -35,6 +36,10 @@ class PlaylistView extends Component {
       e.preventDefault();
       this.updatePlaylistName(this.state.whichPlaylist,this.state.playlistName);
       this.setState({whichPlaylist: null});
+  }    
+  handleCancel(e){debugger;
+      e.preventDefault();
+      this.setState({whichPlaylist: null, playlistName: this.props.item.playlistName});
   }    
   updatePlaylistName = (playlistId, playlistName) => {
       db.doc('playlists/'+playlistId).update({ name: playlistName });
@@ -81,6 +86,7 @@ class PlaylistView extends Component {
           <span className={headerClasses2}>
               {playlistID === this.state.whichPlaylist ? 
                 <form className="ui form" onSubmit={this.handleSubmit}>
+                  <button style={{display:'none'}} type="reset" name="buttonReset"/>
                   <div className="ui action input">
                       <input type="text" 
                           placeholder="Playlist name..." 
@@ -88,6 +94,14 @@ class PlaylistView extends Component {
                           aria-describedby="buttonUpdate"
                           value={/*item.playlistName*/this.state.playlistName }
                           onChange={(e) => this.handleChange(e,playlistID)}
+                          onKeyDown={(e) => {
+                              if(e.keyCode===27)
+                              {
+                                  document.getElementsByName("buttonReset")[0].click();
+                                  this.setState({whichPlaylist: null, playlistName: this.props.item.playlistName});
+                              }
+                          }}
+
                       />
                       <button className="ui green basic icon button" type="submit" id="buttonUpdate">
                           <i className="check icon"></i>
