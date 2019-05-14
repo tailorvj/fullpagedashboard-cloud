@@ -6,3 +6,79 @@
 	background-color: #efefef9c!important;
     border-radius: 5px!important;	
 }
+.ui.inverted.button, .ui.inverted.buttons .button {
+    background-color: white!important;/*transparent;*/
+}
+
+/*========*/
+/* colors */
+/*========*/
+/*pinkish*/
+/*-------*/
+.ui.pinkish.button, .ui.pinkish.buttons .button {
+    background-color: #C21E4A;
+    color: #fff;
+    text-shadow: none;
+    background-image: none;
+}
+.ui.inverted.pinkish.button, .ui.inverted.pinkish.buttons .button {
+    -webkit-box-shadow: 0 0 0 2px #C21E4A inset!important;
+    box-shadow: 0 0 0 2px #C21E4A inset!important;
+    color: #C21E4A;
+}
+/**/
+.ui.pinkish.header {
+    color: #C21E4A!important;
+}
+
+/*redish*/
+/*-------*/
+.ui.redish.button, .ui.redish.buttons .button {
+    background-color: #FF0021;
+    color: #fff;
+    text-shadow: none;
+    background-image: none;
+}
+.ui.inverted.redish.button, .ui.inverted.redish.buttons .button {
+    -webkit-box-shadow: 0 0 0 2px #FF0021 inset!important;
+    box-shadow: 0 0 0 2px #FF0021 inset!important;
+    color: #FF0021;
+}
+/**/
+.ui.redish.header {
+    color: #FF0021!important;
+}
+/*blueish*/
+/*-------*/
+.ui.blueish.button, .ui.blueish.buttons .button {
+    background-color: #5A83B5;
+    color: #fff;
+    text-shadow: none;
+    background-image: none;
+}
+.ui.inverted.blueish.button, .ui.inverted.blueish.buttons .button {
+    -webkit-box-shadow: 0 0 0 2px #5A83B5 inset!important;
+    box-shadow: 0 0 0 2px #5A83B5 inset!important;
+    color: #5A83B5;
+}
+/**/
+.ui.blueish.header {
+    color: #5A83B5!important;
+}
+/*greenish*/
+/*-------*/
+.ui.greenish.button, .ui.greenish.buttons .button {
+    background-color: #68BF4B;
+    color: #fff;
+    text-shadow: none;
+    background-image: none;
+}
+.ui.inverted.greenish.button, .ui.inverted.greenish.buttons .button {
+    -webkit-box-shadow: 0 0 0 2px #68BF4B inset!important;
+    box-shadow: 0 0 0 2px #68BF4B inset!important;
+    color: #68BF4B;
+}
+/**/
+.ui.greenish.header {
+    color: #68BF4B!important;
+}

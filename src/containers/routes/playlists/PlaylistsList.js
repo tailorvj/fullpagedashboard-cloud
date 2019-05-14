@@ -16,7 +16,8 @@ class PlaylistsList extends Component {
 
     const myPlaylistsByGroup = groups.map((group,idx) => 
         {
-
+            // if (playlists.filter((item) => item.deviceGroupId !== group.id).length)
+            //     return null;
             const groupPlaylists = playlists.map((item) => 
             {
                 if (item.deviceGroupId === group.id)

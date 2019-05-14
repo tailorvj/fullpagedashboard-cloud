@@ -63,7 +63,7 @@ class App extends Component {
     this._isMounted = true;
     this.listener = firebase.auth().onAuthStateChanged(FBUser => {
       if (FBUser) {
-        console.log("in App.js - componentDidMount, " + FBUser.displayName);      
+        // console.log("in App.js - componentDidMount, " + FBUser.displayName);      
 
         if(this._isMounted){
           this.setState({

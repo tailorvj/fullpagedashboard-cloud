@@ -13,11 +13,12 @@ class PlaylistView extends Component {
       isHeader: props.mode === "header",
       errorMessage: null,
       whichPlaylist: null , 
-      playlistName: null
+      playlistName: this.props.item.playlistName
     }
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
     this.updatePlaylistName=this.updatePlaylistName.bind(this);
     this.getData=this.getData.bind(this);
 
@@ -34,10 +35,14 @@ class PlaylistView extends Component {
   handleSubmit(e){
       e.preventDefault();
       this.updatePlaylistName(this.state.whichPlaylist,this.state.playlistName);
-      this.setState({whichPlaylist: null , playlistName: null});
+      this.setState({whichPlaylist: null});
+  }    
+  handleCancel(e){debugger;
+      e.preventDefault();
+      this.setState({whichPlaylist: null, playlistName: this.props.item.playlistName});
   }    
   updatePlaylistName = (playlistId, playlistName) => {
-      db.doc('playlists/'+playlistId).update({ playlistName: playlistName });
+      db.doc('playlists/'+playlistId).update({ name: playlistName });
  }
  componentDidMount(){
     this._isMounted = true;
@@ -71,23 +76,32 @@ class PlaylistView extends Component {
     const {isHeader} = this.state;
 
     // const {URLsCount} = item;
-    const playlistID = item.id;
-    const canEdit = false;//this.state.whichPlaylist == null;
+    const playlistID = item.playlistID;//id;
+    const canEdit = this.state.whichPlaylist == null;
     const headerClasses = isHeader? '':'left aligned';
     const headerClasses2 = isHeader? 'ui header':'left floated content';
     return (
     <div className="ui basic item" key={playlistID}>
   
-        <div className={headerClasses2}>
+          <span className={headerClasses2}>
               {playlistID === this.state.whichPlaylist ? 
                 <form className="ui form" onSubmit={this.handleSubmit}>
+                  <button style={{display:'none'}} type="reset" name="buttonReset"/>
                   <div className="ui action input">
                       <input type="text" 
                           placeholder="Playlist name..." 
                           name="playlistName"
                           aria-describedby="buttonUpdate"
-                          value={item.playlistName }
+                          value={/*item.playlistName*/this.state.playlistName }
                           onChange={(e) => this.handleChange(e,playlistID)}
+                          onKeyDown={(e) => {
+                              if(e.keyCode===27)
+                              {
+                                  document.getElementsByName("buttonReset")[0].click();
+                                  this.setState({whichPlaylist: null, playlistName: this.props.item.playlistName});
+                              }
+                          }}
+
                       />
                       <button className="ui green basic icon button" type="submit" id="buttonUpdate">
                           <i className="check icon"></i>
@@ -99,9 +113,9 @@ class PlaylistView extends Component {
                   </div>
                 </form>
               :
-                  <div >
+                  <span >
                       <span className={"ui "+headerClasses+" blue header"}>
-                          {item.playlistName}&nbsp;&nbsp;
+                          {/*item.playlistName*/this.state.playlistName}&nbsp;&nbsp;
                           {canEdit ?
                           <a className="ui basic edit" href="edit" 
                               onClick={(e) => { 
@@ -119,12 +133,12 @@ class PlaylistView extends Component {
                         <span className="header">&nbsp;({this.props.URLsCount || this.state.URLsCount}
                         {isHeader && this.props.URLsCount < this.props.totalCount ? ' of '+this.props.totalCount:''} URLs)</span>
                       }
-                  </div>
+                  </span>
               }      
-          </div>
-          <div className="right floated content ui basic icon buttons">
+          </span>
+          <span className="right floated content ui basic icon buttons">
             {/*edit button - temp. hidden on header */}
-            {!this.state.isHeader?
+            {true/*!this.state.isHeader*/?
               <button className="ui link button" href="#"
                   onClick={() => {
                     navigate(`/URL/${userID}/${playlistID}`,{state: { playlist:item}})
@@ -153,7 +167,7 @@ class PlaylistView extends Component {
                   <i className="icon trash large"></i>
               </button>
             :''}
-          </div>
+          </span>
         {
             this.state.errorMessage !== null ?
                 <div className="ui error message">{this.state.errorMessage}</div> 

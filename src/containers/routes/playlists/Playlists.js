@@ -16,10 +16,14 @@ class Playlists extends Component {
         this.getPlaylists = this.getPlaylists.bind(this);
 
         this.state ={
-            debug:true,
+            debug:false,
             searchQuery: '',
             playlistName: '',
             playlists: [],
+            userGroups: [],
+            deviceGroupsList: [], 
+            distinctDeviceGroups: [], 
+            groups: [],
             howManyPlaylists: 0,
             refreshReq: false
         };
@@ -50,12 +54,16 @@ class Playlists extends Component {
                 //     .then( DGsnapshot =>
                 {
                     let deviceGroupsList = []; //Helper Array
+                    let groups = [];
+
+                    let distinctDeviceGroups = [];
+                    let deviceGroupsListStr =[];
 
                     if(this.state.debug) {
                         if(DGsnapshot)
-                            console.log("in Playlists.js - getData - user group "+doc.id + " size:"+DGsnapshot.size);
+                            if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:"+DGsnapshot.size);
                         else
-                            console.log("in Playlists.js - getData - user group "+doc.id + " size:0");
+                            if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:0");
                     }
 
                     DGsnapshot.forEach( doc => 
@@ -67,7 +75,6 @@ class Playlists extends Component {
                        // get device group playlists
 
                        var playlistsList = this.getPlaylists(deviceGroupId, deviceGroupName);
-
                        deviceGroupsList.push({
                           deviceGroupsID: deviceGroupId, //.data()
                           deviceGroupName: deviceGroupName,
@@ -75,20 +82,33 @@ class Playlists extends Component {
                           howManyPlaylists: playlistsList.length
 
                         });
+                        if (!distinctDeviceGroups.includes(deviceGroupId))
+                        {
+                            distinctDeviceGroups.push(deviceGroupId);
+                            groups.push({id: deviceGroupId, name: deviceGroupName, count:playlistsList.length});
+
+                            deviceGroupsListStr.push(
+                                <option key={deviceGroupId} value={deviceGroupId}>{deviceGroupName}</option>);
+                        }
+
                     });
 
                     userGroupsList.push({
                         userGroupsID: userGroupId, //.data
-                        deviceGroups: deviceGroupsList,
+                        deviceGroups: deviceGroupsList,//?
                         howManyDeviceGroups: deviceGroupsList.length                        
                     });
 
                     this.setState({
                         userGroups: userGroupsList,
-                        howManyUserGroups: userGroupsList.length
+                        howManyUserGroups: userGroupsList.length,
+                        deviceGroupsListStr, 
+                        distinctDeviceGroups, 
+                        groups
                     });
 
-                  });
+
+                });
 
             });
 
@@ -182,7 +202,7 @@ class Playlists extends Component {
 
     };
     deletePlaylist = (e, whichPlaylist, deviceGroupId) => {
-      console.log("delete playlist "+whichPlaylist+" of device-group "+deviceGroupId);
+      if(this.state.debug) console.log("delete playlist "+whichPlaylist+" of device-group "+deviceGroupId);
       e.preventDefault();
       let that=this;
       try{
@@ -195,7 +215,7 @@ class Playlists extends Component {
           snapshot.forEach( doc => {
             if (doc)
             {
-              console.log("deleteing URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
+              if(this.state.debug) console.log("deleteing URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
               db.collection('URLs').doc(doc.id)
                 .delete()
                 .then(function() {
@@ -237,25 +257,8 @@ class Playlists extends Component {
     }
 
     render(){
-        const {playlistName, playlists, searchQuery} = this.state;
+        const {playlistName, playlists, searchQuery, deviceGroupsListStr, distinctDeviceGroups, groups} = this.state;
         let filteredList = [];
-        let groups = [];
-
-        let distinctDeviceGroups = [];
-        const deviceGroupsList = playlists.map((item) => 
-            {
-                if (!distinctDeviceGroups.includes(item.deviceGroupId))
-                {
-                    distinctDeviceGroups.push(item.deviceGroupId);
-                    groups.push({id: item.deviceGroupId, name: item.deviceGroupName});
-
-                    return(
-                        <option key={item.deviceGroupId} value={item.deviceGroupId}>{item.deviceGroupName}</option>
-                    );
-                }
-                else
-                    return null;
-            });
 
         const dataFilter = item =>
             (item.playlistName || '')
@@ -274,13 +277,13 @@ class Playlists extends Component {
                         Add a Playlist
                     </h4>
 
-                    <form className="ui form" onSubmit={this.handleSubmit}>
+                    <form name="addPlaylistForm" className="ui form" onSubmit={this.handleSubmit}>
                         <div className="ui text container">
                           <select 
                             className="ui sub header dropdown"
                             name="deviceGroupId" 
                             onChange={this.handleChange}>
-                          {deviceGroupsList}
+                          {deviceGroupsListStr}
                           </select>
                             <div className="ui basic field">
                                 <div className="ui action input">
@@ -290,6 +293,13 @@ class Playlists extends Component {
                                         aria-describedby="buttonAdd"
                                         value={playlistName}
                                         onChange={this.handleChange}
+                                        onKeyDown={(e) => {
+                                            if(e.keyCode===27)
+                                            {
+                                                document.getElementsByName("buttonReset")[0].click();
+                                                this.setState({playlistName: ''});
+                                            }
+                                        }}
                                         style={{paddingRight: 1+'em'}}
                                     />
                                     <button className="ui icon button" 
@@ -297,6 +307,7 @@ class Playlists extends Component {
                                         style={{marginLeft: -1+'em'}}>
                                         <i className="plus icon"></i>
                                     </button>
+                                    <button style={{display:'none'}} type="reset" name="buttonReset"/>
                                 </div>
                             </div>
                         </div>
