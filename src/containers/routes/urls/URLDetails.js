@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {db} from '../../../utils/Firebase';
+import { isWebUri } from 'valid-url';
 // import { navigate } from '@reach/router';
 
 class URLDetails extends Component {
@@ -16,6 +17,7 @@ class URLDetails extends Component {
       urlID: urlID || '',
       urlDesc: description || '',
       urlUrl: url || '',
+      isUrlValid: true,
       urlDuration: duration || 50000,
       isEdit: mode === "edit"
     };
@@ -29,11 +31,17 @@ class URLDetails extends Component {
     const itemName = e.target.name;
     const itemValue = e.target.value;
 
+    //validate url
+    if (itemName === "urlUrl") {
+      this.setState({ "isUrlValid": isWebUri(itemValue) });
+    }
+
     this.setState({ [itemName]: itemValue });
   }
 
   handleSubmit(e) {
     e.preventDefault();
+
     if (!this.state.isEdit) {
       //add new
       const ref = db
@@ -74,11 +82,12 @@ class URLDetails extends Component {
   }
 
   render() {
+    const urlClasses = this.state.isUrlValid ? 'required field':'required field error';
     return (
       <form className="ui left aligned container form" onSubmit={this.handleSubmit} onReset={this.handleReset}>
  
         <h3 className="ui center aligned header">{this.state.isEdit ? 'Update URL of' : 'Add URL to'} {this.state.playlistName}</h3>
-        <div className="field">
+        <div className="required field">
           <label htmlFor="urlDesc">
             Display Name
           </label>
@@ -92,7 +101,7 @@ class URLDetails extends Component {
             onChange={this.handleChange}
           />
         </div>
-        <div className="required field">
+        <div className={urlClasses}>
           <label htmlFor="urlUrl">
             URL
           </label>
