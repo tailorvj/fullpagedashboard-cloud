@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {db} from '../../../utils/Firebase';
-import PlaylistsList from './PlaylistsList';
+import UsergroupsList from './UsergroupsList';
 
-class Playlists extends Component {
+class Usergroups extends Component {
     constructor(props) {
         super(props);
     
@@ -271,10 +271,10 @@ class Playlists extends Component {
             );
 
         return (
-            <div className="ui tab basic segment active" data-tab="playlists">
+            <div className="ui tab basic segment active" data-tab="usergroups">
                 <div className="ui basic segment silver-card">
                     <h4 className="ui grey header">
-                        Add a Playlist
+                        Add a User Group
                     </h4>
 
                     <form name="addItemForm" className="ui form" onSubmit={this.handleSubmit}>
@@ -351,7 +351,7 @@ class Playlists extends Component {
 
                 <div className="ui divider hidden"/>
                 <div>
-                    <PlaylistsList deleteItem={(e, whichPlaylist, deviceGroupId)=>this.deleteItem(e, whichPlaylist, deviceGroupId)}
+                    <UsergroupsList deleteItem={(e, whichPlaylist, deviceGroupId)=>this.deleteItem(e, whichPlaylist, deviceGroupId)}
                         distinctDeviceGroups = {distinctDeviceGroups}
                         playlists={filteredList} 
                         groups={groups}
@@ -364,4 +364,4 @@ class Playlists extends Component {
     }
 }
 
-export default Playlists;
+export default Usergroups;

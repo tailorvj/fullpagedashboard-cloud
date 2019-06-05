@@ -1,16 +1,18 @@
 import React, {Component} from 'react';
 import {db} from '../../../utils/Firebase';
-import PlaylistsList from './PlaylistsList';
+// import DevicegroupsList from './DevicegroupsList';
+import DevicegroupView from './Devicegroup.view';
 
-class Playlists extends Component {
+class Devicegroups extends Component {
     constructor(props) {
         super(props);
     
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.addItem = this.addItem.bind(this);
+ 
         this.resetQuery = this.resetQuery.bind(this);
         this.getData = this.getData.bind(this);
+
         this.addItem = this.addItem.bind(this);
         this.deleteItem = this.deleteItem.bind(this);
         this.getItems = this.getItems.bind(this);
@@ -24,7 +26,7 @@ class Playlists extends Component {
             deviceGroupsList: [], 
             distinctDeviceGroups: [], 
             groups: [],
-            howManyPlaylists: 0,
+            howManyItems: 0,
             refreshReq: false
         };
         
@@ -33,38 +35,41 @@ class Playlists extends Component {
      {
 
         //get user user groups
-
         this.userUserGroupsRef = db.collection('users/'+this.props.userID+'/user_user_groups');
         this.userUserGroupsRef.onSnapshot( UGsnapshot => 
         {
             let userGroupsList = this.state.userGroups || []; //Helper Array
+            let userGroupsListStr =[];
 
             UGsnapshot.forEach( doc => 
             {
                 const userGroupId = doc.id;
+                let userGroupName = '';
                 if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id);
-                //get user device groups
 
+                this.userGroupRef = db.collection('/user_groups/').doc(doc.id);
+                this.userGroupRef.onSnapshot (UGsnapshot => {
+                    userGroupName = UGsnapshot.data().name;
+                    userGroupsListStr.push(
+                        <option key={userGroupId} value={userGroupId}>{userGroupName}</option>
+                    );
+                });
+
+                //get user device groups
                 this.userDeviceGroupsRef = db.collection('/device_groups/').where("userGroupId", "==", userGroupId);
-                this.userDeviceGroupsRef
-                    .onSnapshot( DGsnapshot => 
-                // db.collection('/device_groups/')
-                //     .where("userGroupId", "==", userGroupId)
-                //     .get()
-                //     .then( DGsnapshot =>
+                this.userDeviceGroupsRef.onSnapshot( DGsnapshot => 
                 {
                     let deviceGroupsList = []; //Helper Array
-                    let groups = [];
+                    // let groups = [];
 
                     let distinctDeviceGroups = [];
-                    let deviceGroupsListStr =[];
 
-                    if(this.state.debug) {
-                        if(DGsnapshot)
-                            if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:"+DGsnapshot.size);
-                        else
-                            if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:0");
-                    }
+                    // if(this.state.debug) {
+                    //     if(DGsnapshot)
+                    //         if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:"+DGsnapshot.size);
+                    //     else
+                    //         if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:0");
+                    // }
 
                     DGsnapshot.forEach( doc => 
                     {
@@ -72,29 +77,26 @@ class Playlists extends Component {
                         const deviceGroupName = doc.data().name;
                         if(this.state.debug) console.log("user group id:" + userGroupId + ", device group id:" + deviceGroupId);
 
-                       // get device group playlists
-
-                       var playlistsList = this.getItems(deviceGroupId, deviceGroupName);
-                       deviceGroupsList.push({
+                        // get device group playlists
+                        // var playlistsList = this.getItems(deviceGroupId, deviceGroupName);
+                        deviceGroupsList.push({
                           deviceGroupsID: deviceGroupId, //.data()
-                          deviceGroupName: deviceGroupName,
-                          playlists: playlistsList,
-                          howManyPlaylists: playlistsList.length
+                          deviceGroupName: deviceGroupName//,
+                          // playlists: playlistsList,
+                          // howManyItems: playlistsList.length
 
                         });
                         if (!distinctDeviceGroups.includes(deviceGroupId))
                         {
                             distinctDeviceGroups.push(deviceGroupId);
-                            groups.push({id: deviceGroupId, name: deviceGroupName, count:playlistsList.length});
-
-                            deviceGroupsListStr.push(
-                                <option key={deviceGroupId} value={deviceGroupId}>{deviceGroupName}</option>);
+                            // groups.push({id: deviceGroupId, name: deviceGroupName, count:playlistsList.length});
                         }
 
                     });
 
                     userGroupsList.push({
                         userGroupsID: userGroupId, //.data
+                        userGroupName: userGroupName,
                         deviceGroups: deviceGroupsList,//?
                         howManyDeviceGroups: deviceGroupsList.length                        
                     });
@@ -102,9 +104,9 @@ class Playlists extends Component {
                     this.setState({
                         userGroups: userGroupsList,
                         howManyUserGroups: userGroupsList.length,
-                        deviceGroupsListStr, 
-                        distinctDeviceGroups, 
-                        groups
+                        userGroupsListStr, 
+                        distinctDeviceGroups//, 
+                        //groups
                     });
 
 
@@ -151,7 +153,7 @@ class Playlists extends Component {
             this.setState({
                 playlistName: '',
                 playlists: playlistsList,
-                howManyPlaylists: playlistsList.length
+                howManyItems: playlistsList.length
             });
         });
         return playlistsList;
@@ -201,15 +203,15 @@ class Playlists extends Component {
             });
 
     };
-    deleteItem = (e, whichPlaylist, deviceGroupId) => {
-      if(this.state.debug) console.log("delete playlist "+whichPlaylist+" of device-group "+deviceGroupId);
+    deleteItem = (e, whichItem, deviceGroupId) => {
+      if(this.state.debug) console.log("delete playlist "+whichItem+" of device-group "+deviceGroupId);
       e.preventDefault();
       let that=this;
       try{
         //need to delete this playlist URLs -> 
         //TODO: it is recomended to do this via a cloud function !!!
         //https://firebase.google.com/docs/firestore/solutions/delete-collections
-        db.collection('URLs').where("playlistId", "==", whichPlaylist)
+        db.collection('URLs').where("playlistId", "==", whichItem)
           .get()
           .then( snapshot => {
           snapshot.forEach( doc => {
@@ -226,7 +228,7 @@ class Playlists extends Component {
             }
           });
         });
-        this.playlistsRef.doc(whichPlaylist)
+        this.playlistsRef.doc(whichItem)
             .delete()
             .then(function() {
                 // Force a render with a simulated state change
@@ -236,7 +238,7 @@ class Playlists extends Component {
 
         // delete this playlist from the device group
         db.collection('device_groups').doc(deviceGroupId)
-            .collection('playlists').doc(whichPlaylist)
+            .collection('playlists').doc(whichItem)
             .delete()
             .then(function() {
                 // Force a render with a simulated state change
@@ -257,7 +259,7 @@ class Playlists extends Component {
     }
 
     render(){
-        const {playlistName, playlists, searchQuery, deviceGroupsListStr, distinctDeviceGroups, groups} = this.state;
+        const {playlistName, searchQuery, userGroupsListStr, distinctDeviceGroups, userGroups} = this.state;
         let filteredList = [];
 
         const dataFilter = item =>
@@ -265,16 +267,48 @@ class Playlists extends Component {
             .toLowerCase()
             .match(searchQuery.toLowerCase()) && true;
 
-        if (playlists)
-            filteredList = playlists.filter(
+        if (distinctDeviceGroups)
+            filteredList = distinctDeviceGroups.filter(
                 dataFilter
             );
+    
+        const myDeviceGroupsByUserGroup = userGroups.map((usergroup,idx) => 
+        {
+            const usergroupDeviceGroups = usergroup.deviceGroups.map((item) => 
+            {
+                return(
+                    <div className="item" key={usergroup.userGroupsID+"_"+item.deviceGroupsID}>
+                        <DevicegroupView 
+                            key={usergroup.userGroupsID+"_"+item.deviceGroupName} 
+                            item={item} 
+                            userID={this.props.userID} 
+                            deleteItem={
+                                (e, whichItem, deviceGroupId) => 
+                                    this.props.deleteItem(e, whichItem, deviceGroupId)
+                            }
+                        />
+                    </div>
+                )
+            });
+
+            return (
+            <div className="ui animated relaxed divided list" key={idx+"_group"}>
+                <div className="disabled item" key={usergroup.userGroupsID+"_item"}>                
+                    <div className="divided content" key={usergroup.userGroupsID}>
+                        <div key={usergroup.userGroupsID+"_title"} className="ui left aligned tiny grey sub header">{usergroup.deviceGroupName}</div>
+                    </div>
+                </div>
+                {usergroupDeviceGroups}
+                <div className="ui divider hidden"/>
+            </div>
+            )          
+        });
 
         return (
-            <div className="ui tab basic segment active" data-tab="playlists">
+            <div className="ui tab basic segment active" data-tab="devicegroups">
                 <div className="ui basic segment silver-card">
                     <h4 className="ui grey header">
-                        Add a Playlist
+                        Add a Device Group
                     </h4>
 
                     <form name="addItemForm" className="ui form" onSubmit={this.handleSubmit}>
@@ -283,12 +317,12 @@ class Playlists extends Component {
                             className="ui sub header dropdown"
                             name="deviceGroupId" 
                             onChange={this.handleChange}>
-                          {deviceGroupsListStr}
+                          {userGroupsListStr}
                           </select>
                             <div className="ui basic field">
                                 <div className="ui action input">
                                     <input type="text" 
-                                        placeholder="New playlist name..." 
+                                        placeholder="New device group name..." 
                                         name="playlistName"
                                         aria-describedby="buttonAdd"
                                         value={playlistName}
@@ -317,12 +351,12 @@ class Playlists extends Component {
  
                 <div className="ui basic segment ">
                     <div className="ui header">
-                        <span className="ui blue header">Playlists</span>
+                        <span className="ui teal header">Device Groups</span>
                         <span className="header">&nbsp;&nbsp;(
-                                        {filteredList && filteredList.length && filteredList.length < this.state.howManyPlaylists ? 
+                                        {filteredList && filteredList.length && filteredList.length < this.state.howManyItems ? 
                                             filteredList.length + ' of '
                                         :''}
-                                        {this.state.howManyPlaylists} items)
+                                        {this.state.howManyItems} items)
                         </span>
                     </div>
                     <form className="ui form">
@@ -351,12 +385,13 @@ class Playlists extends Component {
 
                 <div className="ui divider hidden"/>
                 <div>
-                    <PlaylistsList deleteItem={(e, whichPlaylist, deviceGroupId)=>this.deleteItem(e, whichPlaylist, deviceGroupId)}
+                    {myDeviceGroupsByUserGroup}
+                    {/*<DevicegroupsList deleteItem={(e, whichItem, deviceGroupId)=>this.deleteItem(e, whichItem, deviceGroupId)}
                         distinctDeviceGroups = {distinctDeviceGroups}
                         playlists={filteredList} 
                         groups={groups}
                         userID={this.props.userID}
-                    />
+                    />*/}
                 </div>
 
             </div>
@@ -364,4 +399,4 @@ class Playlists extends Component {
     }
 }
 
-export default Playlists;
+export default Devicegroups;

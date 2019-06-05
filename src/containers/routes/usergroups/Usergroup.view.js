@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { navigate } from '@reach/router';
 import {db} from '../../../utils/Firebase';
 
-class PlaylistView extends Component {
+class Usergroup extends Component {
   constructor(props) {
     super(props);
 
@@ -178,10 +178,10 @@ class PlaylistView extends Component {
   }
 }
 
-PlaylistView.propTypes = {
+Usergroup.propTypes = {
   userID: PropTypes.string.isRequired,
   item: PropTypes.object.isRequired/*,
   URLsCount: PropTypes.number.isRequired,*/
 }
 
-export default PlaylistView
+export default Usergroup

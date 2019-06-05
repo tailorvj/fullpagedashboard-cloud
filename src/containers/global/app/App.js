@@ -6,7 +6,11 @@ import firebase from '../../../utils/Firebase';
 import Navigation from '../../../Navigation';
 import LoginView from '../../routes/auth/Login.view';
 import Register from '../../../Register';
+
 import Playlists from '../../routes/playlists/Playlists';
+import Usergroups from '../../routes/usergroups/Usergroups';
+import Devicegroups from '../../routes/devicegroups/Devicegroups';
+
 // import CheckIn from '../../../CheckIn';
 import URLs from '../../routes/urls/URLs';
 import URLDetails from '../../routes/urls/URLDetails';
@@ -137,6 +141,24 @@ class App extends Component {
           {user && (
             <Playlists
               path="/playlists"
+              // userGroups={this.state.userGroups}
+              // deviceGroups={this.state.deviceGroups}
+              // playlists={this.state.playlists}
+              userID={userID}
+            />
+          )}
+          {user && (
+            <Usergroups
+              path="/usergroups"
+              // userGroups={this.state.userGroups}
+              // deviceGroups={this.state.deviceGroups}
+              // playlists={this.state.playlists}
+              userID={userID}
+            />
+          )}
+          {user && (
+            <Devicegroups
+              path="/devicegroups"
               // userGroups={this.state.userGroups}
               // deviceGroups={this.state.deviceGroups}
               // playlists={this.state.playlists}
