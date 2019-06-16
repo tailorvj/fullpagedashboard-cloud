@@ -50,7 +50,7 @@ class DevicegroupView extends Component {
 
   }
   getData(){
-    const {item, URLsCount} = this.props;
+    const {/*item,*/ URLsCount} = this.props;
     if (this.state.isHeader)
     {
       this.setState({URLsCount : URLsCount});

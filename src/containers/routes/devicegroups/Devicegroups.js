@@ -18,7 +18,7 @@ class Devicegroups extends Component {
         this.getItems = this.getItems.bind(this);
 
         this.state ={
-            debug:false,
+            debug:true,
             searchQuery: '',
             playlistName: '',
             playlists: [],
@@ -44,12 +44,14 @@ class Devicegroups extends Component {
             UGsnapshot.forEach( doc => 
             {
                 const userGroupId = doc.id;
-                let userGroupName = '';
-                if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id);
+                let userGroupName = '';//doc.data().name;
 
                 this.userGroupRef = db.collection('/user_groups/').doc(doc.id);
-                this.userGroupRef.onSnapshot (UGsnapshot => {
-                    userGroupName = UGsnapshot.data().name;
+                this.userGroupRef.onSnapshot (UGdoc => {
+                    userGroupName = UGdoc.data().name;
+                    if(this.state.debug) console.log("user group id:" + userGroupId + ", user group name:" + userGroupName);
+                    userGroupsList.forEach(grp => grp.userGroupsID === UGdoc.id ? grp.userGroupName=UGdoc.data().name:null);
+
                     userGroupsListStr.push(
                         <option key={userGroupId} value={userGroupId}>{userGroupName}</option>
                     );
@@ -60,16 +62,8 @@ class Devicegroups extends Component {
                 this.userDeviceGroupsRef.onSnapshot( DGsnapshot => 
                 {
                     let deviceGroupsList = []; //Helper Array
-                    // let groups = [];
 
                     let distinctDeviceGroups = [];
-
-                    // if(this.state.debug) {
-                    //     if(DGsnapshot)
-                    //         if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:"+DGsnapshot.size);
-                    //     else
-                    //         if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:0");
-                    // }
 
                     DGsnapshot.forEach( doc => 
                     {
@@ -78,18 +72,13 @@ class Devicegroups extends Component {
                         if(this.state.debug) console.log("user group id:" + userGroupId + ", device group id:" + deviceGroupId);
 
                         // get device group playlists
-                        // var playlistsList = this.getItems(deviceGroupId, deviceGroupName);
                         deviceGroupsList.push({
-                          deviceGroupsID: deviceGroupId, //.data()
-                          deviceGroupName: deviceGroupName//,
-                          // playlists: playlistsList,
-                          // howManyItems: playlistsList.length
-
+                          deviceGroupsID: deviceGroupId, 
+                          deviceGroupName: deviceGroupName
                         });
                         if (!distinctDeviceGroups.includes(deviceGroupId))
                         {
                             distinctDeviceGroups.push(deviceGroupId);
-                            // groups.push({id: deviceGroupId, name: deviceGroupName, count:playlistsList.length});
                         }
 
                     });
@@ -295,7 +284,7 @@ class Devicegroups extends Component {
             <div className="ui animated relaxed divided list" key={idx+"_group"}>
                 <div className="disabled item" key={usergroup.userGroupsID+"_item"}>                
                     <div className="divided content" key={usergroup.userGroupsID}>
-                        <div key={usergroup.userGroupsID+"_title"} className="ui left aligned tiny grey sub header">{usergroup.deviceGroupName}</div>
+                        <div key={usergroup.userGroupsID+"_title"} className="ui left aligned tiny grey sub header">{usergroup.userGroupName}</div>
                     </div>
                 </div>
                 {usergroupDeviceGroups}

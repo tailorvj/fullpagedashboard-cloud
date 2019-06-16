@@ -31,7 +31,7 @@ class Navigation extends Component {
                       Playlists
                     </Link>
                      <Link className="teal item" to="/devicegroups" data-tab="devicegroups" onClick={this.handleClick}>
-                     Devices
+                     Device Groups
                     </Link>
                      <Link className="green item" to="/usergroups" data-tab="usergroups" onClick={this.handleClick}>
                      Users
