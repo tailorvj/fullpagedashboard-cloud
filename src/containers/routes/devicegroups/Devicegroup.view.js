@@ -12,8 +12,8 @@ class DevicegroupView extends Component {
     this.state = {
       isHeader: props.mode === "header",
       errorMessage: null,
-      whichPlaylist: null , 
-      itemName: this.props.item.deviceGroupName
+      whichDevice: null , 
+      deviceDetails: this.props.item.deviceDetails
     }
 
     this.handleChange = this.handleChange.bind(this);
@@ -25,24 +25,24 @@ class DevicegroupView extends Component {
     this.ref = '';
     this.URLs = '';
   }
-  handleChange(e, whichPlaylist) {
+  handleChange(e, whichDevice) {
       const itemName = e.target.name;
       const itemValue = e.target.value;
 
-      this.setState({'whichPlaylist': whichPlaylist, [itemName]: itemValue });
+      this.setState({'whichDevice': whichDevice, [itemName]: itemValue });
   }
 
   handleSubmit(e){
       e.preventDefault();
-      this.updateItemName(this.state.whichPlaylist,this.state.itemName);
-      this.setState({whichPlaylist: null});
+      this.updateItemName(this.state.whichDevice,this.state.deviceDetails);
+      this.setState({whichDevice: null});
   }    
   handleCancel(e){debugger;
       e.preventDefault();
-      this.setState({whichPlaylist: null, itemName: this.props.item.itemName});
+      this.setState({whichDevice: null, deviceDetails: this.props.item.deviceDetails});
   }    
-  updateItemName = (playlistId, itemName) => {
-      db.doc('playlists/'+playlistId).update({ name: itemName });
+  updateItemName = (deviceId, deviceDetails) => {
+      db.doc('devices/'+deviceId).update({ name: deviceDetails });
  }
  componentDidMount(){
     this._isMounted = true;
@@ -57,7 +57,7 @@ class DevicegroupView extends Component {
     }
     else
     {
-      // this.URLs = db.collection('/URLs/').where("playlistId", "==", item.deviceGroupsID);
+      // this.URLs = db.collection('/URLs/').where("deviceId", "==", item.deviceGroupsID);
 
       // this.URLs
       //     .onSnapshot( snapshot => {
@@ -77,28 +77,29 @@ class DevicegroupView extends Component {
 
     // const {URLsCount} = item;
     const deviceGroupsID = item.deviceGroupsID;//id;
-    const canEdit = this.state.whichPlaylist == null;
+    const canEdit = this.state.whichDevice == null;
     const headerClasses = isHeader? '':'left aligned';
     const headerClasses2 = isHeader? 'ui header':'left floated content';
+    const headerStyles = isHeader? '' : {paddingTop: 10 + 'px'};
     return (
     <div className="ui basic item" key={deviceGroupsID}>
   
-          <span className={headerClasses2}>
-              {deviceGroupsID === this.state.whichPlaylist ? 
-                <form className="ui form" onSubmit={this.handleSubmit}>
+          <span className={headerClasses2} style={headerStyles}>
+              {deviceGroupsID === this.state.whichDevice ? 
+                <form className="ui form" onSubmit={this.handleSubmit} style={{marginTop: -7 + 'px'}}>
                   <button style={{display:'none'}} type="reset" name="buttonReset"/>
                   <div className="ui action input">
                       <input type="text" 
-                          placeholder="Playlist name..." 
-                          name="itemName"
+                          placeholder="Device name..." 
+                          name="deviceDetails"
                           aria-describedby="buttonUpdate"
-                          value={/*item.itemName*/this.state.itemName }
+                          value={/*item.deviceDetails*/this.state.deviceDetails }
                           onChange={(e) => this.handleChange(e,deviceGroupsID)}
                           onKeyDown={(e) => {
                               if(e.keyCode===27)
                               {
                                   document.getElementsByName("buttonReset")[0].click();
-                                  this.setState({whichPlaylist: null, itemName: this.props.item.deviceGroupName});
+                                  this.setState({whichDevice: null, deviceDetails: this.props.item.deviceDetails});
                               }
                           }}
 
@@ -107,7 +108,7 @@ class DevicegroupView extends Component {
                           <i className="check icon"></i>
                       </button>
                       <button className="ui red cancel basic icon button" href="#" type="cancel" id="buttonCancel"
-                          onClick={(e) => this.setState({'whichPlaylist': null, 'itemName': null})}>
+                          onClick={(e) => this.setState({'whichDevice': null, 'deviceDetails': null})}>
                           <i className="icon delete"></i>
                       </button>
                   </div>
@@ -115,24 +116,19 @@ class DevicegroupView extends Component {
               :
                   <span >
                       <span className={"ui "+headerClasses+" blue header"}>
-                          {/*item.itemName*/this.state.itemName}&nbsp;&nbsp;
+                          {/*item.deviceDetails*/this.state.deviceDetails}&nbsp;&nbsp;
                           {canEdit ?
                           <a className="ui basic edit" href="edit" 
                               onClick={(e) => { 
                                                   e.preventDefault();
-                                                  this.setState({'whichPlaylist': deviceGroupsID})
+                                                  this.setState({'whichDevice': deviceGroupsID})
                                               }
                                       }>
                               <i className="icon pencil alternate small"></i>
                           </a>
                           : ''}
                       </span>
-                      {!isHeader?
-                        <h5 className="ui inverted grey left aligned header">&nbsp;({this.state.URLsCount} URLs)</h5>
-                      :
-                        <span className="header">&nbsp;({this.props.URLsCount || this.state.URLsCount}
-                        {isHeader && this.props.URLsCount < this.props.totalCount ? ' of '+this.props.totalCount:''} URLs)</span>
-                      }
+                      
                   </span>
               }      
           </span>
@@ -141,7 +137,7 @@ class DevicegroupView extends Component {
             {true/*!this.state.isHeader*/?
               <button className="ui link button" href="#"
                   onClick={() => {
-                    navigate(`/URL/${userID}/${deviceGroupsID}`,{state: { playlist:item}})
+                    navigate(`/URL/${userID}/${deviceGroupsID}`,{state: { device:item}})
                   }}>
                   <i className="large icons">
                       <i className="fitted link  linkify icon"></i>
@@ -154,7 +150,7 @@ class DevicegroupView extends Component {
             {!this.state.isHeader?
               <button className="ui link button" href="#"
                   onClick={() => {
-                    navigate(`/URLs/${userID}/${item.deviceGroupsID}`,{state: {deviceGroupsID:item.deviceGroupsID, playlist:item}})
+                    navigate(`/URLs/${userID}/${item.deviceGroupsID}`,{state: {deviceGroupsID:item.deviceGroupsID, device:item}})
                   }}>
                   <i className="icon eye large"></i>
               </button>
@@ -163,7 +159,7 @@ class DevicegroupView extends Component {
             {/*delete button - temp. hidden on header */}
             {!this.state.isHeader?
               <button className="ui link button" href="#"
-                  onClick={e => this.props.deletePlaylist(e, item.deviceGroupsID, item.deviceGroupId)}>
+                  onClick={e => this.props.deleteDevice(e, item.deviceGroupsID, item.deviceGroupId)}>
                   <i className="icon trash large"></i>
               </button>
             :''}

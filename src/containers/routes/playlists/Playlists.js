@@ -16,7 +16,7 @@ class Playlists extends Component {
         this.getItems = this.getItems.bind(this);
 
         this.state ={
-            debug:false,
+            debug:true,
             searchQuery: '',
             playlistName: '',
             playlists: [],
@@ -42,16 +42,11 @@ class Playlists extends Component {
             UGsnapshot.forEach( doc => 
             {
                 const userGroupId = doc.id;
-                if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id);
                 //get user device groups
 
                 this.userDeviceGroupsRef = db.collection('/device_groups/').where("userGroupId", "==", userGroupId);
                 this.userDeviceGroupsRef
                     .onSnapshot( DGsnapshot => 
-                // db.collection('/device_groups/')
-                //     .where("userGroupId", "==", userGroupId)
-                //     .get()
-                //     .then( DGsnapshot =>
                 {
                     let deviceGroupsList = []; //Helper Array
                     let groups = [];
@@ -61,16 +56,13 @@ class Playlists extends Component {
 
                     if(this.state.debug) {
                         if(DGsnapshot)
-                            if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:"+DGsnapshot.size);
-                        else
-                            if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:0");
+                            if(this.state.debug) console.log("user group id:" + userGroupId +", "+DGsnapshot.size+" device groups \n========================");
                     }
 
                     DGsnapshot.forEach( doc => 
                     {
                         const deviceGroupId = doc.id;
                         const deviceGroupName = doc.data().name;
-                        if(this.state.debug) console.log("user group id:" + userGroupId + ", device group id:" + deviceGroupId);
 
                        // get device group playlists
 
@@ -118,6 +110,7 @@ class Playlists extends Component {
      {
         let playlistsList = this.state.playlists || []; //Helper Array
 
+        if(this.state.debug) console.log("  device group:"+deviceGroupId+" - '"+deviceGroupName+"'\n-------------------");
         this.playlistsRef = 
             db.collection('/playlists')
             ;
@@ -129,7 +122,7 @@ class Playlists extends Component {
 
             snapshot.forEach( doc => {
                 const playlistID = doc.id;
-                if(this.state.debug) console.log("device group:"+deviceGroupId+" playlist: ("+playlistID+ ') ' + doc.data().name);
+                if(this.state.debug) console.log("    group: '"+deviceGroupName+"', playlist: ("+playlistID+ ') ' + doc.data().name);
 
                 // if (playlistsList.includes())
                 if (playlistsList.filter(

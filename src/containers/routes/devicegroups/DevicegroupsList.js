@@ -12,24 +12,24 @@ class DevicegroupsList extends Component {
     }
 
   render() {
-    const { playlists, groups} = this.props;
+    const { devices, groups} = this.props;
 
-    const myPlaylistsByGroup = groups.map((group,idx) => 
+    const myDevicesByGroup = groups.map((group,idx) => 
         {
-            // if (playlists.filter((item) => item.deviceGroupId !== group.id).length)
+            // if (devices.filter((item) => item.deviceGroupId !== group.id).length)
             //     return null;
-            const groupPlaylists = playlists.map((item) => 
+            const groupDevices = devices.map((item) => 
             {
                 if (item.deviceGroupId === group.id)
                     return(
-                        <div className="item" key={item.deviceGroupId+"_"+item.playlistID}>
+                        <div className="item" key={item.deviceGroupId+"_"+item.deviceID}>
                             <DevicegroupView 
-                                key={item.deviceGroupName+"_"+item.playlistID} 
+                                key={item.deviceGroupName+"_"+item.deviceID} 
                                 item={item} 
                                 userID={this.props.userID} 
-                                deletePlaylist={
-                                    (e, whichPlaylist, deviceGroupId) => 
-                                        this.props.deletePlaylist(e, whichPlaylist, deviceGroupId)
+                                deleteDevice={
+                                    (e, whichDevice, deviceGroupId) => 
+                                        this.props.deleteDevice(e, whichDevice, deviceGroupId)
                                 }
                             />
                         </div>
@@ -49,12 +49,12 @@ class DevicegroupsList extends Component {
                         <div key={group.id+"_title"} className="ui left aligned tiny grey sub header">{group.name}</div>
                     </div>
                 </div>
-                {groupPlaylists}
+                {groupDevices}
                 <div className="ui divider hidden"/>
             </div>
             )          
         });
-    // const myPlaylists = playlists.map((item) => 
+    // const myDevices = devices.map((item) => 
     //     {
     //         // const groupTitle = (item.deviceGroupName !== deviceGroupName ?
     //         //     <div className="item" key={item.deviceGroupId}>
@@ -68,8 +68,8 @@ class DevicegroupsList extends Component {
     //         // }
     //         return(
     //             // {/*groupTitle*/}
-    //             <div className="item" key={item.deviceGroupId+"_"+item.playlistID}>
-    //                 <PlaylistView key={item.deviceGroupName+"_"+item.playlistID} item={item} userID={this.props.userID} deletePlaylist={(e, whichPlaylist, deviceGroupId) => this.props.deletePlaylist(e, whichPlaylist, deviceGroupId)}/>
+    //             <div className="item" key={item.deviceGroupId+"_"+item.deviceID}>
+    //                 <DeviceView key={item.deviceGroupName+"_"+item.deviceID} item={item} userID={this.props.userID} deleteDevice={(e, whichDevice, deviceGroupId) => this.props.deleteDevice(e, whichDevice, deviceGroupId)}/>
     //             </div>
     //         );
     //     });
@@ -77,7 +77,7 @@ class DevicegroupsList extends Component {
     return (
         // {/*<div className="ui animated relaxed divided list">*/
         <div>
-            {myPlaylistsByGroup}
+            {myDevicesByGroup}
         </div>
         // {/*</div>*/}
     );

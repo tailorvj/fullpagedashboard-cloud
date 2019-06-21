@@ -317,7 +317,7 @@ class Usergroups extends Component {
  
                 <div className="ui basic segment ">
                     <div className="ui header">
-                        <span className="ui blue header">Playlists</span>
+                        <span className="ui green header">Users</span>
                         <span className="header">&nbsp;&nbsp;(
                                         {filteredList && filteredList.length && filteredList.length < this.state.howManyPlaylists ? 
                                             filteredList.length + ' of '

@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {db} from '../../../utils/Firebase';
-// import DevicegroupsList from './DevicegroupsList';
-import DevicegroupView from './Devicegroup.view';
+import DevicegroupsList from './DevicegroupsList';
 
 class Devicegroups extends Component {
     constructor(props) {
@@ -9,10 +8,9 @@ class Devicegroups extends Component {
     
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
- 
+        this.addItem = this.addItem.bind(this);
         this.resetQuery = this.resetQuery.bind(this);
         this.getData = this.getData.bind(this);
-
         this.addItem = this.addItem.bind(this);
         this.deleteItem = this.deleteItem.bind(this);
         this.getItems = this.getItems.bind(this);
@@ -20,13 +18,13 @@ class Devicegroups extends Component {
         this.state ={
             debug:true,
             searchQuery: '',
-            playlistName: '',
-            playlists: [],
+            deviceDetails: '',
+            devices: [],
             userGroups: [],
             deviceGroupsList: [], 
             distinctDeviceGroups: [], 
             groups: [],
-            howManyItems: 0,
+            howManyDevices: 0,
             refreshReq: false
         };
         
@@ -35,57 +33,59 @@ class Devicegroups extends Component {
      {
 
         //get user user groups
+
         this.userUserGroupsRef = db.collection('users/'+this.props.userID+'/user_user_groups');
         this.userUserGroupsRef.onSnapshot( UGsnapshot => 
         {
             let userGroupsList = this.state.userGroups || []; //Helper Array
-            let userGroupsListStr =[];
 
             UGsnapshot.forEach( doc => 
             {
                 const userGroupId = doc.id;
-                let userGroupName = '';//doc.data().name;
-
-                this.userGroupRef = db.collection('/user_groups/').doc(doc.id);
-                this.userGroupRef.onSnapshot (UGdoc => {
-                    userGroupName = UGdoc.data().name;
-                    if(this.state.debug) console.log("user group id:" + userGroupId + ", user group name:" + userGroupName);
-                    userGroupsList.forEach(grp => grp.userGroupsID === UGdoc.id ? grp.userGroupName=UGdoc.data().name:null);
-
-                    userGroupsListStr.push(
-                        <option key={userGroupId} value={userGroupId}>{userGroupName}</option>
-                    );
-                });
-
                 //get user device groups
+
                 this.userDeviceGroupsRef = db.collection('/device_groups/').where("userGroupId", "==", userGroupId);
-                this.userDeviceGroupsRef.onSnapshot( DGsnapshot => 
+                this.userDeviceGroupsRef
+                    .onSnapshot( DGsnapshot => 
                 {
                     let deviceGroupsList = []; //Helper Array
+                    let groups = [];
 
                     let distinctDeviceGroups = [];
+                    let deviceGroupsListStr =[];
+
+                    if(this.state.debug) {
+                        if(DGsnapshot)
+                            if(this.state.debug) console.log("user group id:" + userGroupId +", "+DGsnapshot.size+" device groups \n========================");
+                    }
 
                     DGsnapshot.forEach( doc => 
                     {
                         const deviceGroupId = doc.id;
                         const deviceGroupName = doc.data().name;
-                        if(this.state.debug) console.log("user group id:" + userGroupId + ", device group id:" + deviceGroupId);
 
-                        // get device group playlists
-                        deviceGroupsList.push({
-                          deviceGroupsID: deviceGroupId, 
-                          deviceGroupName: deviceGroupName
+                       // get device group devices
+                       var devicesList = this.getItems(deviceGroupId, deviceGroupName);
+                       deviceGroupsList.push({
+                          deviceGroupsID: deviceGroupId, //.data()
+                          deviceGroupName: deviceGroupName,
+                          devices: devicesList,
+                          howManyDevices: devicesList.length
+
                         });
                         if (!distinctDeviceGroups.includes(deviceGroupId))
                         {
                             distinctDeviceGroups.push(deviceGroupId);
+                            groups.push({id: deviceGroupId, name: deviceGroupName, count:devicesList.length});
+
+                            deviceGroupsListStr.push(
+                                <option key={deviceGroupId} value={deviceGroupId}>{deviceGroupName}</option>);
                         }
 
                     });
 
                     userGroupsList.push({
                         userGroupsID: userGroupId, //.data
-                        userGroupName: userGroupName,
                         deviceGroups: deviceGroupsList,//?
                         howManyDeviceGroups: deviceGroupsList.length                        
                     });
@@ -93,9 +93,9 @@ class Devicegroups extends Component {
                     this.setState({
                         userGroups: userGroupsList,
                         howManyUserGroups: userGroupsList.length,
-                        userGroupsListStr, 
-                        distinctDeviceGroups//, 
-                        //groups
+                        deviceGroupsListStr, 
+                        distinctDeviceGroups, 
+                        groups
                     });
 
 
@@ -107,45 +107,46 @@ class Devicegroups extends Component {
      }
      getItems(deviceGroupId, deviceGroupName)
      {
-        let playlistsList = this.state.playlists || []; //Helper Array
+        let devicesList = this.state.devices || []; //Helper Array
 
-        this.playlistsRef = 
-            db.collection('/playlists')
+        if(this.state.debug) console.log("  device group:"+deviceGroupId+" - '"+deviceGroupName+"'\n-------------------");
+        this.devicesRef = 
+            db.collection('/devices')
             ;
-        this.playlistsRef
+        this.devicesRef
             .where("deviceGroupId", "==", deviceGroupId)
-            .orderBy("name", "asc")
+            .orderBy("details", "asc")
             .onSnapshot( snapshot => 
         {
 
             snapshot.forEach( doc => {
-                const playlistID = doc.id;
-                if(this.state.debug) console.log("device group:"+deviceGroupId+" playlist: ("+playlistID+ ') ' + doc.data().name);
+                const deviceID = doc.id;
+                if(this.state.debug) console.log("    group: '"+deviceGroupName+"', device: ("+deviceID+ ') ' + doc.data().details);
 
-                // if (playlistsList.includes())
-                if (playlistsList.filter(
+                // if (devicesList.includes())
+                if (devicesList.filter(
                     function(e) { 
                         return  e.deviceGroupId === deviceGroupId && 
-                                e.playlistID === playlistID; 
+                                e.deviceID === deviceID; 
                     }
                 ).length === 0) {
-                  /* playlistsList doesn't contain the element we're looking for */
-                    playlistsList.push({
+                  /* devicesList doesn't contain the element we're looking for */
+                    devicesList.push({
                       deviceGroupId: deviceGroupId,
                       deviceGroupName: deviceGroupName,
-                      playlistID: playlistID,
-                      playlistName: doc.data().name
+                      deviceID: deviceID,
+                      deviceDetails: doc.data().details
                     });
                 }
 
             });
             this.setState({
-                playlistName: '',
-                playlists: playlistsList,
-                howManyItems: playlistsList.length
+                deviceDetails: '',
+                devices: devicesList,
+                howManyDevices: devicesList.length
             });
         });
-        return playlistsList;
+        return devicesList;
 
      }
     componentDidMount(){
@@ -158,7 +159,7 @@ class Devicegroups extends Component {
         try{
             this.userUserGroupsRef();
             this.userDeviceGroupsRef();
-            this.playlistsRef();
+            this.devicesRef();
         }
         catch(e) {};
     }
@@ -175,15 +176,15 @@ class Devicegroups extends Component {
 
         this.addItem(
             document.getElementsByName("deviceGroupId")[0].value,
-            document.getElementsByName("playlistName")[0].value
-            ); //this.state.playlistName
-        this.setState({playlistName: ''});
+            document.getElementsByName("deviceDetails")[0].value
+            ); //this.state.deviceDetails
+        this.setState({deviceDetails: ''});
     }    
-    addItem = (deviceGroupId, playlistName) => {
+    addItem = (deviceGroupId, deviceDetails) => {
         let that=this;
-        var devGroupRef = db.collection('/device_groups/'+deviceGroupId+'/playlists');
-        db.collection('/playlists/')
-            .add({ name: playlistName, description: '', isActive:false , deviceGroupId: deviceGroupId })
+        var devGroupRef = db.collection('/device_groups/'+deviceGroupId+'/devices');
+        db.collection('/devices/')
+            .add({ details: deviceDetails/*, description: '', isActive:false  */, deviceGroupId: deviceGroupId})
             .then(function(docRef) {
                 devGroupRef.doc(docRef.id).set({});
                 // Force a render with a simulated state change
@@ -192,32 +193,32 @@ class Devicegroups extends Component {
             });
 
     };
-    deleteItem = (e, whichItem, deviceGroupId) => {
-      if(this.state.debug) console.log("delete playlist "+whichItem+" of device-group "+deviceGroupId);
+    deleteItem = (e, whichDevice, deviceGroupId) => {
+      if(this.state.debug) console.log("delete device "+whichDevice+" of device-group "+deviceGroupId);
       e.preventDefault();
       let that=this;
       try{
-        //need to delete this playlist URLs -> 
+        //need to delete this device URLs -> 
         //TODO: it is recomended to do this via a cloud function !!!
         //https://firebase.google.com/docs/firestore/solutions/delete-collections
-        db.collection('URLs').where("playlistId", "==", whichItem)
-          .get()
-          .then( snapshot => {
-          snapshot.forEach( doc => {
-            if (doc)
-            {
-              if(this.state.debug) console.log("deleteing URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
-              db.collection('URLs').doc(doc.id)
-                .delete()
-                .then(function() {
-                    // Force a render with a simulated state change
-                    that.setState(that.state);
-                    that.forceUpdate();
-                });
-            }
-          });
-        });
-        this.playlistsRef.doc(whichItem)
+        // db.collection('URLs').where("deviceId", "==", whichDevice)
+        //   .get()
+        //   .then( snapshot => {
+        //   snapshot.forEach( doc => {
+        //     if (doc)
+        //     {
+        //       if(this.state.debug) console.log("deleteing URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
+        //       db.collection('URLs').doc(doc.id)
+        //         .delete()
+        //         .then(function() {
+        //             // Force a render with a simulated state change
+        //             that.setState(that.state);
+        //             that.forceUpdate();
+        //         });
+        //     }
+        //   });
+        // });
+        this.devicesRef.doc(whichDevice)
             .delete()
             .then(function() {
                 // Force a render with a simulated state change
@@ -225,9 +226,9 @@ class Devicegroups extends Component {
                 that.forceUpdate();
             });
 
-        // delete this playlist from the device group
+        // delete this device from the device group
         db.collection('device_groups').doc(deviceGroupId)
-            .collection('playlists').doc(whichItem)
+            .collection('devices').doc(whichDevice)
             .delete()
             .then(function() {
                 // Force a render with a simulated state change
@@ -248,56 +249,24 @@ class Devicegroups extends Component {
     }
 
     render(){
-        const {playlistName, searchQuery, userGroupsListStr, distinctDeviceGroups, userGroups} = this.state;
+        const {deviceDetails, devices, searchQuery, deviceGroupsListStr, distinctDeviceGroups, groups} = this.state;
         let filteredList = [];
 
         const dataFilter = item =>
-            (item.playlistName || '')
+            (item.deviceDetails || '')
             .toLowerCase()
             .match(searchQuery.toLowerCase()) && true;
 
-        if (distinctDeviceGroups)
-            filteredList = distinctDeviceGroups.filter(
+        if (devices)
+            filteredList = devices.filter(
                 dataFilter
             );
-    
-        const myDeviceGroupsByUserGroup = userGroups.map((usergroup,idx) => 
-        {
-            const usergroupDeviceGroups = usergroup.deviceGroups.map((item) => 
-            {
-                return(
-                    <div className="item" key={usergroup.userGroupsID+"_"+item.deviceGroupsID}>
-                        <DevicegroupView 
-                            key={usergroup.userGroupsID+"_"+item.deviceGroupName} 
-                            item={item} 
-                            userID={this.props.userID} 
-                            deleteItem={
-                                (e, whichItem, deviceGroupId) => 
-                                    this.props.deleteItem(e, whichItem, deviceGroupId)
-                            }
-                        />
-                    </div>
-                )
-            });
-
-            return (
-            <div className="ui animated relaxed divided list" key={idx+"_group"}>
-                <div className="disabled item" key={usergroup.userGroupsID+"_item"}>                
-                    <div className="divided content" key={usergroup.userGroupsID}>
-                        <div key={usergroup.userGroupsID+"_title"} className="ui left aligned tiny grey sub header">{usergroup.userGroupName}</div>
-                    </div>
-                </div>
-                {usergroupDeviceGroups}
-                <div className="ui divider hidden"/>
-            </div>
-            )          
-        });
 
         return (
             <div className="ui tab basic segment active" data-tab="devicegroups">
                 <div className="ui basic segment silver-card">
                     <h4 className="ui grey header">
-                        Add a Device Group
+                        Add a Device
                     </h4>
 
                     <form name="addItemForm" className="ui form" onSubmit={this.handleSubmit}>
@@ -306,21 +275,21 @@ class Devicegroups extends Component {
                             className="ui sub header dropdown"
                             name="deviceGroupId" 
                             onChange={this.handleChange}>
-                          {userGroupsListStr}
+                          {deviceGroupsListStr}
                           </select>
                             <div className="ui basic field">
                                 <div className="ui action input">
                                     <input type="text" 
-                                        placeholder="New device group name..." 
-                                        name="playlistName"
+                                        placeholder="New device details..." 
+                                        name="deviceDetails"
                                         aria-describedby="buttonAdd"
-                                        value={playlistName}
+                                        value={deviceDetails}
                                         onChange={this.handleChange}
                                         onKeyDown={(e) => {
                                             if(e.keyCode===27)
                                             {
                                                 document.getElementsByName("buttonReset")[0].click();
-                                                this.setState({playlistName: ''});
+                                                this.setState({deviceDetails: ''});
                                             }
                                         }}
                                         style={{paddingRight: 1+'em'}}
@@ -340,12 +309,12 @@ class Devicegroups extends Component {
  
                 <div className="ui basic segment ">
                     <div className="ui header">
-                        <span className="ui teal header">Device Groups</span>
+                        <span className="ui teal header">Devices</span>
                         <span className="header">&nbsp;&nbsp;(
-                                        {filteredList && filteredList.length && filteredList.length < this.state.howManyItems ? 
+                                        {filteredList && filteredList.length && filteredList.length < this.state.howManyDevices ? 
                                             filteredList.length + ' of '
                                         :''}
-                                        {this.state.howManyItems} items)
+                                        {this.state.howManyDevices} items)
                         </span>
                     </div>
                     <form className="ui form">
@@ -374,13 +343,12 @@ class Devicegroups extends Component {
 
                 <div className="ui divider hidden"/>
                 <div>
-                    {myDeviceGroupsByUserGroup}
-                    {/*<DevicegroupsList deleteItem={(e, whichItem, deviceGroupId)=>this.deleteItem(e, whichItem, deviceGroupId)}
+                    <DevicegroupsList deleteItem={(e, whichDevice, deviceGroupId)=>this.deleteItem(e, whichDevice, deviceGroupId)}
                         distinctDeviceGroups = {distinctDeviceGroups}
-                        playlists={filteredList} 
+                        devices={filteredList} 
                         groups={groups}
-                        userID={this.props.userID}
-                    />*/}
+                         userID={this.props.userID}
+                    />
                 </div>
 
             </div>
