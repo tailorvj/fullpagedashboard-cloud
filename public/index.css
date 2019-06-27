@@ -13,6 +13,9 @@
 /*========*/
 /* colors */
 /*========*/
+.ui.silver.header {
+    color: silver!important;
+}
 /*pinkish*/
 /*-------*/
 .ui.pinkish.button, .ui.pinkish.buttons .button {

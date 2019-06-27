@@ -12,7 +12,7 @@ class Devicegroups extends Component {
         this.resetQuery = this.resetQuery.bind(this);
         this.getData = this.getData.bind(this);
         this.addItem = this.addItem.bind(this);
-        this.deleteItem = this.deleteItem.bind(this);
+        // this.deleteItem = this.deleteItem.bind(this);
         this.getItems = this.getItems.bind(this);
 
         this.state ={
@@ -83,6 +83,17 @@ class Devicegroups extends Component {
                         }
 
                     });
+
+                    //show un assigned devices
+                    var devicesList = this.getItems("", "Un-Assigned Devices");
+                    deviceGroupsList.push({
+                        deviceGroupsID: "", 
+                        deviceGroupName: "Un-Assigned Devices",
+                        devices: devicesList,
+                        howManyDevices: devicesList.length
+
+                    });
+                    groups.push({id: "", name: "Un-Assigned Devices", count:devicesList.length});
 
                     userGroupsList.push({
                         userGroupsID: userGroupId, //.data
@@ -193,54 +204,6 @@ class Devicegroups extends Component {
             });
 
     };
-    deleteItem = (e, whichDevice, deviceGroupId) => {
-      if(this.state.debug) console.log("delete device "+whichDevice+" of device-group "+deviceGroupId);
-      e.preventDefault();
-      let that=this;
-      try{
-        //need to delete this device URLs -> 
-        //TODO: it is recomended to do this via a cloud function !!!
-        //https://firebase.google.com/docs/firestore/solutions/delete-collections
-        // db.collection('URLs').where("deviceId", "==", whichDevice)
-        //   .get()
-        //   .then( snapshot => {
-        //   snapshot.forEach( doc => {
-        //     if (doc)
-        //     {
-        //       if(this.state.debug) console.log("deleteing URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
-        //       db.collection('URLs').doc(doc.id)
-        //         .delete()
-        //         .then(function() {
-        //             // Force a render with a simulated state change
-        //             that.setState(that.state);
-        //             that.forceUpdate();
-        //         });
-        //     }
-        //   });
-        // });
-        this.devicesRef.doc(whichDevice)
-            .delete()
-            .then(function() {
-                // Force a render with a simulated state change
-                that.setState(that.state);
-                that.forceUpdate();
-            });
-
-        // delete this device from the device group
-        db.collection('device_groups').doc(deviceGroupId)
-            .collection('devices').doc(whichDevice)
-            .delete()
-            .then(function() {
-                // Force a render with a simulated state change
-                that.setState(that.state);
-                that.forceUpdate();
-            });
-
-      }
-      catch(e) {
-          this.setState({errorMessage: e});
-      }
-    }
 
     resetQuery() {
         this.setState({
@@ -343,7 +306,7 @@ class Devicegroups extends Component {
 
                 <div className="ui divider hidden"/>
                 <div>
-                    <DevicegroupsList deleteItem={(e, whichDevice, deviceGroupId)=>this.deleteItem(e, whichDevice, deviceGroupId)}
+                    <DevicegroupsList /*deleteItem={(e, whichDevice, deviceGroupId)=>this.deleteItem(e, whichDevice, deviceGroupId)}*/
                         distinctDeviceGroups = {distinctDeviceGroups}
                         devices={filteredList} 
                         groups={groups}

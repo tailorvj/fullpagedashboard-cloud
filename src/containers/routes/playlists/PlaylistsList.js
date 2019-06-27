@@ -27,10 +27,10 @@ class PlaylistsList extends Component {
                                 key={item.deviceGroupName+"_"+item.playlistID} 
                                 item={item} 
                                 userID={this.props.userID} 
-                                deletePlaylist={
+                                /*deletePlaylist={
                                     (e, whichPlaylist, deviceGroupId) => 
                                         this.props.deletePlaylist(e, whichPlaylist, deviceGroupId)
-                                }
+                                }*/
                             />
                         </div>
                     )

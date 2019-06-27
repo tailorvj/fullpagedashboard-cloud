@@ -4,15 +4,18 @@ import PropTypes from 'prop-types';
 // import cn from 'classnames'
 import { navigate } from '@reach/router';
 import {db} from '../../../utils/Firebase';
+import { Checkbox } from 'semantic-ui-react';
 
 class PlaylistView extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      debug: true,
       isHeader: props.mode === "header",
       errorMessage: null,
       whichPlaylist: null , 
+      item: this.props.item,
       playlistName: this.props.item.playlistName
     }
 
@@ -37,17 +40,157 @@ class PlaylistView extends Component {
       this.updateItemName(this.state.whichPlaylist,this.state.playlistName);
       this.setState({whichPlaylist: null});
   }    
-  handleCancel(e){debugger;
+  handleCancel(e){
       e.preventDefault();
       this.setState({whichPlaylist: null, playlistName: this.props.item.playlistName});
   }    
   updateItemName = (playlistId, playlistName) => {
-      db.doc('playlists/'+playlistId).update({ name: playlistName });
+    db.doc('playlists/'+playlistId).update({ name: playlistName });
  }
+
+ updateIsActive = (deviceGroupId, playlistID, isChecked) => 
+ {
+    // const {item} = this.state;
+    // const {deviceGroupId, playlistID, isChecked} = item;
+
+    this.props.item.isActive = isChecked;
+
+    this.playlistsRef = db.collection('/playlists');
+
+    if (isChecked) 
+    {
+      //we turn this one to active...
+      db.doc('playlists/'+playlistID).update({ isActive: true });
+
+      //... so we need to turn the previous active one to inactive
+      this.playlistsRef
+        .where("deviceGroupId", "==", deviceGroupId)
+        .where("isActive", "==", true)
+        .onSnapshot( snapshot => {
+          if (snapshot && snapshot.docs && snapshot.docs.length)
+            db.doc('playlists/'+snapshot.docs[0].id).update({ isActive: false });
+        });
+      // snapshot.forEach( doc => {
+      //   const newVal = (doc.id === playlistID ? true : false);
+      //   db.doc('playlists/'+doc.id).update({ isActive: newVal });
+      // })
+    }
+    else 
+    {
+      //we turn this one to inactive ...
+      db.doc('playlists/'+playlistID).update({ isActive: false });
+
+      //...so we need to turn the first one to active
+      this.playlistsRef
+        .where("deviceGroupId", "==", deviceGroupId)
+        .onSnapshot( snapshot => {
+          if (snapshot && snapshot.docs && snapshot.docs.length)
+            db.doc('playlists/'+snapshot.docs[0].id).update({ isActive: true });
+        });
+
+    }
+
+    this.setState(this.state);
+  }
+
+  deleteItem = (e, itemId, deviceGroupId) => 
+  {
+      e.preventDefault();
+      let that=this;
+
+        //need to delete this playlist URLs -> 
+        //TODO: it is recomended to do this via a cloud function !!!
+        //https://firebase.google.com/docs/firestore/solutions/delete-collections
+
+        if(this.state.debug) console.log("deleteing URLs of playlist: "+itemId);
+
+        db.collection('URLs').where("playlistId", "==", itemId)
+          .get()
+          .then( snapshot => {
+            snapshot.forEach( doc => {
+              if (doc)
+              {
+                if(this.state.debug) console.log("deleteing URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
+                db.collection('URLs').doc(doc.id)
+                  .delete()
+                  .then(function() {
+                      // Force a render with a simulated state change
+                      that.setState(that.state);
+                      that.forceUpdate();
+                  });
+              }
+            });
+          })
+          .then( ()=> {
+            if(this.state.debug) console.log("deleteing playlist "+itemId);
+
+            db.doc('playlists/'+itemId)
+            .delete()
+            .then(function() {
+                console.log("Playlist "+itemId+" successfully deleted!");
+                that.setState(that.state);
+                that.forceUpdate();
+                window.location.reload();//temp
+            }).catch(function(error) {
+                console.error("Error removing playlist: ", error);
+            });  
+          });
+
+  }
+/* Original method from parent of parent :
+    deleteItem = (e, whichPlaylist, deviceGroupId) => {
+      if(this.state.debug) console.log("delete playlist "+whichPlaylist+" of device-group "+deviceGroupId);
+      try{
+        //need to delete this playlist URLs -> 
+        //TODO: it is recomended to do this via a cloud function !!!
+        //https://firebase.google.com/docs/firestore/solutions/delete-collections
+        db.collection('URLs').where("playlistId", "==", whichPlaylist)
+          .get()
+          .then( snapshot => {
+          snapshot.forEach( doc => {
+            if (doc)
+            {
+              if(this.state.debug) console.log("deleteing URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
+              db.collection('URLs').doc(doc.id)
+                .delete()
+                .then(function() {
+                    // Force a render with a simulated state change
+                    that.setState(that.state);
+                    that.forceUpdate();
+                });
+            }
+          });
+        });
+        this.playlistsRef.doc(whichPlaylist)
+            .delete()
+            .then(function() {
+                // Force a render with a simulated state change
+                that.setState(that.state);
+                that.forceUpdate();
+            });
+
+        // delete this playlist from the device group
+        db.collection('device_groups').doc(deviceGroupId)
+            .collection('playlists').doc(whichPlaylist)
+            .delete()
+            .then(function() {
+                // Force a render with a simulated state change
+                that.setState(that.state);
+                that.forceUpdate();
+            });
+
+      }
+      catch(e) {
+          this.setState({errorMessage: e});
+      }
+    }
+*/
  componentDidMount(){
     this._isMounted = true;
     this.getData();
-
+    const activeElements = document.getElementsByName("active");
+    if (activeElements.length)
+      activeElements[0].checkbox();
   }
   getData(){
     const {item, URLsCount} = this.props;
@@ -69,20 +212,32 @@ class PlaylistView extends Component {
   }
   componentWillUnmount() {
     this._isMounted = false;
+    // try{
+      // this.playlistsRef();
+      // this.playlistsRef3();
+      // this.URLs();
+    // }
+    // catch(e) {};
   }
 
   render() {
-    const { item, userID/*, URLsCount*/ } = this.props
-    const {isHeader} = this.state;
+    const { item, userID/*, URLsCount*/ } = this.props;
+
+    const { isHeader} = this.state;
 
     // const {URLsCount} = item;
     const playlistID = item.playlistID;//id;
     const canEdit = this.state.whichPlaylist == null;
     const headerClasses = isHeader? '':'left aligned';
     const headerClasses2 = isHeader? 'ui header':'left floated content';
+
+    // let Active/*, ActiveH*/=false;
+    // if (item.isActive && !isHeader) {
+    //   Active=true;
+    // }
+
     return (
     <div className="ui basic item" key={playlistID}>
-  
           <span className={headerClasses2}>
               {playlistID === this.state.whichPlaylist ? 
                 <form className="ui form" onSubmit={this.handleSubmit}>
@@ -107,7 +262,7 @@ class PlaylistView extends Component {
                           <i className="check icon"></i>
                       </button>
                       <button className="ui red cancel basic icon button" href="#" type="cancel" id="buttonCancel"
-                          onClick={(e) => this.setState({'whichPlaylist': null, 'playlistName': null})}>
+                          onClick={(e) => this.handleCancel(e)}>
                           <i className="icon delete"></i>
                       </button>
                   </div>
@@ -123,7 +278,7 @@ class PlaylistView extends Component {
                                                   this.setState({'whichPlaylist': playlistID})
                                               }
                                       }>
-                              <i className="icon pencil alternate small"></i>
+                              <i className="icon grey pencil alternate small"></i>
                           </a>
                           : ''}
                       </span>
@@ -136,6 +291,16 @@ class PlaylistView extends Component {
                   </span>
               }      
           </span>
+          
+            <span className="ui header left floated content">
+            {isHeader?
+              <Checkbox toggle label={item.isActive ?'Active': 'Inactive'} checked={item.isActive}
+                onChange={(e) => this.updateIsActive (item.deviceGroupId, item.playlistID, !item.isActive)} 
+              />
+              : item.isActive ?'Active': ''
+            }
+            </span>
+
           <span className="right floated content ui basic icon buttons">
             {/*edit button - temp. hidden on header */}
             {true/*!this.state.isHeader*/?
@@ -163,7 +328,7 @@ class PlaylistView extends Component {
             {/*delete button - temp. hidden on header */}
             {!this.state.isHeader?
               <button className="ui link button" href="#"
-                  onClick={e => this.props.deletePlaylist(e, item.playlistID, item.deviceGroupId)}>
+                  onClick={e => this.deleteItem(e, item.playlistID, item.deviceGroupId)}>
                   <i className="icon trash large"></i>
               </button>
             :''}

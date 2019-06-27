@@ -37,13 +37,24 @@ class Usergroup extends Component {
       this.updateItemName(this.state.whichPlaylist,this.state.playlistName);
       this.setState({whichPlaylist: null});
   }    
-  handleCancel(e){debugger;
+  handleCancel(e){
       e.preventDefault();
       this.setState({whichPlaylist: null, playlistName: this.props.item.playlistName});
   }    
   updateItemName = (playlistId, playlistName) => {
       db.doc('playlists/'+playlistId).update({ name: playlistName });
  }
+  deleteItem = (e, itemId) => {
+    db.doc('users/'+itemId)
+    .delete()
+    .then(function() {
+        console.log("User "+itemId+" successfully deleted!");
+        window.location.reload();
+    }).catch(function(error) {
+        console.error("Error removing user: ", error);
+    });  
+ }
+
  componentDidMount(){
     this._isMounted = true;
     this.getData();
@@ -107,14 +118,14 @@ class Usergroup extends Component {
                           <i className="check icon"></i>
                       </button>
                       <button className="ui red cancel basic icon button" href="#" type="cancel" id="buttonCancel"
-                          onClick={(e) => this.setState({'whichPlaylist': null, 'playlistName': null})}>
+                          onClick={(e) => this.handleCancel(e)}>
                           <i className="icon delete"></i>
                       </button>
                   </div>
                 </form>
               :
                   <span >
-                      <span className={"ui "+headerClasses+" blue header"}>
+                      <span className={"ui "+headerClasses+" green header"}>
                           {/*item.playlistName*/this.state.playlistName}&nbsp;&nbsp;
                           {canEdit ?
                           <a className="ui basic edit" href="edit" 
@@ -123,7 +134,7 @@ class Usergroup extends Component {
                                                   this.setState({'whichPlaylist': playlistID})
                                               }
                                       }>
-                              <i className="icon pencil alternate small"></i>
+                              <i className="icon grey pencil alternate small"></i>
                           </a>
                           : ''}
                       </span>

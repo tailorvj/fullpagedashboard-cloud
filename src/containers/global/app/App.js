@@ -49,20 +49,6 @@ class App extends Component {
     });
   };
 
-  logOutUser = (e) => {
-    e.preventDefault();
-    this.setState({
-      user: null,
-      displayName: null,
-      userID: null,
-      photo:null,
-      playlists: []
-    });
-    firebase.auth().signOut().then(()=>{
-      navigate('/login');
-    });
-  };
-
   componentDidMount() {
     this._isMounted = true;
     this.listener = firebase.auth().onAuthStateChanged(FBUser => {
@@ -92,8 +78,14 @@ class App extends Component {
 
   render() {
     const { user, userID, displayName, photo} = this.state;
+    // debugger;
+    // const loc = window.location.pathname;
+    // let navigateTo = loc ==="/" ? "/playlists" : 
+    //   loc!=="/login"? window.location.pathname : loc;
+    // debugger;
 
-    user ? navigate('/playlists') : navigate('/login');
+    if(user && window.location.pathname === "/")
+     navigate('/playlists');// : navigate('/login');
 
     return (
 
@@ -122,7 +114,7 @@ class App extends Component {
           {/* <Home path="/" user={this.state.user} />*/}
 
           {user == null && (
-          <LoginView className="ui fluid popup bottom left transition hidden" path="/login" />
+          <LoginView className="ui fluid popup bottom left transition hidden" path="/"/>
           )}
 
            {/*
@@ -149,7 +141,7 @@ class App extends Component {
           )}
           {user && (
             <Usergroups
-              path="/usergroups"
+              path="/users"
               // userGroups={this.state.userGroups}
               // deviceGroups={this.state.deviceGroups}
               // playlists={this.state.playlists}
@@ -158,7 +150,7 @@ class App extends Component {
           )}
           {user && (
             <Devicegroups
-              path="/devicegroups"
+              path="/devices"
               // userGroups={this.state.userGroups}
               // deviceGroups={this.state.deviceGroups}
               // playlists={this.state.playlists}
@@ -167,7 +159,7 @@ class App extends Component {
 
           )}
           {/*user && (
-            <Tab path="/devicegroups" data-tab="devicegroups">
+            <Tab path="/devices" data-tab="devicegroups">
                 <h4 className="ui grey header">
                     Device Groups
                 </h4>

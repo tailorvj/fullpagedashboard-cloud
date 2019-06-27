@@ -14,7 +14,10 @@ class Navigation extends Component {
   }
   render() {
     // const { style } = this.props;
-
+    const loc = window.location.pathname;
+    const playlistClasses = "blue item " + (loc === "/playlists" ? 'active': '');
+    const devicesClasess = "teal item " + (loc === "/devices" ? 'active': '');
+    const usersClasess = "green item " + (loc === "/users" ? 'active': '');
     return (
        <div style={{marginTop: -2+'em'}}>
           <div className="ui vertical segment container">
@@ -27,13 +30,13 @@ class Navigation extends Component {
                     </Link>
                   )*/}
 
-                    <Link className="blue item active" to="/playlists" data-tab="playlists" onClick={this.handleClick}>
+                    <Link className={playlistClasses} to="/playlists" data-tab="playlists" onClick={this.handleClick}>
                       Playlists
                     </Link>
-                     <Link className="teal item" to="/devicegroups" data-tab="devicegroups" onClick={this.handleClick}>
+                     <Link className={devicesClasess} to="/devices" data-tab="devicegroups" onClick={this.handleClick}>
                      Devices
                     </Link>
-                     <Link className="green item" to="/usergroups" data-tab="usergroups" onClick={this.handleClick}>
+                     <Link className={usersClasess} to="/users" data-tab="usergroups" onClick={this.handleClick}>
                      Users
                     </Link>
               </div>
