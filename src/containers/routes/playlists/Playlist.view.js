@@ -23,6 +23,7 @@ class PlaylistView extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.updateItemName=this.updateItemName.bind(this);
+    this.updateIsActive=this.updateIsActive.bind(this);
     this.getData=this.getData.bind(this);
 
     this.ref = '';
@@ -61,19 +62,14 @@ class PlaylistView extends Component {
     {
       //we turn this one to active...
       db.doc('playlists/'+playlistID).update({ isActive: true });
-
       //... so we need to turn the previous active one to inactive
       this.playlistsRef
         .where("deviceGroupId", "==", deviceGroupId)
         .where("isActive", "==", true)
         .onSnapshot( snapshot => {
-          if (snapshot && snapshot.docs && snapshot.docs.length)
+          if (snapshot && snapshot.docs && snapshot.docs.length && snapshot.docs[0].id!==playlistID)
             db.doc('playlists/'+snapshot.docs[0].id).update({ isActive: false });
         });
-      // snapshot.forEach( doc => {
-      //   const newVal = (doc.id === playlistID ? true : false);
-      //   db.doc('playlists/'+doc.id).update({ isActive: newVal });
-      // })
     }
     else 
     {
