@@ -9,6 +9,11 @@ class Navigation extends Component {
     this.handleClick = this.handleClick.bind(this);
   }
   handleClick(e) {
+    if (e.currentTarget.classList.contains('disabled')) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
     $('.navigation .item').removeClass('active');
     $(e.currentTarget).addClass('active');
   }
@@ -17,7 +22,7 @@ class Navigation extends Component {
     const loc = window.location.pathname;
     const playlistClasses = "blue item " + (loc === "/playlists" ? 'active': '');
     const devicesClasess = "teal item " + (loc === "/devices" ? 'active': '');
-    const usersClasess = "green item " + (loc === "/users" ? 'active': '');
+    const usersClasess = "green disabled item " + (loc === "/users" ? 'active': '');
     return (
        <div style={{marginTop: -2+'em'}}>
           <div className="ui vertical segment container">
@@ -36,7 +41,7 @@ class Navigation extends Component {
                      <Link className={devicesClasess} to="/devices" data-tab="devicegroups" onClick={this.handleClick}>
                      Devices
                     </Link>
-                     <Link className={usersClasess} to="/users" data-tab="usergroups" onClick={this.handleClick}>
+                     <Link disabled={true} className={usersClasess} to="/users" data-tab="usergroups" onClick={this.handleClick}>
                      Users
                     </Link>
               </div>
