@@ -60,30 +60,45 @@ class PlaylistView extends Component {
 
     if (isChecked) 
     {
-      //we turn this one to active...
-      db.doc('playlists/'+playlistID).update({ isActive: true });
-      //... so we need to turn the previous active one to inactive
+      //we need to turn the previous active one to inactive
       this.playlistsRef
         .where("deviceGroupId", "==", deviceGroupId)
         .where("isActive", "==", true)
-        .onSnapshot( snapshot => {
-          if (snapshot && snapshot.docs && snapshot.docs.length && snapshot.docs[0].id!==playlistID)
-            db.doc('playlists/'+snapshot.docs[0].id).update({ isActive: false });
+        .get()
+        .then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+                // doc.data() is never undefined for query doc snapshots
+                console.log("previous active id="+doc.id);
+                db.doc('playlists/'+doc.id).update({ isActive: false });
+            });
+            //we turn this one to active...
+            db.doc('playlists/'+playlistID).update({ isActive: true });
+        })
+        .catch(function(error) {
+            console.log("Error getting documents: ", error);
         });
+
     }
     else 
     {
       //we turn this one to inactive ...
+      console.log("previous active id="+playlistID);
       db.doc('playlists/'+playlistID).update({ isActive: false });
 
       //...so we need to turn the first one to active
-      this.playlistsRef
+      db.collection('/playlists')
         .where("deviceGroupId", "==", deviceGroupId)
-        .onSnapshot( snapshot => {
-          if (snapshot && snapshot.docs && snapshot.docs.length)
-            db.doc('playlists/'+snapshot.docs[0].id).update({ isActive: true });
-        });
-
+        .limit(1)
+        .get()
+        .then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+                console.log("new active id="+doc.id);
+                db.doc('playlists/'+doc.id).update({ isActive: true });
+            })
+        })
+        .catch(function(error) {
+                  console.log("Error getting playlist:", error);
+              });
     }
 
     this.setState(this.state);
@@ -208,12 +223,11 @@ class PlaylistView extends Component {
   }
   componentWillUnmount() {
     this._isMounted = false;
-    // try{
-      // this.playlistsRef();
-      // this.playlistsRef3();
-      // this.URLs();
-    // }
-    // catch(e) {};
+    try{
+      this.playlistsRef();
+      this.URLs();
+    }
+    catch(e) {};
   }
 
   render() {
