@@ -121,7 +121,7 @@ class URLView extends Component {
                                                     this.setState({'whichURL': urlID})
                                                 }
                                         }>
-                                <i className="icon pencil alternate small"></i>
+                                <i className="icon grey pencil alternate small"></i>
                             </a>
                             : ''}
                         </h2>

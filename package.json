@@ -5,11 +5,12 @@
   "dependencies": {
     "@reach/router": "^1.2.1",
     "clean": "^4.0.2",
-    "firebase": "^5.10.1",
+    "firebase": "^7.7.0",
     "gh-pages": "^2.0.1",
+    "jquery": "^3.4.1",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
-    "react-firebaseui": "^3.1.2",
+    "react-firebaseui": "^4.1.0",
     "react-icons": "^3.6.1",
     "react-redux": "^6.0.1",
     "react-redux-firebase": "^2.2.6",
@@ -18,7 +19,8 @@
     "redux-i18n": "^1.5.17",
     "redux-thunk": "^2.3.0",
     "semantic-ui-react": "^0.86.0",
-    "typescript": "^3.4.5"
+    "typescript": "^3.4.5",
+    "valid-url": "^1.0.9"
   },
   "scripts": {
     "predeploy": "npm run build",

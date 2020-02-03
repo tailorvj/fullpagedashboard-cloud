@@ -1,7 +1,23 @@
 import React, { Component } from 'react';
-import {Link} from '@reach/router';
+import { Link, navigate } from '@reach/router';
+import firebase from '../../utils/Firebase';
 
 class PageHeader extends Component {
+
+  logOutUser = (e) => {
+    e.preventDefault();
+    this.setState({
+      user: null,
+      displayName: null,
+      userID: null,
+      photo:null,
+      playlists: []
+    });
+    firebase.auth().signOut().then(()=>{
+      navigate('/');
+    });
+  };
+
   render() {
   	const {user, displayName, photo} = this.props;
     return (
@@ -21,13 +37,13 @@ class PageHeader extends Component {
             <img className="ui mini circular image" src={photo} style={{marginRight: 1 + 'em'}} alt="profile"/>
             <div className="content">
               <div className="ui sub header inverted">{displayName}</div>
-              <Link to="/login" onClick={e => this.logOutUser(e)} style={{color: '#C0CBDD'}}>Log out</Link>
+              <Link to="/" onClick={e => this.logOutUser(e)} style={{color: '#C0CBDD'}}>Log out</Link>
             </div>
           </div>  
-        :
-          <Link className="item active dropdown" to="/login">
-            Log in / Sign up
-          </Link>
+        : ''
+          // <Link className="item active dropdown" to="/" onClick={e => this.logInUser(e)}>
+          //   Log in / Sign up
+          // </Link>
     	}
       	</div>
       </div>

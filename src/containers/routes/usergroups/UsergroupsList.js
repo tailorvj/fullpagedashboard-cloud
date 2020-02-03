@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 
-import PlaylistView from './Playlist.view';
+import UsergroupView from './Usergroup.view';
 
 
-class PlaylistsList extends Component {
+class UsergroupsList extends Component {
     constructor(props){
         super(props);
         this.state = {
@@ -23,14 +23,14 @@ class PlaylistsList extends Component {
                 if (item.deviceGroupId === group.id)
                     return(
                         <div className="item" key={item.deviceGroupId+"_"+item.playlistID}>
-                            <PlaylistView 
+                            <UsergroupView 
                                 key={item.deviceGroupName+"_"+item.playlistID} 
                                 item={item} 
                                 userID={this.props.userID} 
-                                /*deletePlaylist={
+                                deletePlaylist={
                                     (e, whichPlaylist, deviceGroupId) => 
                                         this.props.deletePlaylist(e, whichPlaylist, deviceGroupId)
-                                }*/
+                                }
                             />
                         </div>
                     )
@@ -84,4 +84,4 @@ class PlaylistsList extends Component {
   }
 }
 
-export default PlaylistsList;
+export default UsergroupsList;

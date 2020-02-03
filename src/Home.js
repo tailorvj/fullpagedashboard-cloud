@@ -21,7 +21,7 @@ class Home extends Component {
             {user == null && (
               <span>
                <Link
-                  to="/login"
+                  to="/"
                   className="btn btn-outline-primary mr-2"
                 >
                   Log In

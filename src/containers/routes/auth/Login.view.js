@@ -30,7 +30,7 @@ class LoginView extends Component {
         // Avoid redirects after sign-in.
         signInSuccessWithAuthResult :(authObj) => {
           this.setState({uid : authObj.user.uid});
-          navigate('/playlists/')
+          navigate('/playlists')
         }
       }
     }
@@ -41,6 +41,8 @@ class LoginView extends Component {
     this._isMounted = true;
     firebase.auth().onAuthStateChanged(
         (user) => {
+          if (user === null) return;
+
           const {debug} = this.state;
           if(debug) console.log("in Login.view.js - componentDidMount, " + user.displayName + " db:"+db)
           var userRef = db.collection('users').doc(user.uid);
@@ -94,7 +96,7 @@ class LoginView extends Component {
 
           if(this._isMounted){
             this.setState({isSignedIn: !!user});
-            if (user) this.setState({uid: user.uid});
+            if (user!== null) this.setState({uid: user.uid});
             // if (this.state.isSignedIn)
               // this.getData();
           }

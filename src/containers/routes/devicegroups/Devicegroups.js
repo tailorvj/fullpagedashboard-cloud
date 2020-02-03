@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {db} from '../../../utils/Firebase';
-import PlaylistsList from './PlaylistsList';
+import DevicegroupsList from './DevicegroupsList';
 
-class Playlists extends Component {
+class Devicegroups extends Component {
     constructor(props) {
         super(props);
     
@@ -18,13 +18,13 @@ class Playlists extends Component {
         this.state ={
             debug:true,
             searchQuery: '',
-            playlistName: '',
-            playlists: [],
+            deviceDetails: '',
+            devices: [],
             userGroups: [],
             deviceGroupsList: [], 
             distinctDeviceGroups: [], 
             groups: [],
-            howManyPlaylists: 0,
+            howManyDevices: 0,
             refreshReq: false
         };
         
@@ -64,26 +64,36 @@ class Playlists extends Component {
                         const deviceGroupId = doc.id;
                         const deviceGroupName = doc.data().name;
 
-                       // get device group playlists
-
-                       var playlistsList = this.getItems(deviceGroupId, deviceGroupName);
+                       // get device group devices
+                       var devicesList = this.getItems(deviceGroupId, deviceGroupName);
                        deviceGroupsList.push({
                           deviceGroupsID: deviceGroupId, //.data()
                           deviceGroupName: deviceGroupName,
-                          playlists: playlistsList,
-                          howManyPlaylists: playlistsList.length
+                          devices: devicesList,
+                          howManyDevices: devicesList.length
 
                         });
                         if (!distinctDeviceGroups.includes(deviceGroupId))
                         {
                             distinctDeviceGroups.push(deviceGroupId);
-                            groups.push({id: deviceGroupId, name: deviceGroupName, count:playlistsList.length});
+                            groups.push({id: deviceGroupId, name: deviceGroupName, count:devicesList.length});
 
                             deviceGroupsListStr.push(
                                 <option key={deviceGroupId} value={deviceGroupId}>{deviceGroupName}</option>);
                         }
 
                     });
+
+                    //show un assigned devices
+                    var devicesList = this.getItems("", "Un-Assigned Devices");
+                    deviceGroupsList.push({
+                        deviceGroupsID: "", 
+                        deviceGroupName: "Un-Assigned Devices",
+                        devices: devicesList,
+                        howManyDevices: devicesList.length
+
+                    });
+                    groups.push({id: "", name: "Un-Assigned Devices", count:devicesList.length});
 
                     userGroupsList.push({
                         userGroupsID: userGroupId, //.data
@@ -108,47 +118,46 @@ class Playlists extends Component {
      }
      getItems(deviceGroupId, deviceGroupName)
      {
-        let playlistsList = this.state.playlists || []; //Helper Array
+        let devicesList = this.state.devices || []; //Helper Array
 
         if(this.state.debug) console.log("  device group:"+deviceGroupId+" - '"+deviceGroupName+"'\n-------------------");
-        this.playlistsRef = db.collection('/playlists');
-        this.playlistsRef
+        this.devicesRef = 
+            db.collection('/devices')
+            ;
+        this.devicesRef
             .where("deviceGroupId", "==", deviceGroupId)
-            .orderBy("name", "asc")
+            .orderBy("details", "asc")
             .onSnapshot( snapshot => 
         {
 
             snapshot.forEach( doc => {
-                const playlistID = doc.id;
-                if(this.state.debug) console.log("    group: '"+deviceGroupName+"', playlist: ("+playlistID+ ') ' + doc.data().name);
+                const deviceID = doc.id;
+                if(this.state.debug) console.log("    group: '"+deviceGroupName+"', device: ("+deviceID+ ') ' + doc.data().details);
 
-                // if (playlistsList.includes())
-                if (playlistsList.filter(
+                // if (devicesList.includes())
+                if (devicesList.filter(
                     function(e) { 
                         return  e.deviceGroupId === deviceGroupId && 
-                                e.playlistID === playlistID; 
+                                e.deviceID === deviceID; 
                     }
                 ).length === 0) {
-                    const data = doc.data();
-                  /* playlistsList doesn't contain the element we're looking for */
-                    playlistsList.push({
+                  /* devicesList doesn't contain the element we're looking for */
+                    devicesList.push({
                       deviceGroupId: deviceGroupId,
                       deviceGroupName: deviceGroupName,
-                      playlistID: playlistID,
-                      playlistName: data.name,
-                      isActive: data.isActive,
-                      description: data.description
+                      deviceID: deviceID,
+                      deviceDetails: doc.data().details
                     });
                 }
 
             });
             this.setState({
-                playlistName: '',
-                playlists: playlistsList,
-                howManyPlaylists: playlistsList.length
+                deviceDetails: '',
+                devices: devicesList,
+                howManyDevices: devicesList.length
             });
         });
-        return playlistsList;
+        return devicesList;
 
      }
     componentDidMount(){
@@ -161,8 +170,7 @@ class Playlists extends Component {
         try{
             this.userUserGroupsRef();
             this.userDeviceGroupsRef();
-            // this.playlistsRef();
-            // this.playlistsRef1();
+            this.devicesRef();
         }
         catch(e) {};
     }
@@ -179,15 +187,15 @@ class Playlists extends Component {
 
         this.addItem(
             document.getElementsByName("deviceGroupId")[0].value,
-            document.getElementsByName("playlistName")[0].value
-            ); //this.state.playlistName
-        this.setState({playlistName: ''});
+            document.getElementsByName("deviceDetails")[0].value
+            ); //this.state.deviceDetails
+        this.setState({deviceDetails: ''});
     }    
-    addItem = (deviceGroupId, playlistName) => {
+    addItem = (deviceGroupId, deviceDetails) => {
         let that=this;
-        var devGroupRef = db.collection('/device_groups/'+deviceGroupId+'/playlists');
-        db.collection('/playlists/')
-            .add({ name: playlistName, description: '', isActive:false , deviceGroupId: deviceGroupId })
+        var devGroupRef = db.collection('/device_groups/'+deviceGroupId+'/devices');
+        db.collection('/devices/')
+            .add({ details: deviceDetails/*, description: '', isActive:false  */, deviceGroupId: deviceGroupId})
             .then(function(docRef) {
                 devGroupRef.doc(docRef.id).set({});
                 // Force a render with a simulated state change
@@ -204,24 +212,24 @@ class Playlists extends Component {
     }
 
     render(){
-        const {playlistName, playlists, searchQuery, deviceGroupsListStr, distinctDeviceGroups, groups} = this.state;
+        const {deviceDetails, devices, searchQuery, deviceGroupsListStr, distinctDeviceGroups, groups} = this.state;
         let filteredList = [];
 
         const dataFilter = item =>
-            (item.playlistName || '')
+            (item.deviceDetails || '')
             .toLowerCase()
             .match(searchQuery.toLowerCase()) && true;
 
-        if (playlists)
-            filteredList = playlists.filter(
+        if (devices)
+            filteredList = devices.filter(
                 dataFilter
             );
 
         return (
-            <div className="ui tab basic segment active" data-tab="playlists">
+            <div className="ui tab basic segment active" data-tab="devicegroups">
                 <div className="ui basic segment silver-card">
                     <h4 className="ui grey header">
-                        Add a Playlist
+                        Add a Device
                     </h4>
 
                     <form name="addItemForm" className="ui form" onSubmit={this.handleSubmit}>
@@ -235,16 +243,16 @@ class Playlists extends Component {
                             <div className="ui basic field">
                                 <div className="ui action input">
                                     <input type="text" 
-                                        placeholder="New playlist name..." 
-                                        name="playlistName"
+                                        placeholder="New device details..." 
+                                        name="deviceDetails"
                                         aria-describedby="buttonAdd"
-                                        value={playlistName}
+                                        value={deviceDetails}
                                         onChange={this.handleChange}
                                         onKeyDown={(e) => {
                                             if(e.keyCode===27)
                                             {
                                                 document.getElementsByName("buttonReset")[0].click();
-                                                this.setState({playlistName: ''});
+                                                this.setState({deviceDetails: ''});
                                             }
                                         }}
                                         style={{paddingRight: 1+'em'}}
@@ -264,12 +272,12 @@ class Playlists extends Component {
  
                 <div className="ui basic segment ">
                     <div className="ui header">
-                        <span className="ui blue header">Playlists</span>
+                        <span className="ui teal header">Devices</span>
                         <span className="header">&nbsp;&nbsp;(
-                                        {filteredList && filteredList.length && filteredList.length < this.state.howManyPlaylists ? 
+                                        {filteredList && filteredList.length && filteredList.length < this.state.howManyDevices ? 
                                             filteredList.length + ' of '
                                         :''}
-                                        {this.state.howManyPlaylists} items)
+                                        {this.state.howManyDevices} items)
                         </span>
                     </div>
                     <form className="ui form">
@@ -298,11 +306,11 @@ class Playlists extends Component {
 
                 <div className="ui divider hidden"/>
                 <div>
-                    <PlaylistsList /*deleteItem={(e, whichPlaylist, deviceGroupId)=>this.deleteItem(e, whichPlaylist, deviceGroupId)}*/
+                    <DevicegroupsList /*deleteItem={(e, whichDevice, deviceGroupId)=>this.deleteItem(e, whichDevice, deviceGroupId)}*/
                         distinctDeviceGroups = {distinctDeviceGroups}
-                        playlists={filteredList} 
+                        devices={filteredList} 
                         groups={groups}
-                        userID={this.props.userID}
+                         userID={this.props.userID}
                     />
                 </div>
 
@@ -311,4 +319,4 @@ class Playlists extends Component {
     }
 }
 
-export default Playlists;
+export default Devicegroups;

@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {db} from '../../../utils/Firebase';
-import PlaylistsList from './PlaylistsList';
+import UsergroupsList from './UsergroupsList';
 
-class Playlists extends Component {
+class Usergroups extends Component {
     constructor(props) {
         super(props);
     
@@ -12,11 +12,11 @@ class Playlists extends Component {
         this.resetQuery = this.resetQuery.bind(this);
         this.getData = this.getData.bind(this);
         this.addItem = this.addItem.bind(this);
-        // this.deleteItem = this.deleteItem.bind(this);
+        this.deleteItem = this.deleteItem.bind(this);
         this.getItems = this.getItems.bind(this);
 
         this.state ={
-            debug:true,
+            debug:false,
             searchQuery: '',
             playlistName: '',
             playlists: [],
@@ -42,11 +42,16 @@ class Playlists extends Component {
             UGsnapshot.forEach( doc => 
             {
                 const userGroupId = doc.id;
+                if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id);
                 //get user device groups
 
                 this.userDeviceGroupsRef = db.collection('/device_groups/').where("userGroupId", "==", userGroupId);
                 this.userDeviceGroupsRef
                     .onSnapshot( DGsnapshot => 
+                // db.collection('/device_groups/')
+                //     .where("userGroupId", "==", userGroupId)
+                //     .get()
+                //     .then( DGsnapshot =>
                 {
                     let deviceGroupsList = []; //Helper Array
                     let groups = [];
@@ -56,13 +61,16 @@ class Playlists extends Component {
 
                     if(this.state.debug) {
                         if(DGsnapshot)
-                            if(this.state.debug) console.log("user group id:" + userGroupId +", "+DGsnapshot.size+" device groups \n========================");
+                            if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:"+DGsnapshot.size);
+                        else
+                            if(this.state.debug) console.log("in Playlists.js - getData - user group "+doc.id + " size:0");
                     }
 
                     DGsnapshot.forEach( doc => 
                     {
                         const deviceGroupId = doc.id;
                         const deviceGroupName = doc.data().name;
+                        if(this.state.debug) console.log("user group id:" + userGroupId + ", device group id:" + deviceGroupId);
 
                        // get device group playlists
 
@@ -110,8 +118,9 @@ class Playlists extends Component {
      {
         let playlistsList = this.state.playlists || []; //Helper Array
 
-        if(this.state.debug) console.log("  device group:"+deviceGroupId+" - '"+deviceGroupName+"'\n-------------------");
-        this.playlistsRef = db.collection('/playlists');
+        this.playlistsRef = 
+            db.collection('/playlists')
+            ;
         this.playlistsRef
             .where("deviceGroupId", "==", deviceGroupId)
             .orderBy("name", "asc")
@@ -120,7 +129,7 @@ class Playlists extends Component {
 
             snapshot.forEach( doc => {
                 const playlistID = doc.id;
-                if(this.state.debug) console.log("    group: '"+deviceGroupName+"', playlist: ("+playlistID+ ') ' + doc.data().name);
+                if(this.state.debug) console.log("device group:"+deviceGroupId+" playlist: ("+playlistID+ ') ' + doc.data().name);
 
                 // if (playlistsList.includes())
                 if (playlistsList.filter(
@@ -129,15 +138,12 @@ class Playlists extends Component {
                                 e.playlistID === playlistID; 
                     }
                 ).length === 0) {
-                    const data = doc.data();
                   /* playlistsList doesn't contain the element we're looking for */
                     playlistsList.push({
                       deviceGroupId: deviceGroupId,
                       deviceGroupName: deviceGroupName,
                       playlistID: playlistID,
-                      playlistName: data.name,
-                      isActive: data.isActive,
-                      description: data.description
+                      playlistName: doc.data().name
                     });
                 }
 
@@ -161,8 +167,7 @@ class Playlists extends Component {
         try{
             this.userUserGroupsRef();
             this.userDeviceGroupsRef();
-            // this.playlistsRef();
-            // this.playlistsRef1();
+            this.playlistsRef();
         }
         catch(e) {};
     }
@@ -196,6 +201,54 @@ class Playlists extends Component {
             });
 
     };
+    deleteItem = (e, whichPlaylist, deviceGroupId) => {
+      if(this.state.debug) console.log("delete playlist "+whichPlaylist+" of device-group "+deviceGroupId);
+      e.preventDefault();
+      let that=this;
+      try{
+        //need to delete this playlist URLs -> 
+        //TODO: it is recomended to do this via a cloud function !!!
+        //https://firebase.google.com/docs/firestore/solutions/delete-collections
+        db.collection('URLs').where("playlistId", "==", whichPlaylist)
+          .get()
+          .then( snapshot => {
+          snapshot.forEach( doc => {
+            if (doc)
+            {
+              if(this.state.debug) console.log("deleteing URL: "+doc.id+ ' ' + JSON.stringify(doc.data()));
+              db.collection('URLs').doc(doc.id)
+                .delete()
+                .then(function() {
+                    // Force a render with a simulated state change
+                    that.setState(that.state);
+                    that.forceUpdate();
+                });
+            }
+          });
+        });
+        this.playlistsRef.doc(whichPlaylist)
+            .delete()
+            .then(function() {
+                // Force a render with a simulated state change
+                that.setState(that.state);
+                that.forceUpdate();
+            });
+
+        // delete this playlist from the device group
+        db.collection('device_groups').doc(deviceGroupId)
+            .collection('playlists').doc(whichPlaylist)
+            .delete()
+            .then(function() {
+                // Force a render with a simulated state change
+                that.setState(that.state);
+                that.forceUpdate();
+            });
+
+      }
+      catch(e) {
+          this.setState({errorMessage: e});
+      }
+    }
 
     resetQuery() {
         this.setState({
@@ -218,10 +271,10 @@ class Playlists extends Component {
             );
 
         return (
-            <div className="ui tab basic segment active" data-tab="playlists">
+            <div className="ui tab basic segment active" data-tab="usergroups">
                 <div className="ui basic segment silver-card">
                     <h4 className="ui grey header">
-                        Add a Playlist
+                        Add a User Group
                     </h4>
 
                     <form name="addItemForm" className="ui form" onSubmit={this.handleSubmit}>
@@ -264,7 +317,7 @@ class Playlists extends Component {
  
                 <div className="ui basic segment ">
                     <div className="ui header">
-                        <span className="ui blue header">Playlists</span>
+                        <span className="ui green header">Users</span>
                         <span className="header">&nbsp;&nbsp;(
                                         {filteredList && filteredList.length && filteredList.length < this.state.howManyPlaylists ? 
                                             filteredList.length + ' of '
@@ -298,7 +351,7 @@ class Playlists extends Component {
 
                 <div className="ui divider hidden"/>
                 <div>
-                    <PlaylistsList /*deleteItem={(e, whichPlaylist, deviceGroupId)=>this.deleteItem(e, whichPlaylist, deviceGroupId)}*/
+                    <UsergroupsList deleteItem={(e, whichPlaylist, deviceGroupId)=>this.deleteItem(e, whichPlaylist, deviceGroupId)}
                         distinctDeviceGroups = {distinctDeviceGroups}
                         playlists={filteredList} 
                         groups={groups}
@@ -311,4 +364,4 @@ class Playlists extends Component {
     }
 }
 
-export default Playlists;
+export default Usergroups;
