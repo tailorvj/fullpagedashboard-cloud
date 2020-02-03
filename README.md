@@ -1,4 +1,36 @@
+## FullPage Dashboard Cloud 0.2.1
+
+An experimental Serverless (Firebase) React web UI to control a swarm of browser page playlists. 
+
+[Demo](https://react-spas-tvj.firebaseapp.com/)
+
+## Project status
+
+The system is in an early exprimental stage. You can:
+
+* Create URL playlists
+* Add URLs to playlists
+* Mark a playlist as active
+
+## TODO
+
+* Complete data model for devices and users.
+* Add security rules to Firestore. 
+* Connect browsers to the database for remote control. 
+* Update React codebase to use functions. 
+
+## Changelog
+
+### 0.2.1
+
+* Fixed firebase deploy issue with functions.
+* Updated firebase library to 7.7.0.
+* Updated react-firebaseui library to 4.1.0.
+* Releasing existing code from branch develop to branch master. 
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Change Log
 
 ## Available Scripts
 
