@@ -4,13 +4,24 @@ An experimental Serverless (Firebase) React web UI to control a swarm of browser
 
 [Demo](https://react-spas-tvj.firebaseapp.com/)
 
-## Project status
+## Project status - not under active development
 
 The system is in an early exprimental stage. You can:
 
 * Create URL playlists
 * Add URLs to playlists
 * Mark a playlist as active
+
+# Coding workflow
+
+* Fork.
+* Clone to your system.
+* Checkout develop branch.
+* Create a new feature branch off of develop.
+* Develop your feature.
+* Test.
+* Push to github.
+* Create pull request. 
 
 ## TODO
 
